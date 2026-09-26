@@ -28,27 +28,28 @@
 //     residue of sum_{r: qr in C} r^{-1} mod q, and U = { q in S : rho(q) != 0 }.
 //     Every q in U must have a big neighbour (otherwise (*) fails at q) and an edge of G has
 //     at most one end in S, so   |G| >= |U|   and therefore   |C| + |U| <= |T| <= 46.
-//     If |C| + |U| = 46 then |G| = |U| exactly: every q in U has exactly one big
-//     neighbour, no other edge of G exists, so every big prime P is a "star" whose
-//     neighbours all lie in U; (*) at q in U forces P^{-1} == -rho(q) (mod q), and (*) at P
-//     forces P | n(B) := sum_{q in B} prod(B)/q, where B = N(P).
 //
 // 4.  Value.  Every edge of G has a prime factor >= 79.  If q in U, the edge joining q to a
 //     big prime is at most 1/(79q).  Hence  sum_C >= 1 - sum_{q in U} 1/(79 q) - V(46-|C|-|U|)
 //     where V(x) = sum of the x largest reciprocals of elements of P having a factor >= 79.
 //     Also sum_C <= 1.
 //
-// 5.  Computation.  Enumerate ALL cores C (subsets of the 210 semiprimes with both factors
-//     in S) with |C| + |U(C)| <= 46 that satisfy the value condition in 4.  This is a depth
-//     first search over the 21 primes of S in decreasing order; when prime p is processed,
-//     all of its core edges are fixed, so rho(p) is known and p is either satisfied or put
-//     into U (which costs one unit of the 46-budget).  For every surviving core:
-//       - if U is empty, C itself would be a solution;
-//       - if |C|+|U| <= 45 (and U nonempty) the core is reported as UNRESOLVED;
-//       - if |C|+|U| = 46 we test every partition of U into blocks B and every prime P>73
-//         with P == (-rho(q))^{-1} (mod q) for q in B and P | n(B) (these are the only
-//         possible completions by 3).
-//     The run finds no solution and no unresolved core, which proves the answer is NO.
+// 5.  Computation.  Step 1 enumerates ALL cores C (subsets of the 210 semiprimes with both
+//     factors in S) with |C| + |U(C)| <= 46 that satisfy the value condition in 4.  This is a
+//     depth first search over the 21 primes of S in decreasing order; when prime p is
+//     processed, all of its core edges are fixed, so rho(p) is known and p is either
+//     satisfied or put into U (which costs one unit of the 46-budget).
+//     Step 2 decides for every surviving core whether a big part G can complete it: with
+//     d_q = number of big neighbours of q in S and b = number of big-big edges,
+//       - d_q >= 1 on U, d_q in {0} u [2,inf) off U, and the excess
+//         b + sum_{U}(d_q-1) + sum_{not U} d_q = |G| - |U| <= 46 - |C| - |U|;
+//       - parity at 2: rho(2) + d_2 is even (every big prime is odd);
+//       - value: 1 - sum_C <= sum_{d_q=1} 1/(q Pmin(q)) + sum_{d_q>=2} sum_{k<d_q} 1/(q b_k)
+//         + b/(79*83), Pmin(q) = least prime > 73 congruent to (-rho(q))^{-1} mod q;
+//       - if b = 0 every big prime is a star P | n(A), A = its neighbours in S, |A| <= 10;
+//         all such stars are listed and an exact cover (multiplicities d_q, residues) is
+//         searched.  A surviving shape with b > 0 would be reported as UNRESOLVED.
+//     The run finds no solution and nothing unresolved, which proves the answer is NO.
 //
 // Usage:  ./semiprime_reciprocals [threads] [--selftest]
 //   --selftest additionally (a) finds and exactly verifies all 47-term solutions whose
@@ -64,6 +65,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <functional>
 #include <map>
 #include <mutex>
 #include <numeric>
@@ -192,6 +194,7 @@ struct Engine {
     mutex mx;
     atomic<long long> nodes{0};
     long long endStates = 0, endTight = 0, unresolved = 0;
+    long long shapesTried = 0, shapesAlive = 0, starCands = 0, coresWithShape = 0;
     vector<vector<pair<u64, u64>>> solutions;
     vector<string> unresolvedList;
     bool verbose = true;
@@ -215,6 +218,7 @@ struct Engine {
             for (int x = 1; x <= KT + 1; ++x) VB[x] = VB[x - 1] + recipUp(bs[x - 1]);
         }
         GV.resize(m); for (int j = 0; j < m; ++j) GV[j] = recipUp(bigMin * pr[j]);
+        for (int p : primesUpTo(20 * SB + 1000)) if (p > SB && bigList.size() < 64) bigList.push_back((u64)p);
         // Star-size lemma: a big prime P with d neighbours, all in S, contributes at most
         // (1/bigMin) * (sum of the d largest 1/q, q in S); the other <= KT-d elements of T
         // contribute at most H_{KT-d}.  If the total is < 1, such a star cannot occur.
@@ -275,44 +279,140 @@ struct Engine {
         }
     }
 
-    // ---- completion of a tight core (|C|+|U| = KT) by stars of big primes ----
-    // U given as list of (q, rho(q)).  Tries all partitions of U into blocks B with a prime
-    // P > SB, P == (-rho(q))^{-1} mod q for q in B, P | n(B).  Returns true and the big
-    // edges if a completion exists.
-    bool blockPrime(const vector<pair<int, int>>& blk, u64& Pout) const {
-        if (blk.size() < 2) return false;                     // a big prime needs >= 2 neighbours
-        if ((int)blk.size() > maxStar) return false;          // impossible by the star-size lemma
-        u64 D = 1; for (auto& x : blk) D *= (u64)x.first;      // <= 73*71*...*37 < 2^58 (<= 10 primes)
-        u64 n = 0; for (auto& x : blk) n += D / (u64)x.first;  // n(B) < 2D since sum 1/q < 2
-        // CRT: P == a_q (mod q), a_q = (-rho)^{-1} mod q
-        u64 X = 0, Mo = 1;
-        for (auto& x : blk) {
-            u64 q = x.first, a = invmodPrime((u64)((q - x.second % q) % q), q);
-            u64 t = (u64)((a + q - X % q) % q) * invmodPrime(Mo % q, q) % q;
-            X += Mo * t; Mo *= q;
+    // ---------------- completion of a core by big primes (README, section 4) ----------------
+    // A completion G of a core C is a set of <= KT-|C| elements of P, each with a prime factor
+    // > SB, such that C u G satisfies (*) everywhere.  Its "shape" is
+    //   d_q  = number of big neighbours of q in S,   nbb = number of edges joining two big primes.
+    // Necessary conditions (all proved in the README):
+    //   (i)   d_q >= 1 for q in U;  d_q = 0 or d_q >= 2 for q in S \ U;
+    //   (ii)  excess E = nbb + sum_{q in U} (d_q - 1) + sum_{q not in U} d_q <= KT - |C| - |U|;
+    //   (iii) parity at 2: every big prime is odd, so rho(2) + d_2 is even;
+    //   (iv)  value: 1 - sum_C = sum_G <= sum_{q in U, d_q = 1} 1/(q*Pmin(q))
+    //                 + sum_{d_q >= 2} sum_{k < d_q} 1/(q*b_k) + nbb/(b_0*b_1),
+    //         where b_0 < b_1 < ... are the primes > SB and Pmin(q) is the least prime > SB with
+    //         Pmin(q) == (-rho(q))^{-1} (mod q) (the only big neighbour of q must be in this class).
+    // If nbb = 0 every big prime P has all its neighbours in W = {q : d_q >= 1}, so P | n(A) for
+    // its neighbour set A; these finitely many stars are found by factoring n(A) and an exact
+    // cover (with multiplicities d_q and the residue conditions) is searched.  A surviving
+    // shape with nbb > 0 would be reported as unresolved (none occurs).
+    vector<u64> bigList;                       // the first primes > SB
+    u64 pminFor(int qi, int r) const {         // least prime P > SB with P == (-r)^{-1} mod pr[qi]
+        u64 q = pr[qi]; u64 a = invmodPrime((q - (u64)r % q) % q, q);
+        u64 P = a; while (P <= (u64)SB || !isPrime64(P)) P += q;
+        return P;
+    }
+    static u64 rhoFactor(u64 n) {              // a nontrivial factor of composite n (Pollard rho)
+        if (n % 2 == 0) return 2;
+        for (u64 c = 1;; ++c) {
+            u64 x = 2, y = 2, d = 1;
+            auto f = [&](u64 v) { return (mulmod(v, v, n) + c) % n; };
+            while (d == 1) { x = f(x); y = f(f(y)); d = gcd(x > y ? x - y : y - x, n); }
+            if (d != n) return d;
         }
-        for (u64 P = X; P <= n;) {                            // P | n(B) forces P <= n(B) < 2D
-            if (P > (u64)SB && n % P == 0 && isPrime64(P)) { Pout = P; return true; }
-            if (n - P < D) break;
-            P += D;
+    }
+    static void factorInto(u64 n, vector<u64>& out) {
+        if (n == 1) return;
+        if (isPrime64(n)) { out.push_back(n); return; }
+        u64 d = rhoFactor(n); factorInto(d, out); factorInto(n / d, out);
+    }
+    struct Star { u64 P; uint32_t mask; };      // mask over the index list W
+    // exact cover of W with multiplicities need[], distinct primes, residue conditions
+    bool coverSearch(const vector<int>& W, const vector<int>& rhoW, vector<int>& need, vector<int>& resid,
+                     const vector<Star>& cand, vector<u64>& usedP, vector<pair<u64, u64>>& out) const {
+        int w = (int)W.size(), first = -1;
+        for (int i = 0; i < w; ++i) if (need[i] > 0) { first = i; break; }
+        if (first < 0) {
+            for (int i = 0; i < w; ++i) { int q = pr[W[i]]; if ((resid[i] + rhoW[i]) % q != 0) return false; }
+            return true;
+        }
+        for (auto& st : cand) {
+            if (!(st.mask >> first & 1)) continue;
+            bool ok = true;
+            for (int i = 0; i < w && ok; ++i) if ((st.mask >> i & 1) && need[i] == 0) ok = false;
+            for (u64 P : usedP) if (P == st.P) ok = false;
+            if (!ok) continue;
+            for (int i = 0; i < w; ++i) if (st.mask >> i & 1) { --need[i]; resid[i] = (int)((resid[i] + invmodPrime(st.P, pr[W[i]])) % pr[W[i]]); }
+            usedP.push_back(st.P);
+            size_t keep = out.size();
+            for (int i = 0; i < w; ++i) if (st.mask >> i & 1) out.push_back({(u64)pr[W[i]], st.P});
+            if (coverSearch(W, rhoW, need, resid, cand, usedP, out)) return true;
+            out.resize(keep); usedP.pop_back();
+            for (int i = 0; i < w; ++i) if (st.mask >> i & 1) { ++need[i]; resid[i] = (int)((resid[i] + pr[W[i]] - invmodPrime(st.P, pr[W[i]])) % pr[W[i]]); }
         }
         return false;
     }
-    bool partitionSearch(vector<pair<int, int>>& rest, vector<pair<u64, u64>>& bigEdges) const {
-        if (rest.empty()) return true;
-        pair<int, int> first = rest[0];
-        int r = (int)rest.size() - 1;
-        for (uint32_t mask = 0; mask < (1u << r); ++mask) {
-            vector<pair<int, int>> blk{first}, other;
-            for (int i = 0; i < r; ++i) (mask >> i & 1 ? blk : other).push_back(rest[i + 1]);
-            u64 P;
-            if (!blockPrime(blk, P)) continue;
-            size_t keep = bigEdges.size();
-            for (auto& x : blk) bigEdges.push_back({(u64)x.first, P});
-            if (partitionSearch(other, bigEdges)) return true;
-            bigEdges.resize(keep);
+    // star search for a shape without big-big edges; d[i] = multiplicity of pr[i]
+    bool starCover(const vector<int>& d, const vector<int>& rhoAll, vector<pair<u64, u64>>& out, long long& nCand) const {
+        vector<int> W, rhoW;
+        for (int i = 0; i < m; ++i) if (d[i] > 0) { W.push_back(i); rhoW.push_back(rhoAll[i]); }
+        int w = (int)W.size();
+        vector<Star> cand;
+        for (uint32_t mask = 1; mask < (1u << w); ++mask) {
+            int k = __builtin_popcount(mask);
+            if (k < 2 || k > maxStar) continue;       // a big prime has >= 2 neighbours; star-size lemma
+            u64 D = 1; for (int i = 0; i < w; ++i) if (mask >> i & 1) D *= (u64)pr[W[i]];
+            u64 n = 0; for (int i = 0; i < w; ++i) if (mask >> i & 1) n += D / (u64)pr[W[i]];
+            u64 r = n; for (int i = 0; i < m; ++i) while (r % pr[i] == 0) r /= pr[i];   // factors <= SB are irrelevant
+            vector<u64> fs; factorInto(r, fs); sort(fs.begin(), fs.end()); fs.erase(unique(fs.begin(), fs.end()), fs.end());
+            for (u64 P : fs) {
+                bool ok = true;                          // q with d_q = 1 must be fixed by P alone
+                for (int i = 0; i < w && ok; ++i)
+                    if ((mask >> i & 1) && d[W[i]] == 1) {
+                        u64 q = pr[W[i]];
+                        if ((invmodPrime(P, q) + (u64)rhoW[i]) % q != 0) ok = false;
+                    }
+                if (ok) cand.push_back(Star{P, mask});
+            }
         }
-        return false;
+        nCand += (long long)cand.size();
+        vector<int> need(w), resid(w, 0); for (int i = 0; i < w; ++i) need[i] = d[W[i]];
+        vector<u64> usedP;
+        return coverSearch(W, rhoW, need, resid, cand, usedP, out);
+    }
+    struct CompletionResult { bool solution = false, unresolved = false; long long shapes = 0, shapesAlive = 0, cand = 0;
+                              vector<pair<u64, u64>> bigEdges; string note; };
+    // U: bitmask of unsatisfied primes (indices), rhoAll[i] = full core residue, c = |C|,
+    // su = upper bound for the core sum (fixed point).
+    CompletionResult complete(uint32_t U, const vector<int>& rhoAll, int c, u128 su) const {
+        CompletionResult R;
+        int e = __builtin_popcount(U);
+        int slack = KT - c - e;
+        u128 Zlo = su >= ONE ? 0 : ONE - su;          // lower bound for Z = 1 - sum_C
+        vector<u128> single(m, 0);
+        for (int i = 0; i < m; ++i) if (U >> i & 1) single[i] = recipUp((u64)pr[i] * pminFor(i, rhoAll[i]));
+        auto multiVal = [&](int i, int dq) { u128 v = 0; for (int k = 0; k < dq; ++k) v += recipUp((u64)pr[i] * bigList[k]); return v; };
+        vector<int> d(m, 0);
+        // recursive enumeration of shapes
+        function<void(int, int, u128)> rec = [&](int i, int used, u128 ub) {
+            if (R.solution || R.unresolved) return;
+            if (i == m) {
+                if ((rhoAll[0] + d[0]) % 2 != 0) return;   // (iii) parity at 2 (rhoAll[0]=0 if 2 not in U)
+                for (int nbb = 0; used + nbb <= slack; ++nbb) {
+                    ++R.shapes;
+                    u128 tot = ub + (u128)nbb * recipUp(bigList[0] * bigList[1]);
+                    if (tot < Zlo) continue;                   // (iv)
+                    ++R.shapesAlive;
+                    if (nbb > 0) {
+                        R.unresolved = true;
+                        R.note = "shape with " + to_string(nbb) + " big-big edge(s) not excluded";
+                        return;
+                    }
+                    vector<pair<u64, u64>> out;
+                    if (starCover(d, rhoAll, out, R.cand)) { R.solution = true; R.bigEdges = out; return; }
+                }
+                return;
+            }
+            if (U >> i & 1) {
+                d[i] = 1; rec(i + 1, used, ub + single[i]);
+                for (int dq = 2; used + dq - 1 <= slack; ++dq) { d[i] = dq; rec(i + 1, used + dq - 1, ub + multiVal(i, dq)); }
+            } else {
+                d[i] = 0; rec(i + 1, used, ub);
+                for (int dq = 2; used + dq <= slack; ++dq) { d[i] = dq; rec(i + 1, used + dq, ub + multiVal(i, dq)); }
+            }
+            d[i] = 0;
+        };
+        rec(0, 0, 0);
+        return R;
     }
 
     // Work distribution: every thread walks the (small) part of the tree above level splitJ in
@@ -332,23 +432,26 @@ struct Engine {
             if (su + gz + E.VB[E.KT - c - e] < ONE) return;           // value condition (section 4)
             vector<pair<u64, u64>> T;
             for (auto& x : edges) T.push_back({(u64)E.pr[x.first], (u64)E.pr[x.second]});
+            if (e == 0) {                                              // C alone satisfies (*)
+                lock_guard<mutex> g(E.mx); E.endStates++;
+                if (c > 0) E.solutions.push_back(T);
+                return;
+            }
+            vector<int> rhoAll(E.m, 0);
+            for (int q = 0; q < E.m; ++q) if (U >> q & 1) rhoAll[q] = rho[q];
+            CompletionResult R = E.complete(U, rhoAll, c, su);
             lock_guard<mutex> g(E.mx);
             E.endStates++;
-            if (e == 0) { if (c > 0) E.solutions.push_back(T); return; }
-            if (c + e < E.KT) {
+            if (c + e == E.KT) E.endTight++;
+            E.shapesTried += R.shapes; E.shapesAlive += R.shapesAlive; E.starCands += R.cand;
+            if (R.shapesAlive) E.coresWithShape++;
+            if (R.unresolved) {
                 E.unresolved++;
                 string s = "c=" + to_string(c) + " U={";
                 for (int q = 0; q < E.m; ++q) if (U >> q & 1) s += " " + to_string(E.pr[q]) + ":" + to_string(rho[q]);
-                s += " }"; E.unresolvedList.push_back(s); return;
+                s += " } " + R.note; E.unresolvedList.push_back(s);
             }
-            E.endTight++;
-            vector<pair<int, int>> Ul;
-            for (int q = 0; q < E.m; ++q) if (U >> q & 1) Ul.push_back({E.pr[q], rho[q]});
-            vector<pair<u64, u64>> bigEdges;
-            if (E.partitionSearch(Ul, bigEdges)) {
-                for (auto& b : bigEdges) T.push_back(b);
-                E.solutions.push_back(T);
-            }
+            if (R.solution) { for (auto& b : R.bigEdges) T.push_back(b); E.solutions.push_back(T); }
         }
         void dfs(int j, int c, u128 su, u128 sl) {
             if (j == splitJ) {
@@ -434,11 +537,13 @@ int main(int argc, char** argv) {
     int threads = (int)thread::hardware_concurrency(); if (threads <= 0) threads = 4;
     bool selftest = false, runMain = true, onlyC = false;
     int budget = 46;      // --budget N : search |T| <= N instead (N <= 46 keeps H_N < 2)
+    int splitPrime = 61;  // --split p : level (prime) at which work is distributed over threads
     for (int a = 1; a < argc; ++a) {
         if (!strcmp(argv[a], "--selftest")) selftest = true;
         else if (!strcmp(argv[a], "--skip-main")) runMain = false;          // (testing aid)
         else if (!strcmp(argv[a], "--star-unit-test")) { selftest = true; onlyC = true; }
         else if (!strcmp(argv[a], "--budget") && a + 1 < argc) budget = atoi(argv[++a]);
+        else if (!strcmp(argv[a], "--split") && a + 1 < argc) splitPrime = atoi(argv[++a]);
         else threads = max(1, atoi(argv[a]));
     }
     if (budget < 1 || budget > 46) { printf("budget must be in 1..46\n"); return 1; }
@@ -470,9 +575,11 @@ int main(int argc, char** argv) {
         printf("threads = %d\n", threads); fflush(stdout);
         Engine E(73, budget, true);
         printf("largest possible star (neighbours of one big prime): %d\n", E.maxStar);
-        E.run(threads, 59);
+        E.run(threads, splitPrime);
         printf("search nodes           : %lld\n", (long long)E.nodes);
         printf("cores passing all tests: %lld (of which |C|+|U| = %d: %lld)\n", E.endStates, budget, E.endTight);
+        printf("completion shapes      : %lld tried, %lld pass parity+value (in %lld cores), %lld candidate stars\n",
+               E.shapesTried, E.shapesAlive, E.coresWithShape, E.starCands);
         printf("unresolved cores       : %lld\n", E.unresolved);
         for (auto& s : E.unresolvedList) printf("    UNRESOLVED %s\n", s.c_str());
         printf("solutions found        : %zu\n", E.solutions.size());
@@ -499,23 +606,27 @@ int main(int argc, char** argv) {
             vector<pair<u64, u64>> K;
             for (u64 n : known) for (u64 p = 2; p * p <= n; ++p) if (n % p == 0) { K.push_back({p, n / p}); break; }
             printf("exact sum of the 47 reciprocals == 1 : %s\n", exactSumIsOne(K) ? "yes" : "NO");
-            // treat primes > 53 as "big": core = edges inside S = primes <= 53 (only 59 is big)
-            Engine Z(53, 47, true);
-            map<u64, int> rhoMap;
-            for (auto& e : K) if (e.second <= 53) {
-                rhoMap[e.first] = (int)((rhoMap[e.first] + invmodPrime(e.second, e.first)) % e.first);
-                rhoMap[e.second] = (int)((rhoMap[e.second] + invmodPrime(e.first, e.second)) % e.second);
+            // (c1) S = primes <= 53: only 59 is big, tight case (|C|+|U| = 47).
+            // (c2) S = primes <= 43: 47 and 59 are big and 2 has two big neighbours (excess 2).
+            for (int sb : {53, 43}) {
+                Engine Z(sb, 47, true);
+                vector<int> rhoAll(Z.m, 0); int coreSize = 0; u128 su = 0;
+                auto idx = [&](u64 p) { for (int i = 0; i < Z.m; ++i) if ((u64)Z.pr[i] == p) return i; return -1; };
+                for (auto& e : K) if ((int)e.second <= sb) {
+                    ++coreSize; su += recipUp(e.first * e.second);
+                    int a = idx(e.first), b = idx(e.second);
+                    rhoAll[a] = (int)((rhoAll[a] + invmodPrime(e.second, e.first)) % e.first);
+                    rhoAll[b] = (int)((rhoAll[b] + invmodPrime(e.first, e.second)) % e.second);
+                }
+                uint32_t Um = 0; for (int i = 0; i < Z.m; ++i) if (rhoAll[i]) Um |= 1u << i;
+                printf("S = primes <= %d: core size %d, |U| = %d, U =", sb, coreSize, __builtin_popcount(Um));
+                for (int i = 0; i < Z.m; ++i) if (Um >> i & 1) printf(" %d", Z.pr[i]);
+                printf("\n");
+                Engine::CompletionResult R = Z.complete(Um, rhoAll, coreSize, su);
+                printf("  completion found: %s ->", R.solution ? "yes" : "NO");
+                for (auto& b : R.bigEdges) printf(" %llu*%llu", b.first, b.second);
+                printf("\n");
             }
-            vector<pair<int, int>> Ul; for (auto& x : rhoMap) if (x.second) Ul.push_back({(int)x.first, x.second});
-            int coreSize = 0; for (auto& e : K) if (e.second <= 53) ++coreSize;
-            printf("core size %d, |U| = %zu, U =", coreSize, Ul.size());
-            for (auto& x : Ul) printf(" %d", x.first);
-            printf("\n");
-            vector<pair<u64, u64>> bigEdges;
-            bool ok = Z.partitionSearch(Ul, bigEdges);
-            printf("star completion found: %s ->", ok ? "yes" : "NO");
-            for (auto& b : bigEdges) printf(" %llu*%llu", b.first, b.second);
-            printf("\n");
         }
         if (!onlyC) {
         printf("\n=== Self test (b): full machinery with S = primes <= 53, budget 47 ===\n"); fflush(stdout);
