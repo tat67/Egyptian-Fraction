@@ -113,7 +113,14 @@ The best completion is bounded by the largest remaining core reciprocals plus th
 * If `U = ∅`, the core satisfies (*) everywhere. Its sum is then an integer in `(0, 2)`, hence 1, so `T = C` would be a solution.
 * Otherwise the program enumerates every shape `(d_q)_{q∈S}, b` allowed by Lemma 4 (1)–(3) and discards those violating the value bound (4). For each remaining shape with `b = 0`, it lists all stars `(P, A)` with `A ⊆ {q : d_q ≥ 1}`, `2 ≤ |A| ≤ 10`, `P > 73` a prime factor of `n(A)`, and `P ≡ (−ρ(q))^{-1} (mod q)` whenever `d_q = 1`. It then searches exactly for a family of distinct stars that covers every `q` exactly `d_q` times with the right residue sums. A surviving shape with `b > 0` would be reported as *unresolved*.
 
-**Result of the run:** RESULT_PLACEHOLDER
+**Result of the run.** The depth-first search visits `1.4·10^11` nodes.
+
+* Exactly 178 cores survive Step 1: 111 with `|C| + |U| = 46` and 67 with `|C| + |U| ≤ 45`. None has `U = ∅`.
+* Across these cores, Step 2 enumerates 3777 shapes satisfying Lemma 4 (1)–(3).
+* Only 61 shapes also pass the value bound (4). All of them have `b = 0`.
+* For none of these 61 shapes does even one admissible star exist.
+
+So no core can be completed, and nothing is left unresolved. I also recomputed the 178 cores independently in Python with exact rationals. That check gives the same numbers: 61 feasible shapes and no star candidates.
 
 So no `T` with `|T| ≤ 46` exists. ∎
 
@@ -142,4 +149,30 @@ So no `T` with `|T| ≤ 46` exists. ∎
     ./semiprime_reciprocals --selftest # proof plus the self-tests above
     ./semiprime_reciprocals --budget 44  # smaller budgets (quick sanity runs)
 
-RUNTIME_PLACEHOLDER
+On 4 cores the proof run takes about 20 minutes and under 300 MB of memory. The self-tests add about 15 minutes. Output of the proof run:
+
+    === Part 1: the smallest squarefree semiprimes ===
+    46 smallest elements of P: 6 10 14 15 21 22 26 33 34 35 38 39 46 51 55 57 58 62 65 69 74 77 82 85 86 87 91 93 94 95 106 111 115 118 119 122 123 129 133 134 141 142 143 145 146 155
+    H_46 = sum of their reciprocals < 1.057751   (exact check H_46 < 2: yes)
+    exact checks: H_37 < 1: yes,  H_38 > 1: yes   => any solution has 38..46 terms and sum exactly 1
+
+    === Part 2: exhaustive search (S = primes <= 73, |C|+|U| <= 46) ===
+    threads = 4
+    largest possible star (neighbours of one big prime): 10
+    search nodes           : 139830520211
+    cores passing all tests: 178 (of which |C|+|U| = 46: 111)
+    completion shapes      : 3777 tried, 61 pass parity+value (in 61 cores), 0 candidate stars
+    unresolved cores       : 0
+    solutions found        : 0
+    elapsed: 1179 s
+
+    === RESULT ===
+    No nonempty set T of squarefree semiprimes with |T| <= 46 has an integral sum of reciprocals.
+
+The count of search nodes depends slightly on the number of threads, because each thread repeats the small part of the tree above the split level.
+
+## Files
+
+* `semiprime_reciprocals.cpp`: the complete proof program. It is integer-only, needs C++11 or later and `unsigned __int128` (GCC or Clang).
+* `proof_run_output.txt`: output of the proof run (4 threads).
+* `selftest_output.txt`: output of `--selftest`, restricted to the self-test part.
