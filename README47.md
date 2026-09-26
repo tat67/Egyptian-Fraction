@@ -2,7 +2,21 @@
 
 **Problem.** Let `P = { p·q : p < q primes }`. Find every `T ⊆ P` with `|T| = 47` and `Σ_{n∈T} 1/n = 1`. Verify each one exactly, and prove that the list is complete.
 
-**Answer.** COUNT_PLACEHOLDER
+**Answer. There are exactly 23 such subsets.**
+
+* 17 of them use only primes `≤ 73`. They are also exactly the solutions whose primes are all `≤ 101`, which is consistent with the 17 examples in Watanabe's search (arXiv:2009.03275) restricted to primes `≤ 101`.
+* 6 of them use exactly one prime above 73. In each case that prime `P` is joined to exactly three small primes `a, b, c`, and `P` divides `ab + ac + bc`.
+
+  | big prime `P` | neighbours `{a, b, c}` | `ab + ac + bc` |
+  |---|---|---|
+  | 269 | {5, 11, 47} | 807 = 3·269 |
+  | 311 | {3, 5, 37} | 311 |
+  | 421 | {29, 43, 47} | 4631 = 11·421 |
+  | 433 | {3, 37, 73} | 3031 = 7·433 |
+  | 503 | {3, 13, 29} | 503 |
+  | 3779 | {29, 37, 41} | 3779 |
+
+Every one of the 23 sets was verified with exact rational arithmetic, in both the C++ program and Python.
 
 The full list is in [`solutions47.txt`](solutions47.txt). The program `semiprime47.cpp` finds the list and proves it complete; it uses no floating point.
 
@@ -49,14 +63,23 @@ For a core, a completion is a set `G` with `Σ_G = 1 − Σ_C`. Its *shape* cons
 
 Three kinds of shape can survive these tests.
 
-* **`b = 0`.** Every big prime `P` is a *star* whose neighbours `A` all lie in `S`. Then `P | n(A) = Σ_{q∈A} Π A / q`, so `P` is one of finitely many prime factors. Stars have at most 10 neighbours (star-size lemma). The program enumerates every exact cover of the multiplicities `d_q` by distinct stars and keeps the covers whose value equals `1 − Σ_C` exactly.
+* **`b = 0`.** Every big prime `P` is a *star* whose neighbours `A` all lie in `S`. Then `P | n(A) = Σ_{q∈A} Π A / q`, so `P` is one of finitely many prime factors. Stars have at most 11 neighbours (star-size lemma). The program enumerates every exact cover of the multiplicities `d_q` by distinct stars and keeps the covers whose value equals `1 − Σ_C` exactly.
 * **`b = 1`.** There is one component `{P1, P2}` joined by the edge `P1P2`, with attachment sets `A1` and `A2`; all other big primes are stars.
   * Put `b_i = Π A_i`, `a_i = Σ_{q∈A_i} b_i / q`, and `t = Z_K · b1 · b2`, where `Z_K` is the component's value.
   * Then `t` is a positive integer and `(t·P1 − a1·b2)(t·P2 − a2·b1) = b1·b2·(t + a1·a2)`.
   * This equation is equivalent to (*) at `P1` and `P2`, so every solution comes from a divisor of the right-hand side.
 * **`b ≥ 2`.** Such a shape would be reported as unresolved.
 
-**Result of the run:** RUN_PLACEHOLDER
+**Result of the run.** The depth-first search visits `1.8·10^12` nodes.
+
+* Step 1 leaves 22,382 cores: 11,287 with `|C| + |U| = 47`, and 17 with `U = ∅`, which are complete solutions on their own.
+* Across these cores, Step 2 examines 1,107,702 shapes. Only 8,049 of them, in 7,432 cores, pass parity and the value bound.
+* None of the surviving shapes has `b ≥ 2`, so nothing is unresolved.
+* Among the surviving shapes, 125 candidate stars exist in total.
+* Every big prime that occurs is below `2^64`, so every primality decision is deterministic (no probable primes).
+* The completions yield exactly the 6 big-prime solutions. The cores with `U = ∅` give the 17 solutions with all primes `≤ 73`.
+
+**Hence the 23 listed sets are all 47-element subsets of `P` with reciprocal sum 1.** ∎
 
 ### 5. Verification
 
@@ -65,7 +88,9 @@ Every set in the list is checked in two ways:
 * it consists of 47 distinct squarefree semiprimes, with deterministic primality tests on the factors;
 * the sum of its reciprocals is exactly 1, computed as a big-integer fraction.
 
-There is also an independent Python implementation of Step 2 (`complete47.py`), using exact fractions. It re-solves every core dumped by Step 1 and reproduces the same list.
+There is also an independent Python implementation of Step 2 (`complete47.py`), using exact fractions and its own factoring and cover code. It re-solves all 22,382 cores dumped by Step 1 (`cores47.txt.gz`). It finds the same 23 solutions and 0 unresolved cores; see `run47_python_crosscheck.txt`.
+
+All 21 solutions found in earlier runs are among the 23.
 
 ---
 
@@ -74,4 +99,6 @@ There is also an independent Python implementation of Step 2 (`complete47.py`), 
     g++ -O3 -march=native -pthread -o semiprime47 semiprime47.cpp
     ./semiprime47 4 --selftest --dump cores47.txt
 
-RUNTIME_PLACEHOLDER
+The recorded run (`run47_output.txt`) took 5 h 48 min wall time on 4 threads, 20,898 s for the search, and needs about 300 MB of memory. To re-check Step 2 without repeating the search:
+
+    gunzip -k cores47.txt.gz && python3 complete47.py cores47.txt 47
