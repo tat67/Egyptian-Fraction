@@ -1,2 +1,4 @@
 semiprime_reciprocals
+semiprime47
 *.o
+__pycache__/
