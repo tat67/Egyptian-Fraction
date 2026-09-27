@@ -1,0 +1,5 @@
+Second full run of compute_f.py (output f_values_rerun.jsonl, not kept) vs the recorded run (f_values.jsonl.gz)
+M values compared: 1000
+f(M) identical for all M <= 1000: True
+statuses in rerun: {'M_inadmissible': 474, 'OPTIMAL': 394, 'no_larger': 132}
+sizes n >= 3 without a witness in rerun: []

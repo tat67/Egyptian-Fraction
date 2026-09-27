@@ -186,3 +186,7 @@ The search itself is stated as the explicit hypothesis `Search46`. The theorem `
 * `semiprime_reciprocals.cpp`: the complete proof program. It is integer-only, needs C++11 or later and `unsigned __int128` (GCC or Clang).
 * `proof_run_output.txt`: output of the proof run (4 threads).
 * `selftest_output.txt`: output of `--selftest`, restricted to the self-test part.
+
+## Related: OEIS A030659
+
+[`a030659/`](a030659/README.md) extends OEIS A030659 to every term with `a(n) ≤ 1000`, i.e. `n = 3..473`. A030659 is the smallest possible largest denominator in a representation of 1 as a sum of `n` distinct unit fractions. The directory holds the b-file, an exactly verified witness for every term, and the solver-based upper bounds.
