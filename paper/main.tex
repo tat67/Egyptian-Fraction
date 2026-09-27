@@ -24,7 +24,7 @@ The proofs are computer-assisted.
 A $p$-adic argument turns integrality into a congruence condition at every vertex of a graph on the primes.
 A decomposition into a ``core'' of small primes and a ``large-prime part'', together with value, parity and star-size lemmas and an explicit divisor equation for a single edge between two large primes, reduces the problem to a finite exhaustive computation, even though arbitrarily large prime factors are allowed.
 The computation uses exact integer arithmetic and directed rounding only.
-We describe independent checks: a second implementation of the completion step, a brute-force validation of the core enumeration on reduced instances, and an exact verification of all $23$ solutions.
+We describe independent checks: a second implementation of the completion step, repeated executions of both searches with identical results, a brute-force validation of the core enumeration on reduced instances, and an exact verification of all $23$ solutions.
 The analytic reduction and the $23$ solutions are verified in Lean~4 with Mathlib; there the completeness statements are derived from explicitly stated hypotheses that encode the outcome of the exhaustive searches, and these hypotheses themselves are not verified in Lean.
 \end{abstract}
 
@@ -748,7 +748,7 @@ For this paper we reran it with additional counters (\file{paper/verification/an
 
 \emph{Limitations.} The Python program checks Step~2 only. It consumes the output of the C++ Step~1 and cannot detect a core that Step~1 failed to output. It was written within the same project and implements the same mathematical reduction (\cref{sec:core,sec:stars}), so it is an independent \emph{implementation}, not an independent \emph{argument}.
 
-\subsection{Re-execution and the budget-46 cross-check}\label{sec:rerun}
+\subsection{Re-executions and the budget-46 cross-check}\label{sec:rerun}
 
 \input{tables/rerun_text.tex}
 
@@ -802,7 +802,7 @@ The following are \emph{not} independently verified:
 \item the correctness of the compiler and the hardware;
 \item the informal correspondence of \cref{sec:claimmatch} between \cref{claim:46,claim:47} and the source code.
 \end{itemize}
-The budget-$46$ Step~1 was, however, executed three times with identical results: in the recorded run, in a re-execution, and through the engine of the second program (\cref{sec:rerun}).
+The budget-$46$ Step~1 was, however, executed three times with identical results: in the recorded run, in a re-execution, and through the engine of the second program. The budget-$47$ search was executed twice, and the two runs produced identical core dumps and identical solution lists (\cref{sec:rerun}).
 
 % =====================================================================
 \section{Lean formalization}\label{sec:lean}
@@ -880,7 +880,7 @@ gunzip -k cores47.txt.gz && python3 complete47.py cores47.txt 47
 The recorded runs used $4$ threads. The budget-$46$ search took $1179$\,s (19\,min\,40\,s wall-clock), and the budget-$47$ run took $20\,898$\,s for the search and 5\,h\,48\,min wall-clock in total.
 The resident memory of the search is only a few megabytes; the virtual size of about $300$\,MB reported in the repository documentation consists mostly of thread stacks.
 The recorded outputs do not state the processor model.
-The re-execution of \cref{sec:rerun} used a cloud container with $4$ virtual CPUs (Intel Xeon, 2.10\,GHz) and GCC~13.3.0.
+The re-executions of \cref{sec:rerun} used a cloud container with $4$ virtual CPUs (Intel Xeon, 2.10\,GHz) and GCC~13.3.0. There the budget-$47$ search took $19\,388$\,s with $4$ threads.
 
 \paragraph{Files.}
 The repository (\repourl) contains the following files.
@@ -906,7 +906,7 @@ A single large--large edge is handled by an explicit factorization identity. Con
 \paragraph{Limitations.}
 The proofs are computer-assisted.
 \begin{itemize}
-\item Their weakest point is Step~1, which has a single implementation. This implementation has been tested against brute force on reduced instances and executed three times for budget $46$, but not reimplemented at full scale.
+\item Their weakest point is Step~1, which has a single implementation. This implementation has been tested against brute force on reduced instances and executed three times for budget $46$ and twice for budget $47$, with identical results, but not reimplemented at full scale.
 \item Step~2 has been implemented twice, and the two implementations agree.
 \item The reduction and the $23$ solutions are verified in Lean. The connection between the Lean hypotheses \lean{Search46} and \lean{Search47} and the C++ programs rests on the informal argument of \cref{sec:claimmatch}.
 \end{itemize}

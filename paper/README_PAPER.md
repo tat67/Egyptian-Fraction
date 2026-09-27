@@ -23,6 +23,7 @@ Both theorems are **computer-assisted**. The Lean formalization proves them *con
 | `verification/analyze47.py` | instrumented re-run of the Python Step-2 cross-check (`../complete47.py`, same logic plus counters) |
 | `verification/analyze47_budget47_output.txt` | its output on `../cores47.txt.gz` |
 | `verification/rerun/` | re-execution of the budget-46 proof program, and the budget-46 core dump with its Python Step-2 check |
+| `verification/rerun47/` | re-execution of the budget-47 search, with its core dump and a comparison against the recorded run (identical) |
 | `verification/step1_bruteforce/` | brute-force validation of the Step-1 core enumeration on reduced instances (`run_bruteforce.sh`) |
 | `verification/make_tables.py` | generates `tables/bruteforce_table.tex` and `tables/rerun_text.tex` from the logs |
 | `verification/lean_axioms_output.txt` | output of `lake env lean AxiomsCheck.lean` |
@@ -50,7 +51,7 @@ bash step1_bruteforce/run_bruteforce.sh           # ~2 min; Step-1 brute-force v
 python3 make_tables.py                             # regenerate the log-derived tables
 ```
 
-The budget-46 re-execution takes about 20–25 minutes on 4 cores. The reproduction commands are listed in `verification/rerun/README.md`.
+The budget-46 re-execution takes about 20–25 minutes on 4 cores, and the budget-47 re-execution about 5.4 hours. The reproduction commands are listed in `verification/rerun/README.md` and `verification/rerun47/README.md`.
 
 ## Items the authors must complete or check before submission
 

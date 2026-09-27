@@ -56,6 +56,11 @@ Recorded results, all re-checked:
   * The original program was rerun with 4 threads. Its output is identical to the recorded one, including the node count 139,830,520,211, except for the elapsed time.
   * A second execution through the engine of `semiprime47.cpp` gives identical numbers: 139,830,520,211 nodes, 178 cores, 3,777 and 61 shapes, 0 candidate stars, 0 unresolved, 0 solutions.
   * That run dumped all 178 cores. The Python Step 2 (`analyze47.py` and the original `complete47.py`, both with budget 46) confirms the result: 3,777 shapes, 61 surviving (all with b = 0), 0 candidate stars even without the 10-leaf bound, 0 unresolved and 0 solutions.
+* **Budget-47 re-execution** (`verification/rerun47/`).
+  * `semiprime47.cpp` was rerun with 4 threads and `--dump`.
+  * All printed quantities are identical to `run47_output.txt`, including 1,795,181,713,099 nodes, 22,382 cores, 1,107,702/8,049/7,432 shapes and 125 candidate stars.
+  * The 23-solution list is identical, and the new core dump equals `cores47.txt.gz` line for line (as a set).
+  * Only the timing differs: 19,388 s against 20,898 s.
 * **Brute-force validation of Step 1 on reduced instances** (`verification/step1_bruteforce/`).
   * Every core of `S = primes ≤ 13, 17, 19` was enumerated (2^15, 2^21 and 2^28 cores).
   * In all 48 configurations the check `SEG ⊆ DFS output ⊆ FIN` passes. The configurations cover 12 cutoff/budget pairs, table sizes 8 and 3, and 1 or 3 threads. The DFS output has no duplicates and does not depend on the thread count.
@@ -93,7 +98,7 @@ No discrepancy affects the truth of Theorems A and B, subject to the computation
 1. **Does the ≤46 search cover arbitrarily large primes?** Yes. Large primes enter only through `G`. The shape analysis covers every `G`. A star centre divides `n(A)`, so it is found by complete factorization. Shapes with a large–large edge would be reported as unresolved, and none survived.
 2. **Can any pruning rule discard a valid solution?** Not if the implementation is correct. Every test is a consequence of Lemma 3 for an upper segment, or of `|C|+|U| ≤ K` and `Σ_C ≤ 1`. Rounding is always in the safe direction (Lemma 6.1, Section 10). The brute-force tests support the implementation on reduced instances.
 3. **Is the upper-segment correction represented correctly?** Yes: Definition 4.5, Remark 4.6, Lemma 6.1, and the Lean `Admissible`.
-4. **Is every possible core enumerated?** Yes, by Lemma 6.1, assuming a correct implementation. This is the least independently checked component: one full-scale implementation, validated on reduced instances and executed three times for budget 46 (the recorded run, a rerun, and a run through the second program's engine).
+4. **Is every possible core enumerated?** Yes, by Lemma 6.1, assuming a correct implementation. This is the least independently checked component: one full-scale implementation, validated on reduced instances, executed three times for budget 46 (the recorded run, a rerun, and a run through the second program's engine), and executed twice for budget 47 with identical core dumps.
 5. **Is every completion shape enumerated?** Yes. Two independent implementations agree on all counts.
 6. **Is the star enumeration finite for a justified reason?** Yes: `P | n(A)` and `n(A) > 0` (Lemma 5.1, `starCand_finite`).
 7. **Is the `b = 1` argument correct?** Yes. It is proved in the paper and in Lean, with the corrected equivalence (integrality of `t`) and the positivity of both factors.
@@ -122,7 +127,7 @@ The two corrections in Section 6 (items 1 and 2) were found by the same tool dur
 
 ## 9. Remaining uncertainties
 
-* **Step 1 has a single full-scale implementation.** A bug that affects only large instances (for example, table-driven paths not exercised at small scale) cannot be excluded by the reduced-instance tests. It is mitigated by the soundness proof, careful code review, the reruns, and the consistency of the results: the 17 `U = ∅` solutions agree with a separate self-test run of the engine in a different mode (without unsatisfied primes), and every earlier-found solution is recovered.
+* **Step 1 has a single full-scale implementation.** It was executed three times for budget 46 and twice for budget 47, always with identical output. A bug that affects only large instances (for example, table-driven paths not exercised at small scale) cannot be excluded by the reduced-instance tests. It is mitigated by the soundness proof, careful code review, the reruns, and the consistency of the results: the 17 `U = ∅` solutions agree with a separate self-test run of the engine in a different mode (without unsatisfied primes), and every earlier-found solution is recovered.
 * **The correspondence between the C++ code and `Search46`/`Search47` is informal.**
 * **Correctness of the compiler and hardware is assumed.**
 * **Bibliography.** The Johnson citation and the details of Watanabe's search are unverified. The novelty claim relies on a limited literature search.

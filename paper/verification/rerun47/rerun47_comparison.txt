@@ -1,0 +1,16 @@
+quantity            recorded            re-execution        equal
+nodes              1795181713099       1795181713099       True
+cores              22382               22382               True
+tight              11287               11287               True
+shapes             1107702             1107702             True
+alive              8049                8049                True
+alive_cores        7432                7432                True
+cand               125                 125                 True
+unresolved         0                   0                   True
+probable           0                   0                   True
+bad                0                   0                   True
+search_s           20898               19388               False
+solution lists identical: True (23 / 23)
+re-execution solutions == solutions47.txt: True
+core dump lines: recorded 22382, re-execution 22382, identical as sets: True
+OVERALL: IDENTICAL (except timing)
