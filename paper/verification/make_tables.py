@@ -52,3 +52,20 @@ with open(os.path.join(HERE, '..', 'tables', 'rerun_text.tex'), 'w') as f:
        fmt(tot['cores']), fmt(tot['shapes']), fmt(tot['alive']), fmt(tot['cand_all']), fmt(p_unres), fmt(p_sols)))
     assert tot['alive_nbb1'] == 0 and tot['alive_nbb2plus'] == 0
 print(open(os.path.join(HERE, '..', 'tables', 'rerun_text.tex')).read())
+
+# ---------------------------------------------------------------- budget-47 re-execution (if available)
+cmp = os.path.join(HERE, 'rerun47', 'rerun47_comparison.txt')
+if os.path.exists(cmp):
+    c = open(cmp).read()
+    ident = 'OVERALL: IDENTICAL (except timing)' in c
+    secs = int(re.search(r'search_s\s+\d+\s+(\d+)', c).group(1))
+    with open(os.path.join(HERE, '..', 'tables', 'rerun_text.tex'), 'a') as f:
+        if ident:
+            f.write(r"""
+\paragraph{Re-execution of the budget-47 search.} The program \file{semiprime47.cpp} was also executed again, with $4$ threads and the option \code{--dump}, on the same machine. All printed quantities coincide with the recorded \file{run47_output.txt}: the node count $1\,795\,181\,713\,099$, the $22\,382$ cores, the shape and candidate counts, $0$ unresolved cores and $0$ probable primes. The list of $23$ solutions is identical, and the new core dump coincides line by line (as a set of $22\,382$ lines) with \file{cores47.txt.gz}. Only the elapsed time differs ($%s$\,s for the search). Files: \file{paper/verification/rerun47/}.
+""" % '{:,}'.format(secs).replace(',', '\\,'))
+        else:
+            f.write(r"""
+\paragraph{Re-execution of the budget-47 search.} The program \file{semiprime47.cpp} was executed again; the comparison with the recorded run found differences, which are reported in \file{paper/verification/rerun47/rerun47_comparison.txt}.
+""")
+    print('rerun47 paragraph appended; identical =', ident)
