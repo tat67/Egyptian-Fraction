@@ -48,6 +48,8 @@ Every element of `G` has a factor `≥ 79`. This gives the value bound
 
 where `V(x)` is the sum of the `x` largest reciprocals of elements of `P` that have a factor `≥ 79`.
 
+The bound also holds with `U` replaced by any subset `U' ⊆ U`. The depth-first search of Step 1 applies it to the part of `U` decided so far, `U' = U ∩ (p, ∞)`. So Step 1 keeps exactly the cores that satisfy the bound for every such upper segment, not merely for `U` itself (see [`lean/README.md`](lean/README.md), correction 1).
+
 ### 3. Step 1: all cores
 
 A depth-first search over the 21 primes of `S`, in decreasing order, enumerates every core `C` with `|C| + |U(C)| ≤ 47` that satisfies the value bound. It visits each core exactly once, and it prunes only with rigorous, directed-rounding bounds.
@@ -66,8 +68,11 @@ Three kinds of shape can survive these tests.
 * **`b = 0`.** Every big prime `P` is a *star* whose neighbours `A` all lie in `S`. Then `P | n(A) = Σ_{q∈A} Π A / q`, so `P` is one of finitely many prime factors. Stars have at most 11 neighbours (star-size lemma). The program enumerates every exact cover of the multiplicities `d_q` by distinct stars and keeps the covers whose value equals `1 − Σ_C` exactly.
 * **`b = 1`.** There is one component `{P1, P2}` joined by the edge `P1P2`, with attachment sets `A1` and `A2`; all other big primes are stars.
   * Put `b_i = Π A_i`, `a_i = Σ_{q∈A_i} b_i / q`, and `t = Z_K · b1 · b2`, where `Z_K` is the component's value.
-  * Then `t` is a positive integer and `(t·P1 − a1·b2)(t·P2 − a2·b1) = b1·b2·(t + a1·a2)`.
-  * This equation is equivalent to (*) at `P1` and `P2`, so every solution comes from a divisor of the right-hand side.
+  * With this `t`, the identity `(t·P1 − a1·b2)(t·P2 − a2·b1) = b1·b2·(t + a1·a2)` always holds.
+  * (*) at `P1` and `P2` is equivalent to `t` being an integer.
+  * Both factors on the left are positive, and `A1`, `A2` are nonempty, because a prime cannot have exactly one neighbour.
+  * So for fixed `(A1, A2, t)` every solution comes from a positive divisor `X` of `N = b1·b2·(t + a1·a2)`, with `P1 = (X + a1·b2)/t` and `P2 = (N/X + a2·b1)/t`.
+  * An earlier version said the equation itself is equivalent to (*). It is the integrality of `t` that is.
 * **`b ≥ 2`.** Such a shape would be reported as unresolved.
 
 **Result of the run.** The depth-first search visits `1.8·10^12` nodes.
@@ -93,6 +98,12 @@ There is also an independent Python implementation of Step 2 (`complete47.py`), 
 All 21 solutions found in earlier runs are among the 23.
 
 ---
+
+## Lean formalization
+
+[`lean/`](lean/README.md) formalizes every step above in Lean 4 with Mathlib, except the exhaustive search. That includes the component equation and its finite divisor enumeration, and an unconditional check that the 23 listed sets are solutions (`Sol23_valid`).
+
+The search is stated as the explicit hypothesis `Search47`. The completeness theorems `solutions47_iff` and `solutions47_ncard` are proved **conditionally** on it, and `Search47` is not verified in Lean.
 
 ## Running
 

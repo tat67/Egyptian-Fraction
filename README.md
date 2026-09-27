@@ -74,6 +74,8 @@ For `q ∈ S` let `ρ(q) = Σ_{r : qr ∈ C} r^{-1} mod q` be the residue that t
 
     1 − Σ_{q∈U} 1/(79q) − V(46 − |C| − |U|)  ≤  Σ_C  ≤  1.
 
+The same argument works with `U` replaced by any subset `U' ⊆ U`: charge `1/(79q)` only for `q ∈ U'` and bound all other edges of `G` by `V`. That gives `1 − Σ_{q∈U'} 1/(79q) − V(46 − |C| − |U'|) ≤ Σ_C`. The search uses this general form (see Step 1).
+
 **Lemma 4 (shape of the big part).** For `q ∈ S` let `d_q` be the number of big neighbours of `q`, and let `b` be the number of edges joining two big primes. Then:
 
 1. `d_q ≥ 1` for `q ∈ U`. For `q ∉ U`, either `d_q = 0` or `d_q ≥ 2`, because a single big neighbour would leave a nonzero residue at `q`.
@@ -104,9 +106,11 @@ A branch is pruned only when one of the following is certain:
 
 * `|C| + |U|` would exceed 46;
 * the core sum already exceeds 1;
-* even the best completion cannot satisfy Lemma 3.
+* even the best completion violates Lemma 3 for the part of `U` decided so far, `U' = U ∩ (p, ∞)`.
 
-The best completion is bounded by the largest remaining core reciprocals plus the allowance `V(·)` for big edges.
+The best completion is bounded by the largest remaining core reciprocals plus the allowance `V(·)` for big edges. Primes that join `U` later are not charged `1/(79q)` at that node, so the test is Lemma 3 for the subset `U' ⊆ U`, which is valid (see Lemma 3). Step 1 therefore keeps exactly the cores that satisfy the value bound for **every** upper segment `U ∩ (p, ∞)` of `U`.
+
+*Correction.* An earlier version of this text said the search keeps all cores that satisfy the final Lemma 3 inequality. That is not quite what it does. A prime that joins `U` later adds `1/(79q)` but removes only the smallest `V` term, so the final inequality can hold at a core that was pruned earlier. The pruning is still sound, because it uses the general form of Lemma 3. The Lean formalization in [`lean/`](lean/README.md) states the hypothesis with the corrected condition.
 
 **Step 2: complete each surviving core.** For every core that survives Step 1:
 
@@ -170,6 +174,12 @@ On 4 cores the proof run takes about 20 minutes and under 300 MB of memory. The 
     No nonempty set T of squarefree semiprimes with |T| <= 46 has an integral sum of reciprocals.
 
 The count of search nodes depends slightly on the number of threads, because each thread repeats the small part of the tree above the split level.
+
+## Lean formalization
+
+[`lean/`](lean/README.md) formalizes every step of this argument in Lean 4 with Mathlib, except the exhaustive search. That covers the local criterion, the size, value, parity and star-size lemmas, the stars, the component with one big–big edge, and the reduction of an arbitrary solution to the data checked by the search.
+
+The search itself is stated as the explicit hypothesis `Search46`. The theorem `no_integral_sum_le_46` is proved **conditionally** on it, and `Search46` is not verified in Lean. See `lean/README.md` for what is fully proved and what is conditional.
 
 ## Files
 
