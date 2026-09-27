@@ -1,0 +1,132 @@
+% paper.sty -- formatting for "Integral reciprocal sums of distinct squarefree semiprimes"
+% All layout, theorem environments and macros live here; main.tex contains only content.
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{paper}[2026/09/27 Layout and macros for the semiprime reciprocal-sum paper]
+
+% ---------------------------------------------------------------- page layout and fonts
+\RequirePackage[T1]{fontenc}
+\RequirePackage{lmodern}
+\RequirePackage[a4paper,margin=2.6cm,headheight=14pt]{geometry}
+\RequirePackage{microtype}
+\RequirePackage{setspace}
+\setstretch{1.05}
+\RequirePackage[hang,flushmargin]{footmisc}
+\RequirePackage[inline]{enumitem}
+\setlist{itemsep=2pt,topsep=4pt}
+
+
+% ---------------------------------------------------------------- Unicode in the verbatim Lean code
+\RequirePackage[utf8]{inputenc}
+\DeclareUnicodeCharacter{2192}{\ensuremath{\to}}
+\DeclareUnicodeCharacter{2081}{\ensuremath{_1}}
+\DeclareUnicodeCharacter{2082}{\ensuremath{_2}}
+\DeclareUnicodeCharacter{2115}{\ensuremath{\mathbb{N}}}
+\DeclareUnicodeCharacter{211A}{\ensuremath{\mathbb{Q}}}
+\DeclareUnicodeCharacter{2208}{\ensuremath{\in}}
+\DeclareUnicodeCharacter{2209}{\ensuremath{\notin}}
+\DeclareUnicodeCharacter{2200}{\ensuremath{\forall}}
+\DeclareUnicodeCharacter{2227}{\ensuremath{\wedge}}
+\DeclareUnicodeCharacter{222A}{\ensuremath{\cup}}
+\DeclareUnicodeCharacter{220F}{\ensuremath{\prod}}
+\DeclareUnicodeCharacter{2223}{\ensuremath{\mid}}
+\DeclareUnicodeCharacter{2286}{\ensuremath{\subseteq}}
+\DeclareUnicodeCharacter{00B7}{\ensuremath{\cdot}}
+\DeclareUnicodeCharacter{00AC}{\ensuremath{\neg}}
+\DeclareUnicodeCharacter{2205}{\ensuremath{\varnothing}}
+\DeclareUnicodeCharacter{2264}{\ensuremath{\le}}
+\DeclareUnicodeCharacter{2260}{\ensuremath{\ne}}
+
+% ---------------------------------------------------------------- mathematics
+\RequirePackage{amsmath,amssymb,amsthm,mathtools}
+\allowdisplaybreaks[2]
+
+% ---------------------------------------------------------------- tables, figures, algorithms
+\RequirePackage{booktabs}
+\RequirePackage{array}
+\RequirePackage{tabularx}
+\RequirePackage{longtable}
+\RequirePackage{multirow}
+\RequirePackage{graphicx}
+\RequirePackage{caption}
+\captionsetup{font=small,labelfont=bf,margin=1em}
+\RequirePackage{algorithm}
+\RequirePackage[noend]{algpseudocode}
+\RequirePackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,fit}
+\RequirePackage{xcolor}
+\RequirePackage{url}
+
+% ---------------------------------------------------------------- references
+\RequirePackage[numbers,sort&compress]{natbib}
+\RequirePackage[colorlinks=true,linkcolor={blue!45!black},citecolor={green!35!black},
+  urlcolor={blue!45!black},pdfusetitle,bookmarksnumbered]{hyperref}
+\RequirePackage[capitalise,nameinlink,noabbrev]{cleveref}
+
+% ---------------------------------------------------------------- theorem environments
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{claim}[theorem]{Computational Claim}
+\newtheorem{maintheorem}{Theorem}
+\renewcommand{\themaintheorem}{\Alph{maintheorem}}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{notation}[theorem]{Notation}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\crefname{maintheorem}{Theorem}{Theorems}
+\crefname{claim}{Computational Claim}{Computational Claims}
+\crefname{algorithm}{Algorithm}{Algorithms}
+\crefname{appendix}{Appendix}{Appendices}
+
+% ---------------------------------------------------------------- mathematical macros
+\newcommand{\Pset}{\mathcal{P}}                 % squarefree semiprimes
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\Fp}{\mathbb{F}_p}
+\newcommand{\Sset}{\mathcal{S}}                  % small primes <= 73
+\newcommand{\Lset}{\mathcal{L}}                  % large primes > 73
+\newcommand{\Cset}{C}                            % core
+\newcommand{\Gset}{G}                            % large part
+\newcommand{\Uset}{U}                            % unsatisfied set
+\newcommand{\Nb}{N}                              % neighbourhood
+\newcommand{\nA}{n}                              % n(A)
+\newcommand{\ord}{\nu}                           % p-adic valuation
+\newcommand{\Rec}[1]{\Sigma(#1)}                 % reciprocal sum of a set
+\newcommand{\card}[1]{\lvert #1\rvert}
+\newcommand{\Pmin}{P_{\min}}
+\newcommand{\budget}{K}
+\DeclareMathOperator{\lcm}{lcm}
+\newcommand{\up}{\operatorname{up}}
+\newcommand{\lo}{\operatorname{lo}}
+\newcommand{\code}[1]{\texttt{#1}}
+% Lean identifiers and file names: typewriter, breakable at _ . / : (no escaping of _ needed)
+\DeclareUrlCommand\lean{\urlstyle{tt}\def\UrlBreaks{\do\_\do\.\do\/\do\:}}
+\DeclareUrlCommand\file{\urlstyle{tt}\def\UrlBreaks{\do\_\do\.\do\/\do\:}}
+
+% expandable input of generated table rows (LaTeX's \input cannot precede \bottomrule)
+\makeatletter
+\newcommand{\tableinput}[1]{\@@input #1 }
+\makeatother
+
+% the full list of solutions (Appendix A)
+\newcommand{\solitem}[2]{\noindent\textbf{#1.}\enspace{\small #2}\par\medskip}
+
+% ---------------------------------------------------------------- title block
+\makeatletter
+\renewcommand{\maketitle}{%
+  \begin{center}
+    {\LARGE\bfseries \@title\par}
+    \vspace{1.2em}
+    {\large \@author\par}
+    \vspace{0.6em}
+    {\normalsize \@date\par}
+  \end{center}
+  \vspace{0.8em}}
+\makeatother
+
+\endinput

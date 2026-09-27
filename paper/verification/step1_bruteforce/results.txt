@@ -1,0 +1,148 @@
+sb 13 K 40 LOWN 8 threads 1 split 2 nodes 48 cores 13
+LOWN=8 threads=1: SB 13 K 40: |D|=13 distinct=13 |SEG|=13 |FIN|=140  SEG<=D: True  D<=FIN: True  |FIN\SEG|=127 |D\SEG|=0
+LOWN=8 threads=1: RESULT PASS
+sb 13 K 40 LOWN 8 threads 3 split 7 nodes 66 cores 13
+LOWN=8 threads=3: SB 13 K 40: |D|=13 distinct=13 |SEG|=13 |FIN|=140  SEG<=D: True  D<=FIN: True  |FIN\SEG|=127 |D\SEG|=0
+LOWN=8 threads=3: RESULT PASS
+sb 13 K 40 LOWN 3 threads 1 split 2 nodes 70 cores 13
+LOWN=3 threads=1: SB 13 K 40: |D|=13 distinct=13 |SEG|=13 |FIN|=140  SEG<=D: True  D<=FIN: True  |FIN\SEG|=127 |D\SEG|=0
+LOWN=3 threads=1: RESULT PASS
+sb 13 K 40 LOWN 3 threads 3 split 7 nodes 132 cores 13
+LOWN=3 threads=3: SB 13 K 40: |D|=13 distinct=13 |SEG|=13 |FIN|=140  SEG<=D: True  D<=FIN: True  |FIN\SEG|=127 |D\SEG|=0
+LOWN=3 threads=3: RESULT PASS
+sb 13 K 45 LOWN 8 threads 1 split 2 nodes 462 cores 161
+LOWN=8 threads=1: SB 13 K 45: |D|=161 distinct=161 |SEG|=156 |FIN|=512  SEG<=D: True  D<=FIN: True  |FIN\SEG|=356 |D\SEG|=5
+LOWN=8 threads=1: RESULT PASS
+sb 13 K 45 LOWN 8 threads 3 split 7 nodes 512 cores 161
+LOWN=8 threads=3: SB 13 K 45: |D|=161 distinct=161 |SEG|=156 |FIN|=512  SEG<=D: True  D<=FIN: True  |FIN\SEG|=356 |D\SEG|=5
+LOWN=8 threads=3: RESULT PASS
+sb 13 K 45 LOWN 3 threads 1 split 2 nodes 516 cores 161
+LOWN=3 threads=1: SB 13 K 45: |D|=161 distinct=161 |SEG|=156 |FIN|=512  SEG<=D: True  D<=FIN: True  |FIN\SEG|=356 |D\SEG|=5
+LOWN=3 threads=1: RESULT PASS
+sb 13 K 45 LOWN 3 threads 3 split 7 nodes 674 cores 161
+LOWN=3 threads=3: SB 13 K 45: |D|=161 distinct=161 |SEG|=156 |FIN|=512  SEG<=D: True  D<=FIN: True  |FIN\SEG|=356 |D\SEG|=5
+LOWN=3 threads=3: RESULT PASS
+sb 13 K 50 LOWN 8 threads 1 split 2 nodes 1449 cores 586
+LOWN=8 threads=1: SB 13 K 50: |D|=586 distinct=586 |SEG|=539 |FIN|=1284  SEG<=D: True  D<=FIN: True  |FIN\SEG|=745 |D\SEG|=47
+LOWN=8 threads=1: RESULT PASS
+sb 13 K 50 LOWN 8 threads 3 split 7 nodes 1515 cores 586
+LOWN=8 threads=3: SB 13 K 50: |D|=586 distinct=586 |SEG|=539 |FIN|=1284  SEG<=D: True  D<=FIN: True  |FIN\SEG|=745 |D\SEG|=47
+LOWN=8 threads=3: RESULT PASS
+sb 13 K 50 LOWN 3 threads 1 split 2 nodes 1519 cores 586
+LOWN=3 threads=1: SB 13 K 50: |D|=586 distinct=586 |SEG|=539 |FIN|=1284  SEG<=D: True  D<=FIN: True  |FIN\SEG|=745 |D\SEG|=47
+LOWN=3 threads=1: RESULT PASS
+sb 13 K 50 LOWN 3 threads 3 split 7 nodes 1725 cores 586
+LOWN=3 threads=3: SB 13 K 50: |D|=586 distinct=586 |SEG|=539 |FIN|=1284  SEG<=D: True  D<=FIN: True  |FIN\SEG|=745 |D\SEG|=47
+LOWN=3 threads=3: RESULT PASS
+sb 13 K 60 LOWN 8 threads 1 split 2 nodes 4693 cores 2390
+LOWN=8 threads=1: SB 13 K 60: |D|=2390 distinct=2390 |SEG|=2083 |FIN|=3872  SEG<=D: True  D<=FIN: True  |FIN\SEG|=1789 |D\SEG|=307
+LOWN=8 threads=1: RESULT PASS
+sb 13 K 60 LOWN 8 threads 3 split 7 nodes 4759 cores 2390
+LOWN=8 threads=3: SB 13 K 60: |D|=2390 distinct=2390 |SEG|=2083 |FIN|=3872  SEG<=D: True  D<=FIN: True  |FIN\SEG|=1789 |D\SEG|=307
+LOWN=8 threads=3: RESULT PASS
+sb 13 K 60 LOWN 3 threads 1 split 2 nodes 4763 cores 2390
+LOWN=3 threads=1: SB 13 K 60: |D|=2390 distinct=2390 |SEG|=2083 |FIN|=3872  SEG<=D: True  D<=FIN: True  |FIN\SEG|=1789 |D\SEG|=307
+LOWN=3 threads=1: RESULT PASS
+sb 13 K 60 LOWN 3 threads 3 split 7 nodes 4969 cores 2390
+LOWN=3 threads=3: SB 13 K 60: |D|=2390 distinct=2390 |SEG|=2083 |FIN|=3872  SEG<=D: True  D<=FIN: True  |FIN\SEG|=1789 |D\SEG|=307
+LOWN=3 threads=3: RESULT PASS
+sb 13 K 80 LOWN 8 threads 1 split 2 nodes 12355 cores 8492
+LOWN=8 threads=1: SB 13 K 80: |D|=8492 distinct=8492 |SEG|=7260 |FIN|=10774  SEG<=D: True  D<=FIN: True  |FIN\SEG|=3514 |D\SEG|=1232
+LOWN=8 threads=1: RESULT PASS
+sb 13 K 80 LOWN 8 threads 3 split 7 nodes 12421 cores 8492
+LOWN=8 threads=3: SB 13 K 80: |D|=8492 distinct=8492 |SEG|=7260 |FIN|=10774  SEG<=D: True  D<=FIN: True  |FIN\SEG|=3514 |D\SEG|=1232
+LOWN=8 threads=3: RESULT PASS
+sb 13 K 80 LOWN 3 threads 1 split 2 nodes 12425 cores 8492
+LOWN=3 threads=1: SB 13 K 80: |D|=8492 distinct=8492 |SEG|=7260 |FIN|=10774  SEG<=D: True  D<=FIN: True  |FIN\SEG|=3514 |D\SEG|=1232
+LOWN=3 threads=1: RESULT PASS
+sb 13 K 80 LOWN 3 threads 3 split 7 nodes 12631 cores 8492
+LOWN=3 threads=3: SB 13 K 80: |D|=8492 distinct=8492 |SEG|=7260 |FIN|=10774  SEG<=D: True  D<=FIN: True  |FIN\SEG|=3514 |D\SEG|=1232
+LOWN=3 threads=3: RESULT PASS
+sb 17 K 40 LOWN 8 threads 1 split 2 nodes 160 cores 32
+LOWN=8 threads=1: SB 17 K 40: |D|=32 distinct=32 |SEG|=32 |FIN|=484  SEG<=D: True  D<=FIN: True  |FIN\SEG|=452 |D\SEG|=0
+LOWN=8 threads=1: RESULT PASS
+sb 17 K 40 LOWN 8 threads 3 split 7 nodes 284 cores 32
+LOWN=8 threads=3: SB 17 K 40: |D|=32 distinct=32 |SEG|=32 |FIN|=484  SEG<=D: True  D<=FIN: True  |FIN\SEG|=452 |D\SEG|=0
+LOWN=8 threads=3: RESULT PASS
+sb 17 K 40 LOWN 3 threads 1 split 2 nodes 360 cores 32
+LOWN=3 threads=1: SB 17 K 40: |D|=32 distinct=32 |SEG|=32 |FIN|=484  SEG<=D: True  D<=FIN: True  |FIN\SEG|=452 |D\SEG|=0
+LOWN=3 threads=1: RESULT PASS
+sb 17 K 40 LOWN 3 threads 3 split 7 nodes 884 cores 32
+LOWN=3 threads=3: SB 17 K 40: |D|=32 distinct=32 |SEG|=32 |FIN|=484  SEG<=D: True  D<=FIN: True  |FIN\SEG|=452 |D\SEG|=0
+LOWN=3 threads=3: RESULT PASS
+sb 17 K 45 LOWN 8 threads 1 split 2 nodes 7668 cores 2422
+LOWN=8 threads=1: SB 17 K 45: |D|=2422 distinct=2422 |SEG|=2388 |FIN|=10001  SEG<=D: True  D<=FIN: True  |FIN\SEG|=7613 |D\SEG|=34
+LOWN=8 threads=1: RESULT PASS
+sb 17 K 45 LOWN 8 threads 3 split 7 nodes 9232 cores 2422
+LOWN=8 threads=3: SB 17 K 45: |D|=2422 distinct=2422 |SEG|=2388 |FIN|=10001  SEG<=D: True  D<=FIN: True  |FIN\SEG|=7613 |D\SEG|=34
+LOWN=8 threads=3: RESULT PASS
+sb 17 K 45 LOWN 3 threads 1 split 2 nodes 9500 cores 2422
+LOWN=3 threads=1: SB 17 K 45: |D|=2422 distinct=2422 |SEG|=2388 |FIN|=10001  SEG<=D: True  D<=FIN: True  |FIN\SEG|=7613 |D\SEG|=34
+LOWN=3 threads=1: RESULT PASS
+sb 17 K 45 LOWN 3 threads 3 split 7 nodes 14728 cores 2422
+LOWN=3 threads=3: SB 17 K 45: |D|=2422 distinct=2422 |SEG|=2388 |FIN|=10001  SEG<=D: True  D<=FIN: True  |FIN\SEG|=7613 |D\SEG|=34
+LOWN=3 threads=3: RESULT PASS
+sb 17 K 50 LOWN 8 threads 1 split 2 nodes 37349 cores 13669
+LOWN=8 threads=1: SB 17 K 50: |D|=13669 distinct=13669 |SEG|=13111 |FIN|=36845  SEG<=D: True  D<=FIN: True  |FIN\SEG|=23734 |D\SEG|=558
+LOWN=8 threads=1: RESULT PASS
+sb 17 K 50 LOWN 8 threads 3 split 7 nodes 40669 cores 13669
+LOWN=8 threads=3: SB 17 K 50: |D|=13669 distinct=13669 |SEG|=13111 |FIN|=36845  SEG<=D: True  D<=FIN: True  |FIN\SEG|=23734 |D\SEG|=558
+LOWN=8 threads=3: RESULT PASS
+sb 17 K 50 LOWN 3 threads 1 split 2 nodes 40937 cores 13669
+LOWN=3 threads=1: SB 17 K 50: |D|=13669 distinct=13669 |SEG|=13111 |FIN|=36845  SEG<=D: True  D<=FIN: True  |FIN\SEG|=23734 |D\SEG|=558
+LOWN=3 threads=1: RESULT PASS
+sb 17 K 50 LOWN 3 threads 3 split 7 nodes 51433 cores 13669
+LOWN=3 threads=3: SB 17 K 50: |D|=13669 distinct=13669 |SEG|=13111 |FIN|=36845  SEG<=D: True  D<=FIN: True  |FIN\SEG|=23734 |D\SEG|=558
+LOWN=3 threads=3: RESULT PASS
+sb 17 K 60 LOWN 8 threads 1 split 2 nodes 172555 cores 79084
+LOWN=8 threads=1: SB 17 K 60: |D|=79084 distinct=79084 |SEG|=72019 |FIN|=139032  SEG<=D: True  D<=FIN: True  |FIN\SEG|=67013 |D\SEG|=7065
+LOWN=8 threads=1: RESULT PASS
+sb 17 K 60 LOWN 8 threads 3 split 7 nodes 176781 cores 79084
+LOWN=8 threads=3: SB 17 K 60: |D|=79084 distinct=79084 |SEG|=72019 |FIN|=139032  SEG<=D: True  D<=FIN: True  |FIN\SEG|=67013 |D\SEG|=7065
+LOWN=8 threads=3: RESULT PASS
+sb 17 K 60 LOWN 3 threads 1 split 2 nodes 177046 cores 79083
+LOWN=3 threads=1: SB 17 K 60: |D|=79083 distinct=79083 |SEG|=72019 |FIN|=139032  SEG<=D: True  D<=FIN: True  |FIN\SEG|=67013 |D\SEG|=7064
+LOWN=3 threads=1: RESULT PASS
+sb 17 K 60 LOWN 3 threads 3 split 7 nodes 190260 cores 79083
+LOWN=3 threads=3: SB 17 K 60: |D|=79083 distinct=79083 |SEG|=72019 |FIN|=139032  SEG<=D: True  D<=FIN: True  |FIN\SEG|=67013 |D\SEG|=7064
+LOWN=3 threads=3: RESULT PASS
+sb 19 K 40 LOWN 8 threads 1 split 2 nodes 223 cores 20
+LOWN=8 threads=1: SB 19 K 40: |D|=20 distinct=20 |SEG|=20 |FIN|=2535  SEG<=D: True  D<=FIN: True  |FIN\SEG|=2515 |D\SEG|=0
+LOWN=8 threads=1: RESULT PASS
+sb 19 K 40 LOWN 8 threads 3 split 7 nodes 535 cores 20
+LOWN=8 threads=3: SB 19 K 40: |D|=20 distinct=20 |SEG|=20 |FIN|=2535  SEG<=D: True  D<=FIN: True  |FIN\SEG|=2515 |D\SEG|=0
+LOWN=8 threads=3: RESULT PASS
+sb 19 K 40 LOWN 3 threads 1 split 2 nodes 1041 cores 20
+LOWN=3 threads=1: SB 19 K 40: |D|=20 distinct=20 |SEG|=20 |FIN|=2535  SEG<=D: True  D<=FIN: True  |FIN\SEG|=2515 |D\SEG|=0
+LOWN=3 threads=1: RESULT PASS
+sb 19 K 40 LOWN 3 threads 3 split 7 nodes 2989 cores 20
+LOWN=3 threads=3: SB 19 K 40: |D|=20 distinct=20 |SEG|=20 |FIN|=2535  SEG<=D: True  D<=FIN: True  |FIN\SEG|=2515 |D\SEG|=0
+LOWN=3 threads=3: RESULT PASS
+sb 19 K 45 LOWN 8 threads 1 split 2 nodes 140469 cores 38109
+LOWN=8 threads=1: SB 19 K 45: |D|=38109 distinct=38109 |SEG|=38109 |FIN|=175804  SEG<=D: True  D<=FIN: True  |FIN\SEG|=137695 |D\SEG|=0
+LOWN=8 threads=1: RESULT PASS
+sb 19 K 45 LOWN 8 threads 3 split 7 nodes 192023 cores 38109
+LOWN=8 threads=3: SB 19 K 45: |D|=38109 distinct=38109 |SEG|=38109 |FIN|=175804  SEG<=D: True  D<=FIN: True  |FIN\SEG|=137695 |D\SEG|=0
+LOWN=8 threads=3: RESULT PASS
+sb 19 K 45 LOWN 3 threads 1 split 2 nodes 208617 cores 38109
+LOWN=3 threads=1: SB 19 K 45: |D|=38109 distinct=38109 |SEG|=38109 |FIN|=175804  SEG<=D: True  D<=FIN: True  |FIN\SEG|=137695 |D\SEG|=0
+LOWN=3 threads=1: RESULT PASS
+sb 19 K 45 LOWN 3 threads 3 split 7 nodes 396467 cores 38109
+LOWN=3 threads=3: SB 19 K 45: |D|=38109 distinct=38109 |SEG|=38109 |FIN|=175804  SEG<=D: True  D<=FIN: True  |FIN\SEG|=137695 |D\SEG|=0
+LOWN=3 threads=3: RESULT PASS
+sb 19 K 50 LOWN 8 threads 1 split 2 nodes 1442742 cores 478084
+LOWN=8 threads=1: SB 19 K 50: |D|=478084 distinct=478084 |SEG|=475652 |FIN|=1146681  SEG<=D: True  D<=FIN: True  |FIN\SEG|=671029 |D\SEG|=2432
+LOWN=8 threads=1: RESULT PASS
+sb 19 K 50 LOWN 8 threads 3 split 7 nodes 1673060 cores 478084
+LOWN=8 threads=3: SB 19 K 50: |D|=478084 distinct=478084 |SEG|=475652 |FIN|=1146681  SEG<=D: True  D<=FIN: True  |FIN\SEG|=671029 |D\SEG|=2432
+LOWN=8 threads=3: RESULT PASS
+sb 19 K 50 LOWN 3 threads 1 split 2 nodes 1705300 cores 478084
+LOWN=3 threads=1: SB 19 K 50: |D|=478084 distinct=478084 |SEG|=475652 |FIN|=1146681  SEG<=D: True  D<=FIN: True  |FIN\SEG|=671029 |D\SEG|=2432
+LOWN=3 threads=1: RESULT PASS
+sb 19 K 50 LOWN 3 threads 3 split 7 nodes 2460734 cores 478084
+LOWN=3 threads=3: SB 19 K 50: |D|=478084 distinct=478084 |SEG|=475652 |FIN|=1146681  SEG<=D: True  D<=FIN: True  |FIN\SEG|=671029 |D\SEG|=2432
+LOWN=3 threads=3: RESULT PASS
+NEGATIVE CONTROL (expected FAIL):
+SB 19 K 999: |D|=38109 distinct=38109 |SEG|=475652 |FIN|=1146681  SEG<=D: False  D<=FIN: True  |FIN\SEG|=671029 |D\SEG|=0
+RESULT FAIL
+PASS count: 48  FAIL count: 1

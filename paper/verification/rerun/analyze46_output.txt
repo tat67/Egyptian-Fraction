@@ -1,0 +1,4 @@
+KT 46 maxstar 10 elapsed_s 0
+totals {'cores': 178, 'shapes': 3777, 'alive': 61, 'alive_cores': 61, 'cand_cap': 0, 'cand_all': 0, 'alive_nbb0': 61, 'alive_nbb1': 0, 'alive_nbb2plus': 0, 'pairs_nbb1': 0, 't_integral': 0}
+max_bits {'B': 0, 'a1b2': 0, 'a2b1': 0, 'L': 0, 'N': 0, 'Wsize': 7}
+unresolved_shapes 0 solutions 0

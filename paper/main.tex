@@ -1,0 +1,1019 @@
+\documentclass[11pt]{article}
+\usepackage{paper}
+
+\newcommand{\repourl}{\textless\textit{repository URL to be inserted}\textgreater}
+
+\title{Integral sums of reciprocals of distinct squarefree semiprimes:\\
+forty-seven terms are necessary, and the\\ extremal representations of $1$}
+% ------------------------------------------------------------------
+% AUTHORS: intentionally left blank -- to be filled in by the authors.
+\author{}
+% ------------------------------------------------------------------
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Let $\Pset=\{pq: p<q \text{ primes}\}$ be the set of squarefree semiprimes.
+We prove that if $T\subset\Pset$ is a nonempty finite set such that $\sum_{n\in T}1/n$ is an integer, then $\card{T}\ge 47$.
+Since $47$-term representations of $1$ are known, $47$ is the exact minimum; this confirms a conjecture of Watanabe.
+We also classify the extremal case: there are exactly $23$ sets $T\subset\Pset$ with $\card{T}=47$ and $\sum_{n\in T}1/n=1$.
+Seventeen of them involve only primes at most $73$, and each of the other six involves exactly one prime larger than $73$, namely $269$, $311$, $421$, $433$, $503$ or $3779$.
+The proofs are computer-assisted.
+A $p$-adic argument turns integrality into a congruence condition at every vertex of a graph on the primes.
+A decomposition into a ``core'' of small primes and a ``large-prime part'', together with value, parity and star-size lemmas and an explicit divisor equation for a single edge between two large primes, reduces the problem to a finite exhaustive computation, even though arbitrarily large prime factors are allowed.
+The computation uses exact integer arithmetic and directed rounding only.
+We describe independent checks: a second implementation of the completion step, a brute-force validation of the core enumeration on reduced instances, and an exact verification of all $23$ solutions.
+The analytic reduction and the $23$ solutions are verified in Lean~4 with Mathlib; there the completeness statements are derived from explicitly stated hypotheses that encode the outcome of the exhaustive searches, and these hypotheses themselves are not verified in Lean.
+\end{abstract}
+
+\tableofcontents
+
+% =====================================================================
+\section{Introduction}\label{sec:intro}
+% =====================================================================
+
+An \emph{Egyptian fraction} is a finite sum of distinct unit fractions. Many classical questions ask which rationals are sums of reciprocals of distinct integers from a prescribed set; see \cite{Graham1964,ErdosGraham1980,Graham2013} and \cite[Section~D11]{Guy2004}.
+This paper studies the set
+\[
+\Pset=\{pq : p<q \text{ primes}\}=\{6,10,14,15,21,22,26,33,34,35,38,39,\dots\}
+\]
+of \emph{squarefree semiprimes}, i.e.\ the integers with exactly two distinct prime factors, each to the first power.
+For a finite set $T\subset\Pset$ write
+\[
+\Rec{T}=\sum_{n\in T}\frac1n .
+\]
+
+\paragraph{Background.}
+According to the abstract of Watanabe's preprint \cite{Watanabe2020}, in 1978 Johnson found a representation of $1$ as a sum of reciprocals of $48$ distinct squarefree semiprimes \cite{Johnson1978}. No shorter representation was known until Watanabe \cite{Watanabe2020} found $17$ representations with $47$ terms.
+Watanabe found no representation with fewer than $47$ terms and conjectured that $47$ is the minimum.
+His examples were obtained by computer searches in which the prime factors were bounded.\footnote{The search space described in \cite{Watanabe2020} has dimension $325=\binom{26}{2}$, the number of squarefree semiprimes whose prime factors are both at most $101$. We could not consult the full text while preparing this manuscript, so this detail should be checked against \cite{Watanabe2020}.}
+A search with bounded prime factors cannot establish minimality, because arbitrarily large primes are allowed in principle; \cref{sec:stars} shows that primes as large as $3779$ really do occur.
+
+In a different direction, Butler, Erd\H{o}s and Graham \cite{ButlerErdosGraham2015} proved that every positive integer is a sum of reciprocals of distinct integers that each have exactly three distinct prime factors, and they conjectured the corresponding statement for two prime factors. A recent preprint of Li \cite{Li2026} announces a proof of that conjecture.
+Egyptian fractions whose denominators are supported on a fixed finite set of primes are studied computationally in \cite{Czenky2025}.
+None of these works addresses the minimal number of terms for the set $\Pset$.
+To the best of our knowledge, no proof that $47$ is minimal, and no complete list of the $47$-term representations of $1$ in which every prime is allowed, has appeared before.
+
+\paragraph{Results.}
+
+\begin{maintheorem}[Minimum number of terms]\label{thm:A}
+Let $T\subset\Pset$ be a nonempty finite set such that $\Rec{T}\in\Z$. Then $\card{T}\ge 47$.
+The bound is sharp: there are sets $T\subset\Pset$ with $\card{T}=47$ and $\Rec{T}=1$.
+\end{maintheorem}
+
+\begin{maintheorem}[The extremal representations]\label{thm:B}
+There are exactly $23$ sets $T\subset\Pset$ with $\card{T}=47$ and $\Rec{T}=1$. They are listed in \cref{app:solutions}.
+Equivalently, there are exactly $23$ sets $T\subset\Pset$ with $\card{T}=47$ and $\Rec{T}\in\Z$.
+Of these $23$ sets:
+\begin{enumerate}[label=\textup{(\roman*)}]
+\item $17$ involve only primes at most $73$ (in fact at most $71$);
+\item each of the other $6$ involves exactly one prime $P>73$, where $P$ is one of $269$, $311$, $421$, $433$, $503$ and $3779$. This prime occurs in exactly three elements $aP,bP,cP$, where $a,b,c\le 73$ are primes with $P\mid ab+ac+bc$ (see \cref{tab:bigprimes}).
+\end{enumerate}
+\end{maintheorem}
+
+In particular, the $17$ solutions of (i) are exactly the solutions all of whose prime factors are at most $101$.
+Our $17$ solutions of type (i) have the same count as Watanabe's list of $17$ examples. We have not compared the two lists term by term.
+
+\paragraph{Nature of the proof.}
+Both theorems are \emph{computer-assisted}.
+\cref{sec:prelim,sec:graph,sec:core,sec:stars} give a complete mathematical reduction of both statements to finite computations.
+We state these computations precisely as \cref{claim:46,claim:47}.
+The computations were carried out by the C++ programs \file{semiprime_reciprocals.cpp} and \file{semiprime47.cpp}, which use exact integer arithmetic and directed rounding only (\cref{sec:proof46,sec:proof47,sec:repro}).
+\cref{sec:verification} describes the independent checks, and \cref{sec:lean} describes a Lean~4 formalization of the reduction.
+\Cref{fig:status} summarizes the logical status of each ingredient.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[
+  box/.style={draw,rounded corners=2pt,align=center,font=\small,inner sep=5pt,text width=5.3cm,minimum height=1.25cm},
+  lab/.style={font=\scriptsize\itshape,align=center},
+  arr/.style={-{Stealth[length=2.2mm]},thick}]
+\node[box] (red) {Analytic reduction\\ (\cref{sec:prelim,sec:graph,sec:core,sec:stars})};
+\node[box,right=1.6cm of red] (claim) {Exhaustive searches\\ \cref{claim:46,claim:47}\\ (\lean{Search46}, \lean{Search47})};
+\node[box,below=1.3cm of red] (sols) {The $23$ explicit solutions\\ (\cref{app:solutions})};
+\node[box,below=1.3cm of claim] (thm) {\cref{thm:A,thm:B}};
+\draw[arr] (red) -- node[lab,sloped,above,pos=0.42]{implies (with the searches)} (thm);
+\draw[arr] (claim) -- (thm);
+\draw[arr] (sols) -- (thm);
+\node[lab,above=1pt of red] {verified in Lean 4 (unconditional)};
+\node[lab,above=1pt of claim] {computed in C++ (Step 2 also in Python);\\ \emph{not} verified in Lean};
+\node[lab,below=1pt of sols] {verified exactly: C++, Python, Lean (unconditional)};
+\node[lab,below=1pt of thm] {derived in Lean \emph{conditionally} on the searches};
+\end{tikzpicture}
+\caption{Logical structure of the proof and the verification status of each component.}
+\label{fig:status}
+\end{figure}
+
+\paragraph{Why large primes are the main difficulty.}
+Only finitely many elements of $\Pset$ have both prime factors in a given finite set.
+Since $\Pset$ contains $2P$ for every prime $P$, however, no a priori bound on the prime factors of a solution is evident.
+The main theoretical step is to show that, once the ``small-prime'' part of a solution is fixed, the large primes are confined to an explicit finite set.
+A large prime all of whose neighbours are small must divide an explicit integer $n(A)$ (\cref{lem:star}).
+A single edge joining two large primes leads to a factorization identity with finitely many solutions (\cref{prop:component}).
+The solution with the prime $3779=29\cdot37+29\cdot41+37\cdot41$ shows that such large primes really occur.
+
+\paragraph{Organization.}
+\cref{sec:prelim} gives the size bounds, and \cref{sec:graph} the graph-theoretic form of integrality.
+\cref{sec:core,sec:stars} develop the finite reduction.
+\cref{sec:proof46,sec:proof47} describe the two computations and prove \cref{thm:A,thm:B} from them.
+\cref{sec:verification,sec:lean,sec:repro} cover verification, formalization and reproducibility.
+\cref{sec:discussion} discusses limitations, and \cref{sec:ai} discloses the use of generative AI.
+
+% =====================================================================
+\section{Preliminaries and size bounds}\label{sec:prelim}
+% =====================================================================
+
+Let $a_1<a_2<a_3<\cdots$ be the elements of $\Pset$ in increasing order, and let
+\[
+H_k=\sum_{i=1}^{k}\frac1{a_i}\qquad(k\ge 0).
+\]
+The first $47$ elements of $\Pset$ are
+6, 10, 14, 15, 21, 22, 26, 33, 34, 35, 38, 39, 46, 51, 55, 57, 58, 62, 65, 69, 74, 77, 82, 85, 86, 87, 91, 93, 94, 95, 106, 111, 115, 118, 119, 122, 123, 129, 133, 134, 141, 142, 143, 145, 146, 155, 158.
+
+\begin{lemma}[Exchange lemma]\label{lem:exchange}
+Let $\mathcal{Q}=\{c_1<c_2<\cdots\}\subset\Z_{>0}$ be infinite. If $T\subset\mathcal{Q}$ is finite with $\card{T}\le k$, then $\Rec{T}\le\sum_{i=1}^{k}1/c_i$. In particular $\Rec{T}\le H_k$ for every $T\subset\Pset$ with $\card{T}\le k$.
+\end{lemma}
+
+\begin{proof}
+Write $T=\{t_1<\dots<t_m\}$ with $m\le k$. The elements $t_1,\dots,t_i$ are $i$ distinct elements of $\mathcal{Q}$, so $t_i\ge c_i$. Hence $\Rec{T}=\sum_{i\le m}1/t_i\le\sum_{i\le m}1/c_i\le\sum_{i\le k}1/c_i$.
+\end{proof}
+
+\begin{proposition}[Exact values]\label{prop:Hk}
+The values of $H_k$ in \cref{tab:Hk} are exact reduced fractions. In particular
+\[
+H_{35}<1-\tfrac{1757}{79000},\qquad H_{37}<1<H_{38},\qquad H_{46}<H_{47}<2 .
+\]
+\end{proposition}
+
+\begin{table}[ht]
+\centering
+\caption{Exact values of $H_k$. Each inequality in the last column can be read off by comparing numerator and denominator. The decimal expansions (truncated) are for orientation only.}
+\label{tab:Hk}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lcrrll@{}}
+\toprule
+ & $a_k$ & numerator & denominator & decimal & \\
+\midrule
+\tableinput{tables/hk_exact.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{proof}
+This is a finite exact computation with rational numbers. It was carried out independently in three ways: with the big-integer routines of both C++ programs (\cref{sec:repro}), in Python with \code{fractions.Fraction} (script \file{paper/verification/verify_paper_facts.py}), and in Lean~4, where the inequalities are proved by \code{norm\_num} (\lean{H35_val}, \lean{H37_lt_one}, \lean{H38_gt_one}, \lean{H46_lt_two}, \lean{H47_lt_two}; \cref{sec:lean}).
+Lean also proves that $a_1,\dots,a_{47}$ are the $47$ smallest elements of $\Pset$.
+\end{proof}
+
+\begin{corollary}\label{cor:sum-is-one}
+Let $T\subset\Pset$ be nonempty with $\card{T}\le 47$ and $\Rec{T}\in\Z$. Then $\Rec{T}=1$ and $\card{T}\ge 38$.
+\end{corollary}
+
+\begin{proof}
+By \cref{lem:exchange,prop:Hk}, $0<\Rec{T}\le H_{47}<2$, so $\Rec{T}=1$. If $\card{T}\le 37$ then $\Rec{T}\le H_{37}<1$, a contradiction.
+\end{proof}
+
+Consequently, \cref{thm:A} is equivalent to the statement that no set of at most $46$ elements of $\Pset$ has reciprocal sum $1$. Likewise, the $47$-element sets with integral sum in \cref{thm:B} are exactly those with sum $1$.
+
+% =====================================================================
+\section{The graph of a set of semiprimes and the local criterion}\label{sec:graph}
+% =====================================================================
+
+\begin{definition}
+For a finite $T\subset\Pset$ let $\Gamma(T)$ be the simple graph whose vertices are the primes dividing some element of $T$ and whose edges are the pairs $\{p,q\}$ with $pq\in T$. For a prime $p$ let $\Nb(p)=\Nb_T(p)=\{q: pq\in T\}$ be its set of neighbours ($\Nb(p)=\varnothing$ if $p$ is not a vertex).
+\end{definition}
+
+The map $T\mapsto\Gamma(T)$ is a bijection between finite subsets of $\Pset$ and finite simple graphs on the set of primes without isolated vertices. The number of edges is $\card{T}$. For a prime $p$ and an integer $m$ with $p\nmid m$ we write $m^{-1}$ for the inverse of $m$ modulo $p$.
+
+\begin{lemma}[Local criterion]\label{lem:local}
+For every finite $T\subset\Pset$,
+\begin{equation}\label{eq:local}
+\Rec{T}\in\Z\iff \sum_{q\in\Nb(p)}q^{-1}\equiv 0\pmod p\quad\text{for every prime }p .
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+Let $\ord_p$ denote the $p$-adic valuation on $\Q$. A rational number is an integer if and only if its $p$-adic valuation is nonnegative for every prime $p$.
+Fix $p$ and split
+\[
+\Rec{T}=\frac1p A_p+B_p,\qquad A_p=\sum_{q\in\Nb(p)}\frac1q,\qquad B_p=\sum_{n\in T,\ p\nmid n}\frac1n .
+\]
+Every element of $T$ is squarefree, so every denominator in $B_p$ and in $A_p$ is prime to $p$, and $\ord_p(B_p)\ge 0$.
+Write $A_p=u/v$ with $v=\prod_{q\in\Nb(p)}q$ and $u=\sum_{q\in\Nb(p)}v/q$. Then $p\nmid v$ and $u\equiv v\sum_{q\in\Nb(p)}q^{-1}\pmod p$.
+If the congruence in \eqref{eq:local} holds at $p$, then $p\mid u$, so $\ord_p(A_p/p)\ge 0$ and hence $\ord_p(\Rec{T})\ge 0$.
+Conversely, if $\ord_p(\Rec{T})\ge0$, then $\ord_p(A_p/p)=\ord_p(\Rec{T}-B_p)\ge 0$, so $p\mid u$ and the congruence holds.
+For a prime $p$ that divides no element of $T$ both sides are trivially true.
+\end{proof}
+
+\begin{corollary}\label{cor:degree}
+If $\Rec{T}\in\Z$, then no vertex of $\Gamma(T)$ has degree $1$.
+\end{corollary}
+
+\begin{proof}
+If $\Nb(p)=\{q\}$ then $q^{-1}\not\equiv0\pmod p$.
+\end{proof}
+
+For every element of the $23$ solutions of \cref{thm:B}, the congruences \eqref{eq:local} were checked directly at every vertex, as an independent test of the implementation.
+In Lean the lemma is \lean{integral_iff_localCond}. Its proof uses the common denominator $\prod_{p\in\Gamma(T)}p$ instead of valuations.
+
+% =====================================================================
+\section{Core decomposition and the finite reduction}\label{sec:core}
+% =====================================================================
+
+Throughout this section $\budget\in\{46,47\}$ is a \emph{budget}, and $T\subset\Pset$ is a finite set with
+\begin{equation}\label{eq:setting}
+\Rec{T}=1,\qquad \card{T}\le\budget .
+\end{equation}
+By \cref{lem:local}, the congruence \eqref{eq:local} holds at every prime.
+
+\begin{definition}[Small and large primes]
+Let $\Sset=\{2,3,5,\dots,73\}$ be the set of the $21$ primes at most $73$. Call the primes $P>73$ \emph{large}; the smallest large primes are $b_0=79<b_1=83<b_2=89<\cdots$.
+Let $\Pset_{\Sset}=\{pq\in\Pset: p,q\in\Sset\}$, a set of $\binom{21}{2}=210$ elements.
+\end{definition}
+
+The primes dividing $a_1,\dots,a_{46}$ are exactly the elements of $\Sset$ (since $146=2\cdot73\le a_{46}=155<a_{47}=158=2\cdot79$). The reduction below is valid for any finite cutoff; the choice of $\Sset$ only affects the efficiency of the computation.
+
+\begin{definition}[Core, large part, residues]\label{def:core}
+For $T$ as in \eqref{eq:setting} define:
+\begin{itemize}
+\item the \emph{core} $C=T\cap\Pset_{\Sset}$ and the \emph{large part} $G=T\setminus C$;
+\item for $q\in\Sset$ the \emph{core residue} $\rho(q)=\sum_{r:\,qr\in C}r^{-1}\in\Z/q\Z$;
+\item the \emph{unsatisfied set} $U=U(C)=\{q\in\Sset:\rho(q)\ne0\}$;
+\item for $q\in\Sset$ the number $d_q$ of large neighbours of $q$;
+\item the number $b$ of \emph{large--large} elements of $G$, i.e.\ elements with both prime factors large.
+\end{itemize}
+\end{definition}
+
+Every element of $G$ is either $qP$ with $q\in\Sset$ and $P$ large, or $PP'$ with $P,P'$ both large.
+In particular every element of $G$ has at most one prime factor in $\Sset$.
+The quantities $\rho$ and $U$ depend only on $C$.
+
+\begin{lemma}[Unsatisfied primes]\label{lem:U}
+Every $q\in U$ has a large neighbour. Hence $\card{G}\ge\card{U}$ and
+\[
+\card{C}+\card{U}\le\card{T}\le\budget .
+\]
+\end{lemma}
+
+\begin{proof}
+At $q\in\Sset$ the congruence \eqref{eq:local} reads $\rho(q)+\sum_{P}P^{-1}\equiv0\pmod q$, where $P$ runs over the large neighbours of $q$. If $\rho(q)\ne0$, this sum is nonempty. Choosing one element $e(q)=qP\in G$ for each $q\in U$ gives an injection $U\to G$, because an element of $G$ has at most one prime factor in $\Sset$.
+\end{proof}
+
+For $x\ge0$ let $V(x)$ be the sum of the $x$ largest values of $1/n$ over the elements $n\in\Pset$ that have a large prime factor. Thus
+$V(x)=\tfrac1{158}+\tfrac1{166}+\tfrac1{178}+\tfrac1{194}+\tfrac1{202}+\tfrac1{206}+\cdots$ ($x$ terms).
+Since every such $n$ is at least $2\cdot79=158$, we have $V(x)\le x/158$.
+
+\begin{lemma}[Value bound, general form]\label{lem:value}
+For $T$ as in \eqref{eq:setting} we have $\Rec{C}\le1$. Moreover, for \emph{every} subset $U'\subseteq U$,
+\begin{equation}\label{eq:value}
+1\ \le\ \Rec{C}+\sum_{q\in U'}\frac1{79\,q}+V\bigl(\budget-\card{C}-\card{U'}\bigr).
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+First, $\Rec{C}=1-\Rec{G}\le1$.
+Take the elements $e(q)$, $q\in U'$, from the proof of \cref{lem:U}. They are distinct, and $e(q)=qP\ge79q$.
+The remaining $\card{G}-\card{U'}\le\budget-\card{C}-\card{U'}$ elements of $G$ are distinct elements of $\Pset$ with a large prime factor.
+By \cref{lem:exchange} their reciprocal sum is at most $V(\budget-\card{C}-\card{U'})$.
+Now use $1=\Rec{C}+\Rec{G}$.
+\end{proof}
+
+\begin{definition}[Admissible cores]\label{def:admissible}
+A set $C\subseteq\Pset_{\Sset}$ is \emph{$\budget$-admissible} if $\card{C}+\card{U(C)}\le\budget$ and $\Rec{C}\le1$, and if \eqref{eq:value} holds for every upper segment $U'=U(C)\cap(p,\infty)$, $p\ge0$. (The upper segments include $U(C)$ itself, for $p=0$, and $\varnothing$, for $p\ge73$.)
+\end{definition}
+
+By \cref{lem:U,lem:value}, the core of every $T$ satisfying \eqref{eq:setting} is $\budget$-admissible.
+
+\begin{remark}[Why upper segments]\label{rem:segments}
+The search of \cref{sec:proof46} processes the primes of $\Sset$ in decreasing order, and at an intermediate stage it uses \eqref{eq:value} with $U'$ equal to the set of primes \emph{already known} to lie in $U$. That set is an upper segment of $U$.
+A prime that joins $U$ later, for instance $q=2$ at the last level, adds $1/(79q)$ to the right-hand side of \eqref{eq:value} but removes one term of $V$, possibly a much smaller one. So the right-hand side for $U'=U$ can be larger than for a proper upper segment.
+Thus the set of cores produced by the search is \emph{not} the set of cores satisfying \eqref{eq:value} for $U'=U$ alone, as stated in an earlier description of the method. It contains the set of admissible cores in the sense of \cref{def:admissible}, and possibly some further cores, because the bounds used at intermediate nodes are not tight.
+Pruning with upper segments is sound because \eqref{eq:value} holds for every $U'\subseteq U$.
+On reduced instances the difference is substantial (\cref{sec:bruteforce}).
+\end{remark}
+
+\begin{definition}[Shapes]\label{def:shape}
+Let $C$ be a core with residues $\rho$ and unsatisfied set $U$. For $q\in U$ let $\Pmin(q)$ be the least large prime $P$ with $P^{-1}\equiv-\rho(q)\pmod q$. Put
+\[
+w_q(0)=0,\qquad w_q(1)=\frac{1}{q\,\Pmin(q)},\qquad w_q(d)=\sum_{k=0}^{d-1}\frac1{q\,b_k}\quad(d\ge2).
+\]
+A pair $(d,b)$, with $d=(d_q)_{q\in\Sset}$ and $b$ nonnegative integers, is a \emph{$\budget$-feasible shape} for $C$ if
+\begin{enumerate}[label=\textup{(S\arabic*)}]
+\item\label{S1} $d_q\ge1$ for $q\in U$ and $d_q\ne1$ for $q\in\Sset\setminus U$;
+\item\label{S2} $E:=b+\sum_{q\in U}(d_q-1)+\sum_{q\in\Sset\setminus U}d_q\le\budget-\card{C}-\card{U}$;
+\item\label{S3} $\rho(2)+d_2\equiv0\pmod2$, where $\rho(2)\in\{0,1\}$;
+\item\label{S4} $1-\Rec{C}\le\sum_{q\in\Sset}w_q(d_q)+\dfrac{b}{79\cdot83}$.
+\end{enumerate}
+\end{definition}
+
+Dirichlet's theorem guarantees that $\Pmin(q)$ exists, but we do not need it. If no large prime lies in the required class, then $d_q=1$ is impossible by \cref{lem:shape} below. The programs compute $\Pmin(q)$ by direct search, and this search terminated for every class that occurred. The Lean formalization defines $\Pmin(q)=0$ if no such prime exists.
+
+\begin{lemma}[Shape lemma]\label{lem:shape}
+For $T$ as in \eqref{eq:setting}, the pair $(d,b)$ of \cref{def:core} is a $\budget$-feasible shape for the core $C$ of $T$.
+\end{lemma}
+
+\begin{proof}
+\ref{S1}: For $q\in U$ use \cref{lem:U}. If $q\notin U$ has exactly one large neighbour $P$, then \eqref{eq:local} at $q$ gives $P^{-1}\equiv0\pmod q$, which is impossible.
+
+\ref{S2}: Each element of $G$ has exactly one small prime factor or none, so $\card{G}=\sum_{q\in\Sset}d_q+b$. Hence $E=\card{G}-\card{U}\le\budget-\card{C}-\card{U}$.
+
+\ref{S3}: Every large prime $P$ is odd, so $P^{-1}\equiv1\pmod2$. The congruence \eqref{eq:local} at $2$ becomes $\rho(2)+d_2\equiv0\pmod 2$.
+
+\ref{S4}: Split
+\[
+1-\Rec{C}=\Rec{G}=\sum_{q\in\Sset}\ \sum_{P\text{ large},\,qP\in T}\frac1{qP}+\sum_{PP'\in G\text{ large--large}}\frac1{PP'} .
+\]
+If $d_q\ge2$, the $d_q$ large neighbours of $q$ are distinct primes, so their contribution is at most $w_q(d_q)$ by \cref{lem:exchange}.
+If $d_q=1$, then $q\in U$ by \ref{S1}. By \eqref{eq:local} the unique large neighbour $P$ satisfies $P^{-1}\equiv-\rho(q)$, so $P\ge\Pmin(q)$ and $1/(qP)\le w_q(1)$.
+A large--large element is $PP'$ with $79\le P<P'$, so $P'\ge83$ and $1/(PP')\le1/(79\cdot83)$.
+\end{proof}
+
+\paragraph{The finite reduction.}
+\cref{lem:U,lem:value,lem:shape} reduce the problem as follows.
+\begin{enumerate}[label=(\arabic*)]
+\item The core is one of finitely many admissible subsets of the $210$ elements of $\Pset_\Sset$.
+\item The shape is one of finitely many, because all $d_q$ and $b$ are bounded by \ref{S2}.
+\item The large part is then subject to the constraints of \cref{sec:stars}: a large prime whose neighbours are all small divides an explicit positive integer, and a single large--large edge is governed by a factorization identity. Both confine the large primes to explicit finite sets.
+\end{enumerate}
+The only case not reduced by theory is $b\ge2$. The computation shows that no feasible shape with $b\ge2$ exists for $\budget=47$, and none with $b\ge1$ for $\budget=46$ (\cref{sec:proof46,sec:proof47}). If such shapes had survived, further analysis would have been needed; the programs were written to report them as ``unresolved'' rather than discard them.
+
+% =====================================================================
+\section{Large primes: stars and the large--large component}\label{sec:stars}
+% =====================================================================
+
+\subsection{Stars}
+
+For a finite set $A$ of primes put
+\[
+\nA(A)=\sum_{q\in A}\ \prod_{r\in A\setminus\{q\}} r ,
+\]
+so that $\sum_{q\in A}1/q=\nA(A)/\prod_{r\in A}r$. For instance $\nA(\{a,b\})=a+b$ and $\nA(\{a,b,c\})=ab+ac+bc$.
+
+\begin{lemma}[Star lemma]\label{lem:star}
+Let $P$ be a prime with $P\notin A$. Then $\sum_{q\in A}q^{-1}\equiv0\pmod P$ if and only if $P\mid\nA(A)$.
+Consequently, if $\Rec{T}\in\Z$ and a large prime $P$ has all its neighbours in $\Sset$, then $P\mid\nA(\Nb(P))$ and in particular $P\le\nA(\Nb(P))$. Moreover $\card{\Nb(P)}\ge2$.
+\end{lemma}
+
+\begin{proof}
+Multiply the congruence by $\prod_{r\in A}r$, which is invertible modulo $P$. The second statement follows from \eqref{eq:local} at $P$ and $\nA(A)>0$; the third follows from \cref{cor:degree}.
+\end{proof}
+
+We call such a pair $(P,A)$ with $A=\Nb(P)\subseteq\Sset$ a \emph{star} with \emph{centre} $P$ and \emph{leaves} $A$.
+For a fixed set $A$ of leaves only the finitely many prime divisors of $\nA(A)$ can be centres.
+This is the mechanism that bounds the large primes.
+
+\begin{lemma}[Star size]\label{lem:starsize}
+Suppose $T$ satisfies \eqref{eq:setting} and $P$ is a large prime all of whose neighbours lie in $\Sset$. Then $\card{\Nb(P)}\le\card{T}-36\le\budget-36$. Thus a star has at most $10$ leaves if $\budget=46$ and at most $11$ if $\budget=47$.
+\end{lemma}
+
+\begin{proof}
+Let $d=\card{\Nb(P)}$. The $d$ elements $qP$ contribute at most $\frac1{79}\sum_{q\in\Sset}\frac1q\le\frac{1757}{79000}$, since $\sum_{q\in\Sset}1/q=1.7565\ldots\le1.757$ (exact computation).
+If $d\ge\card{T}-35$, the other at most $35$ elements contribute at most $H_{35}<1-\frac{1757}{79000}$ by \cref{lem:exchange,prop:Hk}. Then $\Rec{T}<1$, a contradiction.
+\end{proof}
+
+The programs use the slightly sharper bound $\frac1{79}\sum_{i<d}1/p_i+H_{\budget-d}\ge1$, with $p_0<p_1<\dots$ the primes of $\Sset$. Recomputed with exact rationals, it gives the same maxima, $10$ and $11$.
+
+\begin{definition}[Candidate stars]\label{def:candidate}
+Let $C$ be a core and $(d,b)$ a feasible shape, and put $W=\{q\in\Sset: d_q\ge1\}$. A \emph{candidate star} for $(C,d)$ with at most $m$ leaves is a pair $(P,A)$ with $A\subseteq W$, $2\le\card{A}\le m$, $P>73$ prime, $P\mid\nA(A)$, and $P^{-1}\equiv-\rho(q)\pmod q$ for every $q\in A$ with $d_q=1$.
+\end{definition}
+
+Since $P\le\nA(A)\le\card{A}\prod_{r\in A}r\le 21\prod_{r\in\Sset}r$, there are only finitely many candidate stars (\lean{starCand_finite}).
+If $b=0$, every large prime of $T$ is the centre of a star, and the stars of $T$ have the following properties:
+\begin{itemize}
+\item their centres are distinct;
+\item $q\in\Sset$ is a leaf of exactly $d_q$ of them;
+\item each of them is a candidate star with at most $\budget-36$ leaves (\cref{lem:star,lem:starsize}). The residue condition holds because a leaf $q$ with $d_q=1$ has the centre as its only large neighbour;
+\item their total value $\sum_{(P,A)}\sum_{q\in A}1/(qP)$ equals $1-\Rec{C}$.
+\end{itemize}
+Conversely, these conditions determine $G$. So for $b=0$ the completions of a core are exactly the \emph{exact covers} of the multiplicities $(d_q)$ by candidate stars with distinct centres and total value $1-\Rec{C}$.
+
+\paragraph{The six solutions with a large prime.}
+\cref{tab:bigprimes} lists the six solutions of \cref{thm:B} that contain a large prime.
+In each of them $G$ consists of a single star with three leaves $a,b,c$. The core has $44$ elements, $U=\{a,b,c\}$, $d_a=d_b=d_c=1$ and all other $d_q=0$, so the excess is $E=0$ and $\card{C}+\card{U}=47$. The large prime divides $\nA(\{a,b,c\})=ab+ac+bc$.
+For $P=311$, $503$ and $3779$ the quantity $ab+ac+bc$ is itself prime and equal to $P$; for $P=269$, $421$ and $433$ it is $3P$, $11P$ and $7P$, respectively.
+
+\begin{table}[ht]
+\centering
+\caption{The six $47$-term representations of $1$ that contain a prime $P>73$. The last column refers to the numbering of \cref{app:solutions}.}
+\label{tab:bigprimes}
+\small
+\begin{tabular}{@{}rllll@{}}
+\toprule
+$P$ & leaves $A=\{a,b,c\}$ & $\nA(A)=ab+ac+bc$ & large elements $aP,bP,cP$ & no. \\
+\midrule
+\tableinput{tables/bigprime_table.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{example}[The prime $3779$]\label{ex:3779}
+Solution~5 of \cref{app:solutions} contains $109591=29\cdot3779$, $139823=37\cdot3779$ and $154939=41\cdot3779$, and $3779=29\cdot37+29\cdot41+37\cdot41$ is prime.
+Any search that bounds the prime factors by a fixed cutoff below $3779$ misses this representation of $1$. Such a cutoff includes the natural choices $101$ and $1000$.
+The present argument bounds large primes only through divisibility: a star centre divides $\nA(A)$ for its set of leaves $A$, which for three leaves can be as large as $67\cdot71+67\cdot73+71\cdot73=14\,831$.
+\end{example}
+
+\subsection{One edge between two large primes}\label{sec:component}
+
+Suppose $b=1$. Then $G$ contains exactly one element $P_1P_2$ with $P_1\ne P_2$ both large.
+Every other large prime has only small neighbours, since a second large neighbour would create a second large--large element, and is therefore the centre of a star.
+For $i=1,2$ we have $\Nb(P_i)=A_i\cup\{P_{3-i}\}$ with $A_i\subseteq\Sset$, and $A_i\ne\varnothing$ by \cref{cor:degree}.
+Put
+\[
+b_i=\prod_{q\in A_i}q,\qquad a_i=\nA(A_i),\qquad Z=\sum_{q\in A_1}\frac1{qP_1}+\sum_{q\in A_2}\frac1{qP_2}+\frac1{P_1P_2},
+\]
+the value of the component. Finally put
+\[
+W=a_1b_2P_2+a_2b_1P_1+b_1b_2,\qquad t=Z\,b_1b_2,\qquad N=b_1b_2\,(t+a_1a_2).
+\]
+
+\begin{proposition}[The component equation]\label{prop:component}
+Let $P_1\ne P_2$ be primes not dividing $b_1b_2$, and let $A_1,A_2$ be nonempty.
+\begin{enumerate}[label=\textup{(\alph*)}]
+\item $Z\,b_1b_2\,P_1P_2=W$; that is, $t\,P_1P_2=W$ in $\Q$.
+\item The local conditions \eqref{eq:local} at $P_1$ and at $P_2$ hold if and only if $P_1P_2\mid W$, i.e.\ if and only if $t\in\Z$.
+\item For every rational $t\ne0$,
+\[
+(tP_1-a_1b_2)(tP_2-a_2b_1)=b_1b_2\,(t+a_1a_2)\iff tP_1P_2=W .
+\]
+In particular the identity on the left holds for $t=Zb_1b_2$, whether or not $t$ is an integer.
+\item Suppose $t$ is a positive integer with $tP_1P_2=W$, and put $X=tP_1-a_1b_2$, $Y=tP_2-a_2b_1$. Then $X$ and $Y$ are positive integers with $XY=N$, and
+\[
+P_1=\frac{X+a_1b_2}{t},\qquad P_2=\frac{N/X+a_2b_1}{t}.
+\]
+Conversely, if $t>0$ and $X$ is a positive divisor of $N$ such that both quotients are integers, then they satisfy $tP_1P_2=W$.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+(a) Use $\sum_{q\in A_i}1/q=a_i/b_i$ and clear denominators.
+
+(b) Since $\Nb(P_1)=A_1\cup\{P_2\}$, \cref{lem:star} shows that \eqref{eq:local} at $P_1$ is equivalent to $P_1\mid\nA(A_1\cup\{P_2\})=a_1P_2+b_1$.
+Now $W=b_2(a_1P_2+b_1)+a_2b_1P_1\equiv b_2(a_1P_2+b_1)\pmod{P_1}$ and $P_1\nmid b_2$, so this is equivalent to $P_1\mid W$. The same argument applies at $P_2$.
+Since $P_1\ne P_2$, both conditions together are equivalent to $P_1P_2\mid W$, which by (a) says $t\in\Z$.
+
+(c) Expanding gives
+$(tP_1-a_1b_2)(tP_2-a_2b_1)-b_1b_2(t+a_1a_2)=t\,(tP_1P_2-W)$.
+
+(d) From $tP_1P_2=W$ we get $P_2X=W-a_1b_2P_2=a_2b_1P_1+b_1b_2>0$, so $X>0$, and similarly $Y>0$. Then (c) gives $XY=N$. The converse is (c) read backwards.
+\end{proof}
+
+\begin{remark}[Correction]\label{rem:component}
+An earlier description of the method stated that the factorization identity in (c) is itself equivalent to the local conditions at $P_1$ and $P_2$. By (a) and (c), however, the identity holds automatically for $t=Zb_1b_2$. What is equivalent to the local conditions is the \emph{integrality} of $t$, by (b). The positivity of $X$ and $Y$ and the nonemptiness of $A_1$ and $A_2$, both used by the program, are proved above.
+\end{remark}
+
+\paragraph{Finite enumeration for $b=1$.}
+Fix a core $C$, a feasible shape with $b=1$, nonempty attachment sets $A_1,A_2\subseteq W$, and a family $F$ of stars covering the remaining multiplicities $d_q-[q\in A_1]-[q\in A_2]$.
+Then the value of the component is $Z=1-\Rec{C}-\Rec{F}$, and $t=Zb_1b_2$ is determined; it must be a positive integer.
+By \cref{prop:component}(d) the pair $(P_1,P_2)$ is then determined by a positive divisor $X$ of the explicit integer $N$.
+All choices of $A_1$, $A_2$ and $F$ range over finite sets, so the $b=1$ completions of a core form a finite, explicitly enumerable set (\lean{comp_pairs_finite}).
+Interchanging $(A_1,P_1)$ and $(A_2,P_2)$ replaces $X$ by $N/X$, so unordered pairs $\{A_1,A_2\}$ suffice.
+
+% =====================================================================
+\section{Computer-assisted proof of the lower bound}\label{sec:proof46}
+% =====================================================================
+
+This section describes the computation carried out by \file{semiprime_reciprocals.cpp} for $\budget=46$ and proves \cref{thm:A} from its outcome.
+The computation consists of two steps: enumeration of all admissible cores (Step~1) and, for each of them, enumeration of all feasible shapes and completions (Step~2).
+
+\subsection{Step 1: enumeration of the admissible cores}\label{sec:step1}
+
+Let $p_0=2<p_1<\dots<p_{20}=73$ be the primes of $\Sset$.
+Every core $C\subseteq\Pset_\Sset$ is determined by the sets
+\[
+L_j=\{p_i: i<j,\ p_ip_j\in C\}\qquad(j=20,19,\dots,1)
+\]
+of \emph{lower neighbours}. The search is a depth-first search that chooses $L_{20},L_{19},\dots,L_1$ in this order (\cref{alg:step1}).
+When $L_j$ is chosen, every core edge at $p_j$ is known, because the edges to larger primes were fixed at earlier levels. Hence $\rho(p_j)$ is known, and it is decided whether $p_j\in U$.
+At every stage the set of primes already known to lie in $U$ is therefore an upper segment $U\cap(p,\infty)$ of the final set $U$.
+Each core corresponds to exactly one leaf of the search tree, so each core is visited at most once.
+
+For each $j$, the choice of $L_j$ is split into two parts. The primes $p_i$ with $8\le i<j$ are handled by explicit inclusion/exclusion recursion. The $8$ smallest primes are handled by a precomputed table of all $2^8$ subsets, indexed by their contribution to the residue at $p_j$. This lets the search jump directly to the subsets that make $p_j$ satisfied, and to the others (which put $p_j$ into $U$) only when that is still affordable.
+
+\paragraph{Fixed-point bounds.}
+Write $\up(n)=\lceil 2^{96}/n\rceil$ and $\lo(n)=\lfloor 2^{96}/n\rfloor$. For a finite set $X$ of positive integers put $\up(X)=\sum_{n\in X}\up(n)$ and $\lo(X)=\sum_{n\in X}\lo(n)$. Then
+\[
+\lo(X)\le 2^{96}\Rec{X}\le\up(X).
+\]
+Let $v_1<v_2<\cdots$ be the elements of $\Pset$ with a large prime factor, and put $\mathrm{VB}(x)=\sum_{i\le x}\up(v_i)\ge2^{96}V(x)$.
+All these quantities are integers below $2^{128}$ and are computed exactly in unsigned $128$-bit arithmetic.
+
+\paragraph{Pruning tests.}
+Consider a node of the search at which the decided core edges form a set $C_0$ and the decided unsatisfied primes form $U_0$. Let $j$ be the current level and $i$ the number of lower primes whose membership in $L_j$ is still open. The search discards the node if one of the following holds:
+\begin{enumerate}[label=\textup{(P\arabic*)}]
+\item\label{P1} $\card{C_0}+\card{U_0}>\budget$;
+\item\label{P2} $\lo(C_0)>2^{96}$;
+\item\label{P3} $\up(C_0)+\sum_{q\in U_0}\up(79q)+B_{j,i}(R)<2^{96}$, where $R=\budget-\card{C_0}-\card{U_0}$ and
+\[
+B_{j,i}(R)=\max_{\substack{x_1+x_2\le R\\ x_1\le i}}\Bigl(M_{j,i}(x_1)+M'_j(x_2)+\mathrm{VB}(R-x_1-x_2)\Bigr).
+\]
+Here $M_{j,i}(x)$ is the sum of the $x$ largest values $\up(p_jp_k)$ with $k<i$ (possible further edges at $p_j$), and $M'_j(x)$ is the sum of the $x$ largest values $\up(p_kp_l)$ with $k<l<j$ (possible edges among smaller primes).
+\end{enumerate}
+Test \ref{P3} is also applied to the tentative set $U_0\cup\{p_j\}$, with $R$ replaced by $R-1$, before $p_j$ is put into $U$.
+At a leaf, where the complete core $C$ and $U$ are known, the core is kept only if \ref{P1} and \ref{P2} hold and
+\begin{equation}\label{eq:leaftest}
+\up(C)+\sum_{q\in U}\up(79q)+\mathrm{VB}(\budget-\card{C}-\card{U})\ge2^{96}.
+\end{equation}
+
+\begin{algorithm}[t]
+\caption{Step 1 (core enumeration), schematically}\label{alg:step1}
+\begin{algorithmic}[1]
+\Procedure{Level}{$j$, $C_0$, $U_0$} \Comment{primes $>p_j$ fully processed}
+  \If{$j=0$} \Comment{prime $2$: no lower neighbours}
+     \State decide $2\in U$ from $\rho(2)$; apply \ref{P1}; \Call{Leaf}{$C_0$, $U_0$}; \Return
+  \EndIf
+  \ForAll{$L\subseteq\{p_0,\dots,p_{j-1}\}$ not excluded by \ref{P1}--\ref{P3}} \Comment{explicit + table}
+     \State $C_1\gets C_0\cup\{p_jq:q\in L\}$; compute $\rho(p_j)$ and the residue updates at $q\in L$
+     \State $U_1\gets U_0\cup\{p_j\}$ if $\rho(p_j)\ne0$ else $U_0$ \Comment{\ref{P3} tested for $U_1$}
+     \State \Call{Level}{$j-1$, $C_1$, $U_1$}
+  \EndFor
+\EndProcedure
+\Procedure{Leaf}{$C$, $U$}
+  \If{\eqref{eq:leaftest} holds} output $C$ to Step~2 \EndIf
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\begin{lemma}[Soundness of Step 1]\label{lem:step1}
+Every $\budget$-admissible core (\cref{def:admissible}) reaches a leaf of the search and is passed to Step~2.
+\end{lemma}
+
+\begin{proof}
+Let $C$ be admissible, with unsatisfied set $U$, and consider a node on the path to $C$, with $C_0\subseteq C$ and $U_0=U\cap(p,\infty)$ for some $p$.
+\ref{P1} fails because $\card{C_0}+\card{U_0}\le\card{C}+\card{U}\le\budget$.
+\ref{P2} fails because $\lo(C_0)\le2^{96}\Rec{C_0}\le2^{96}\Rec{C}\le2^{96}$.
+For \ref{P3}, let $x_1$ and $x_2$ be the numbers of edges of $C\setminus C_0$ at $p_j$ and among the smaller primes, respectively. Then $\up(C\setminus C_0)\le M_{j,i}(x_1)+M'_j(x_2)$. Also $R-x_1-x_2=\budget-\card{C}-\card{U_0}$, and $\mathrm{VB}(x)\ge2^{96}V(x)$. Hence
+\[
+\up(C_0)+\sum_{q\in U_0}\up(79q)+B_{j,i}(R)\ \ge\ 2^{96}\Bigl(\Rec{C}+\sum_{q\in U_0}\frac1{79q}+V(\budget-\card{C}-\card{U_0})\Bigr)\ \ge\ 2^{96},
+\]
+where the last step is \eqref{eq:value} for the upper segment $U'=U_0$.
+The tentative test with $U_0\cup\{p_j\}$ is again a test of this form for the upper segment $U\cap[p_j,\infty)$, and \eqref{eq:leaftest} is the case $U'=U$.
+\end{proof}
+
+Because of the rounding, the search may keep a few cores that are not admissible. This is harmless: they are examined further in Step~2.
+
+\paragraph{Parallelization.}
+The search tree above a fixed level (the prime $61$) is traversed by every thread in the same deterministic order, and the nodes at that level are numbered consecutively.
+Each thread obtains node numbers from a shared atomic counter and processes only the nodes whose numbers it obtained.
+Tickets are handed out in increasing order, and a thread requests a new ticket only after passing the node of its previous ticket. Hence the ticket a thread obtains is never smaller than its current position, and every node number below the total count is obtained by exactly one thread.
+So every subtree is processed exactly once, regardless of scheduling. Only the reported node counts depend on the number of threads, because the upper part of the tree is traversed by every thread.
+
+\subsection{Step 2: completion of the surviving cores}\label{sec:step2}
+
+For each core $C$ output by Step~1:
+\begin{enumerate}[label=(\alph*)]
+\item If $U=\varnothing$, then $C$ satisfies \eqref{eq:local} at every prime: at the primes of $\Sset$ by the definition of $U$, and trivially at all other primes. So $\Rec{C}\in\Z$. If $C\ne\varnothing$, then $\Rec{C}=1$ by \cref{cor:sum-is-one}, and the program reports $C$ as a solution. The empty core is not admissible, because $V(\budget)\le\budget/158<1$.
+\item If $U\ne\varnothing$, the program enumerates all $(d,b)$ satisfying \ref{S1} and \ref{S2}, discards those that violate \ref{S3} or \ref{S4}, and processes the survivors.
+In \ref{S4} the right-hand side is rounded up and $1-\Rec{C}$ is rounded down, so no feasible shape is discarded.
+A surviving shape with $b>0$ is reported as \emph{unresolved}.
+For a surviving shape with $b=0$, the program lists all candidate stars with at most $10$ leaves (\cref{def:candidate}); it finds the centres by factoring $\nA(A)$ completely.
+It then searches for an exact cover of the multiplicities by candidate stars with distinct centres that also satisfies the congruences \eqref{eq:local} at every $q\in W$.
+\end{enumerate}
+
+\begin{claim}[Budget $46$; Lean: \protect\lean{Search46}]\label{claim:46}
+For every $46$-admissible core $C$:
+\begin{enumerate}[label=\textup{(\roman*)}]
+\item $U(C)\ne\varnothing$;
+\item every $46$-feasible shape $(d,b)$ for $C$ has $b=0$;
+\item for every $46$-feasible shape $(d,0)$ there is no candidate star with at most $10$ leaves.
+\end{enumerate}
+\end{claim}
+
+\begin{table}[t]
+\centering
+\caption{Recorded results of the two searches (\protect\file{proof_run_output.txt}, \protect\file{run47_output.txt}). Numbers marked $^\dagger$ were obtained by the Python re-implementation of Step~2 (\cref{sec:python}); all other numbers were printed by the C++ programs.}
+\label{tab:results}
+\small
+\begin{tabular}{@{}lrr@{}}
+\toprule
+ & budget $46$ & budget $47$\\
+\midrule
+maximal number of leaves of a star (\cref{lem:starsize}) & $10$ & $11$\\
+search nodes (4 threads) & $139\,830\,520\,211$ & $1\,795\,181\,713\,099$\\
+cores kept by Step 1 & $178$ & $22\,382$\\
+\quad of which $U=\varnothing$ & $0$ & $17$\\
+\quad of which $U\ne\varnothing$ and $\card{C}+\card{U}=\budget$ & $111$ & $11\,287$\\
+shapes satisfying \ref{S1}--\ref{S3} & $3\,777$ & $1\,107\,702$\\
+shapes satisfying \ref{S1}--\ref{S4} & $61$ & $8\,049$\\
+\quad cores with at least one such shape & $61$ & $7\,432$\\
+\quad with $b=0$ / $b=1$ / $b\ge2$ & $61$ / $0$ / $0$ & $7\,981^\dagger$ / $68^\dagger$ / $0$\\
+candidate stars (summed over surviving shapes) & $0$ & $125$\\
+unresolved cores & $0$ & $0$\\
+probable (not proven) primes used & -- & $0$\\
+solutions found & $0$ & $23$\\
+wall-clock time of the recorded run & 19\,min\,40\,s & 5\,h\,48\,min\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The recorded run of \file{semiprime_reciprocals.cpp} produced the output summarized in \cref{tab:results}. The search visited $1.4\cdot10^{11}$ nodes and kept $178$ cores; none of them has $U=\varnothing$. Step~2 examined $3777$ shapes satisfying \ref{S1}--\ref{S3}. Only $61$ of them also satisfy \ref{S4}, all with $b=0$, and for none of these $61$ shapes does a candidate star exist. Nothing was reported as unresolved and no solution was found.
+This is precisely \cref{claim:46}; see \cref{sec:claimmatch} for the correspondence in detail.
+The run was repeated for this paper with identical results (\cref{sec:rerun}).
+
+\begin{proof}[Proof of \cref{thm:A}, assuming \cref{claim:46}]
+Let $T\subset\Pset$ be nonempty with $\card{T}\le46$ and $\Rec{T}\in\Z$.
+By \cref{cor:sum-is-one}, $\Rec{T}=1$, so $T$ satisfies \eqref{eq:setting} with $\budget=46$.
+Its core $C$ is $46$-admissible (\cref{lem:U,lem:value}), so $U\ne\varnothing$ by \cref{claim:46}(i).
+The shape $(d,b)$ of $T$ is $46$-feasible (\cref{lem:shape}), so $b=0$ by \cref{claim:46}(ii).
+Choose $q\in U$. By \cref{lem:U}, $q$ has a large neighbour $P$. Since $b=0$, all neighbours of $P$ lie in $\Sset$.
+By \cref{lem:star,lem:starsize}, $(P,\Nb(P))$ satisfies $2\le\card{\Nb(P)}\le10$ and $P\mid\nA(\Nb(P))$, and $\Nb(P)\subseteq W$. Moreover, if $d_{q'}=1$ for some $q'\in\Nb(P)$, then $P$ is the only large neighbour of $q'$, so $P^{-1}\equiv-\rho(q')\pmod{q'}$ by \eqref{eq:local}.
+Thus $(P,\Nb(P))$ is a candidate star for $(C,d)$, contradicting \cref{claim:46}(iii).
+Hence $\card{T}\ge47$. Sharpness follows from \cref{thm:B}, or directly from any of the sets in \cref{app:solutions}, whose validity is verified exactly and unconditionally (\cref{sec:exact}).
+\end{proof}
+
+% =====================================================================
+\section{Classification of the 47-term representations}\label{sec:proof47}
+% =====================================================================
+
+The program \file{semiprime47.cpp} runs the same Step~1 with $\budget=47$. Its Step~2 enumerates \emph{all} completions instead of stopping at the first one:
+\begin{itemize}
+\item cores with $U=\varnothing$ are recorded as solutions;
+\item for a surviving shape with $b=0$, all exact covers by candidate stars with at most $11$ leaves and distinct centres are enumerated, and a cover is kept if its value equals $1-\Rec{C}$ \emph{exactly}. The value is computed as an integer multiple of $1/D$, where $D=\prod_{p\in\Sset}p<2^{128}$ is a common denominator of all core and star values;
+\item for a surviving shape with $b=1$, the program enumerates the following, as in \cref{sec:component}:
+  \begin{itemize}
+  \item all unordered pairs $\{A_1,A_2\}$ of nonempty subsets of $W$ with $[q\in A_1]+[q\in A_2]\le d_q$;
+  \item all covers of the remaining multiplicities by candidate stars;
+  \item the integer $t$, if it exists;
+  \item all positive divisors $X$ of $N$, obtained from the complete factorization of $t+a_1a_2$ and of $b_1b_2$.
+  \end{itemize}
+  It keeps the pairs for which $P_1\ne P_2$ are primes larger than $73$ and distinct from the star centres;
+\item a surviving shape with $b\ge2$ is reported as unresolved.
+\end{itemize}
+Every recorded set is then verified exactly: it has $47$ elements, they are distinct squarefree semiprimes, and their reciprocal sum is $1$ (\cref{sec:exact}).
+
+\begin{claim}[Budget $47$; Lean: \protect\lean{Search47}]\label{claim:47}
+Let $\mathcal{T}_{23}$ be the family of the $23$ sets listed in \cref{app:solutions}.
+\begin{enumerate}[label=\textup{(\roman*)}]
+\item Every $47$-admissible core $C\ne\varnothing$ with $U(C)=\varnothing$ belongs to $\mathcal{T}_{23}$.
+\item For every $47$-admissible core with $U\ne\varnothing$, every $47$-feasible shape has $b\le1$.
+\item \textup{($b=0$)} Let $C$ be $47$-admissible with $U\ne\varnothing$, let $(d,0)$ be a $47$-feasible shape, and let $\{(P,A_P)\}_{P\in\mathcal{C}}$ be a family of candidate stars with at most $11$ leaves and distinct centres such that each $q\in\Sset$ is a leaf of exactly $d_q$ of them and $\Rec{C}+\sum_{P}\sum_{q\in A_P}1/(qP)=1$. Then $C\cup\{qP: P\in\mathcal{C},\,q\in A_P\}\in\mathcal{T}_{23}$.
+\item \textup{($b=1$)} Let $C$ and $(d,1)$ be as in (iii), except that $b=1$. Suppose we are given:
+  \begin{itemize}
+  \item nonempty $A_1,A_2\subseteq\Sset$;
+  \item a family of candidate stars as in (iii) covering the multiplicities $d_q-[q\in A_1]-[q\in A_2]$, with total value $\Sigma_F<1-\Rec{C}$;
+  \item the positive integer $t=(1-\Rec{C}-\Sigma_F)\,b_1b_2$;
+  \item a positive divisor $X$ of $N$ such that $P_1=(X+a_1b_2)/t$ and $P_2=(N/X+a_2b_1)/t$ are distinct primes larger than $73$ and are not centres of the stars.
+  \end{itemize}
+  Then the resulting set, consisting of $C$, the star elements, $\{qP_1\}_{q\in A_1}$, $\{qP_2\}_{q\in A_2}$ and $P_1P_2$, belongs to $\mathcal{T}_{23}$.
+\end{enumerate}
+\end{claim}
+
+The recorded run (\cref{tab:results}) kept $22\,382$ cores. Seventeen of them have $U=\varnothing$, all with $\card{C}=47$, and these are the $17$ solutions with all primes at most $73$.
+Of the remaining $22\,365$ cores, $11\,287$ have $\card{C}+\card{U}=47$.
+The printed count ``$\card{C}+\card{U}=47$: $11\,287$'' in \file{run47_output.txt} excludes the $17$ cores with $U=\varnothing$. Including them, the dump of all kept cores contains $11\,304$ cores with $\card{C}+\card{U}=47$.
+Step~2 examined $1\,107\,702$ shapes. Of these, $8\,049$ shapes in $7\,432$ cores satisfy \ref{S1}--\ref{S4}: $7\,981$ with $b=0$, $68$ with $b=1$, and none with $b\ge2$.
+For the $68$ shapes with $b=1$ there are $7\,896$ admissible attachment pairs; $t$ is an integer in $957$ cases, and none of them yields a solution.
+The surviving shapes with $b=0$ have $125$ candidate stars in total. They produce exactly the $6$ solutions of \cref{tab:bigprimes}, each consisting of a core with $44$ elements and a single star with three leaves.
+No shape was unresolved. Every number declared prime is below $2^{64}$, where the primality test is deterministic, and ``composite'' verdicts of the Miller--Rabin test are always correct. So all primality decisions are rigorous (\cref{sec:repro}).
+
+\begin{proof}[Proof of \cref{thm:B}, assuming \cref{claim:47}]
+By \cref{sec:exact}, each of the $23$ listed sets has $47$ elements and reciprocal sum $1$, and the sets are pairwise distinct.
+Conversely, let $\card{T}=47$ and $\Rec{T}=1$. Then \eqref{eq:setting} holds with $\budget=47$, and the core $C$ of $T$ is $47$-admissible.
+\begin{itemize}
+\item If $U=\varnothing$, then $G=\varnothing$. Indeed, $C$ satisfies \eqref{eq:local} everywhere, so $\Rec{C}\in\Z$. Since $V(47)<1$, the core $C$ is nonempty, so $\Rec{C}=1$ and $\Rec{G}=0$. Hence $T=C\in\mathcal{T}_{23}$ by \cref{claim:47}(i).
+\item If $U\ne\varnothing$, the shape of $T$ is feasible, so $b\le1$ by \cref{claim:47}(ii).
+  \begin{itemize}
+  \item If $b=0$, the stars of $T$ form a family as in \cref{claim:47}(iii) (\cref{sec:stars}), so $T\in\mathcal{T}_{23}$.
+  \item If $b=1$, \cref{prop:component} shows that the data $(A_1,A_2,\text{stars},t,X)$ of $T$ are as in \cref{claim:47}(iv), with $X=tP_1-a_1b_2>0$. Hence $T\in\mathcal{T}_{23}$.
+  \end{itemize}
+\end{itemize}
+The statement about integral sums follows from \cref{cor:sum-is-one}. Parts (i) and (ii) of \cref{thm:B} are read off from the list; the numbers in \cref{tab:bigprimes} were recomputed exactly.
+\end{proof}
+
+\paragraph{Structure of the $23$ solutions.}
+All $23$ solutions contain the $23$ numbers
+6, 10, 14, 15, 21, 22, 26, 33, 34, 35, 38, 39, 46, 51, 55, 57, 58, 62, 65, 93, 95, 133, 155.
+Each solution involves between $14$ and $16$ distinct primes, and the union of the $23$ solutions has $122$ elements.
+The largest prime in the $17$ solutions of type (i) is $71$.
+\cref{tab:solutions} lists, for each solution, its largest prime, its core size, and its elements outside the common part.
+
+\begin{table}[ht]
+\centering
+\caption{The $23$ solutions of \cref{thm:B}. Each solution consists of the $23$ common elements listed in the text together with the $24$ elements in the last column. ``Core'' is the number of elements with both prime factors at most $73$.}
+\label{tab:solutions}
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabularx}{\textwidth}{@{}rrrrX@{}}
+\toprule
+no. & max.\ prime & core & $P>73$ & remaining $24$ elements\\
+\midrule
+\tableinput{tables/solutions_table.tex}
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Correspondence between the claims and the programs}\label{sec:claimmatch}
+
+\cref{claim:46,claim:47} are stated with exact rational quantities, and the programs implement them as follows.
+\begin{itemize}
+\item \textbf{Step~1.} By \cref{lem:step1}, every admissible core is output by the search.
+\item \textbf{Shapes.} The shape enumeration generates every $(d,b)$ satisfying \ref{S1} and \ref{S2}. Since \ref{S4} is tested with a rounded-up right-hand side, every feasible shape passes.
+\item \textbf{Candidate stars.} For every $A\subseteq W$ with $2\le\card{A}\le m$, the program removes all prime factors at most $73$ from $\nA(A)$ and factors the remainder completely. Each factor is certified prime by a deterministic test, and the product of the factors equals the remainder by construction. So every candidate star of \cref{def:candidate} is found. The residue condition for $d_q=1$ is tested exactly.
+\item \textbf{Covers.} Covers are enumerated over index-increasing sequences of candidates with distinct centres, so every family of \cref{claim:47}(iii) is produced exactly once.
+\item \textbf{Case $b=1$.} The program uses unordered pairs $\{A_1,A_2\}$, whereas \cref{claim:47}(iv) quantifies over ordered pairs. Swapping $(A_1,P_1)\leftrightarrow(A_2,P_2)$ replaces $X$ by $N/X$ and yields the same set.
+\item \textbf{Magnitudes.} All intermediate integers in the $b=1$ branch are stored in $128$-bit words without explicit overflow checks. The Python recount (\cref{sec:python}) shows that in the actual run the largest of them, $N$, has at most $59$ bits. Moreover, $b_1b_2$, $a_1b_2$ and $a_2b_1$ have at most $31$ bits and $t+a_1a_2$ at most $28$ bits. So no overflow occurred.
+\end{itemize}
+This correspondence is an informal argument about the source code. It is \emph{not} machine-checked; see \cref{sec:lean}.
+
+% =====================================================================
+\section{Exact and independent verification}\label{sec:verification}
+% =====================================================================
+
+We distinguish four layers of evidence:
+\begin{enumerate*}[label=(\arabic*)]
+\item the optimized C++ searches;
+\item an independent Python re-implementation of Step~2;
+\item exact verification of the $23$ solutions;
+\item the Lean formalization (\cref{sec:lean}).
+\end{enumerate*}
+We also report checks performed specifically for this paper.
+
+\subsection{Exact verification of the 23 solutions}\label{sec:exact}
+
+Each of the $23$ sets was verified in four independent ways.
+\begin{itemize}
+\item \file{semiprime47.cpp} factors every element by trial division, certifies both factors with a deterministic primality test, and computes the reciprocal sum as a big-integer fraction over the product of all primes involved.
+\item \file{complete47.py} checks the sum with Python's \code{fractions.Fraction}.
+\item In Lean, \lean{Sol23_valid} proves that each set consists of $47$ squarefree semiprimes, with explicit factorizations and primality proved by \code{norm\_num}, and has reciprocal sum exactly $1$. \lean{Sol23_card} proves that the $23$ sets are pairwise distinct.
+\item For this paper, the script \file{paper/verification/verify_paper_facts.py} rechecks everything with exact integer arithmetic and trial division. It checks distinctness of the elements and of the sets, the squarefree-semiprime property, $\Rec{T}=1$, and the congruences \eqref{eq:local} at every vertex. It also recomputes all numbers quoted in \cref{sec:prelim,sec:stars} and generates all tables of this paper from the data.
+\end{itemize}
+
+\subsection{Independent implementation of Step 2}\label{sec:python}
+
+The Python program \file{complete47.py} is a separate implementation of Step~2. It uses exact rationals (\code{fractions.Fraction}) and unbounded integers throughout, its own primality test and factorization (trial division followed by Pollard's rho method \cite{Pollard1975}), and its own cover and divisor enumeration.
+It imposes no bound on the number of leaves of a candidate star, so it examines a superset of the candidates. It also recomputes $U$ from each core and compares it with the value in the dump.
+Run on the file \file{cores47.txt.gz} of all $22\,382$ cores kept by Step~1 with $\budget=47$, it finds the same $23$ solutions and no unresolved core (\file{run47_python_crosscheck.txt}).
+For this paper we reran it with additional counters (\file{paper/verification/analyze47.py}, identical logic). It reproduces every count in the budget-$47$ column of \cref{tab:results}: $1\,107\,702$ shapes, of which $8\,049$ survive in $7\,432$ cores, and $125$ candidate stars (with or without the bound of $11$ leaves). It also gives the split by $b$ and the magnitudes quoted in \cref{sec:claimmatch}. The run takes about half a minute.
+
+\emph{Limitations.} The Python program checks Step~2 only. It consumes the output of the C++ Step~1 and cannot detect a core that Step~1 failed to output. It was written within the same project and implements the same mathematical reduction (\cref{sec:core,sec:stars}), so it is an independent \emph{implementation}, not an independent \emph{argument}.
+
+\subsection{Re-execution and the budget-46 cross-check}\label{sec:rerun}
+
+\input{tables/rerun_text.tex}
+
+\subsection{Validation of Step 1 by brute force on reduced instances}\label{sec:bruteforce}
+
+Step~1 is the only part of the computation that has no second full-scale implementation. To test its code, we ran the engine of \file{semiprime47.cpp} on reduced instances, with $\Sset$ replaced by the primes up to $13$, $17$ and $19$ and with various budgets. We compared its output with a brute-force enumeration of \emph{all} $2^{15}$, $2^{21}$ and $2^{28}$ cores, respectively.
+For this test only, a copy of the program with Step~2 disabled was used; the Step~1 code is unchanged.
+For every core the brute force computes two sets, using the same fixed-point rounding as the program:
+\begin{itemize}
+\item $\mathrm{SEG}$: the cores satisfying \ref{P1}, $\Rec{C}\le1$ exactly, and the rounded test \eqref{eq:leaftest} for \emph{every} upper segment of $U$ (\cref{def:admissible});
+\item $\mathrm{FIN}$: the cores satisfying \ref{P1}, \ref{P2} and the final test \eqref{eq:leaftest}, i.e.\ only the case $U'=U$.
+\end{itemize}
+\cref{lem:step1} and the form of the leaf test predict $\mathrm{SEG}\subseteq D\subseteq\mathrm{FIN}$ for the set $D$ of cores output by the search.
+This was confirmed in all $48$ configurations tested: $12$ pairs of cutoff and budget, the default table size of $8$ low primes and a reduced size of $3$ (which exercises the explicit recursion), and $1$ and $3$ threads. The search output never contained a duplicate.
+A negative control, which compared a budget-$45$ search with the reference sets for budget $50$, was correctly reported as a failure.
+Representative sizes are in \cref{tab:bruteforce}. They also show that $\mathrm{FIN}$ can be much larger than $\mathrm{SEG}$, which quantifies \cref{rem:segments}.
+
+\begin{table}[ht]
+\centering
+\caption{Brute-force validation of Step 1 on reduced instances ($\Sset$ = primes up to $s$). $D$ is the output of the search, with the default table of the $8$ smallest primes and with a table of $3$ primes. The output did not depend on the number of threads. In all cases $\mathrm{SEG}\subseteq D\subseteq\mathrm{FIN}$.}
+\label{tab:bruteforce}
+\small
+\begin{tabular}{@{}rrrrrrr@{}}
+\toprule
+ & & & & \multicolumn{2}{c}{$\card{D}$, table size} & \\
+\cmidrule(lr){5-6}
+$s$ & edges & budget & $\card{\mathrm{SEG}}$ & $8$ & $3$ & $\card{\mathrm{FIN}}$\\
+\midrule
+\tableinput{tables/bruteforce_table.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+These tests exercise the same code path as the real search, including the table-driven enumeration, the residue bookkeeping, the $U$-accounting, all pruning tests and the parallel work distribution, on instances small enough to enumerate completely. They do not replace an independent full-scale implementation of Step~1.
+
+\subsection{Self-tests}
+
+The recorded self-tests (\file{selftest_output.txt}) provide further consistency checks.
+\begin{itemize}
+\item The engine, run without unsatisfied primes and with budget $47$, finds exactly $17$ solutions. These are the $17$ solutions of \cref{thm:B}(i).
+\item The completion routine reconstructs a planted solution with the cutoff lowered to $53$ and to $43$. In the second case the shape has positive excess.
+\item The full pipeline with cutoff $53$ and budget $47$ finds $21$ solutions, all among the $23$. With cutoff $53$ it also leaves $2902$ unresolved cores; this is expected, because the parity and value tests are much weaker there, and it is not an error.
+\end{itemize}
+The engine of \file{semiprime47.cpp} also recovers a planted component with $b=1$ through the divisor equation (\file{run47_output.txt}).
+
+\subsection{What is not independently verified}
+
+The following are \emph{not} independently verified:
+\begin{itemize}
+\item the full-scale Step~1 for either budget, which has a single implementation, validated only on reduced instances;
+\item the correctness of the compiler and the hardware;
+\item the informal correspondence of \cref{sec:claimmatch} between \cref{claim:46,claim:47} and the source code.
+\end{itemize}
+The budget-$46$ Step~1 was, however, executed three times with identical results: in the recorded run, in a re-execution, and through the engine of the second program (\cref{sec:rerun}).
+
+% =====================================================================
+\section{Lean formalization}\label{sec:lean}
+% =====================================================================
+
+The directory \file{lean/} contains a Lean~4 \cite{Lean4} development based on Mathlib \cite{Mathlib2020}. It uses the toolchain \file{leanprover/lean4:v4.35.0-rc3} and the Mathlib commit
+\begin{center}\ttfamily 3cb72cfd416d1b5ec4b930d67648ef036a5df24f\end{center}
+and consists of nine files with about $2{,}700$ lines and about $180$ theorems and lemmas.
+It contains no \code{sorry}, \code{admit}, \code{axiom} or \code{native\_decide}. The main theorems depend only on the axioms \code{propext}, \code{Classical.choice} and \code{Quot.sound}, as reported by \code{\#print axioms} (\file{lean/AxiomsCheck.lean}).
+Auto-bound implicit variables are disabled.
+The development builds with \code{lake build}.
+
+\paragraph{Formally verified: the analytic reduction.}
+The following results are proved in Lean without any computational hypothesis:
+\begin{itemize}
+\item the local criterion (\cref{lem:local}; \lean{integral_iff_localCond});
+\item the exchange lemma, the list of the $47$ smallest elements of $\Pset$ together with the fact that it is complete, the inequalities of \cref{prop:Hk}, and \cref{cor:sum-is-one} (\lean{recipSum_le_Aupto}, \lean{sp_le_158}, \lean{H37_lt_one}, \lean{H38_gt_one}, \lean{H47_lt_two}, \lean{recipSum_eq_one_of_integral}, \lean{card_ge_38});
+\item \cref{lem:U} (\lean{card_Uset_le}), \cref{lem:value} in the general form for every $U'\subseteq U$ (\lean{value_lower_subset}), and all parts of \cref{lem:shape} (\lean{dcount_pos_of_mem_U}, \lean{dcount_ne_one_of_not_mem_U}, \lean{excess_le}, \lean{parity_two}, \lean{shape_value_bound});
+\item the star lemmas and the star-size lemma (\lean{star_dvd}, \lean{star_card_ne_one}, \lean{star_size}), the decomposition of $G$ into stars and large--large edges (\lean{bigPart_eq}, \lean{recipSum_bigPart_eq}, \lean{dcount_eq_mult}), and the finiteness of the candidate stars (\lean{starCand_finite});
+\item all parts of \cref{prop:component} (\lean{comp_value}, \lean{comp_local_iff}, \lean{comp_divisor_eq}, \lean{comp_enum}, \lean{comp_of_divisor}, \lean{comp_pairs_finite});
+\item the statement that the core and shape of every solution pass the tests of the search (\lean{admissible_of_real}, \lean{shapeOK_of_real}).
+\end{itemize}
+
+\paragraph{Unconditional verification of the solutions.}
+\lean{Sol23_valid} proves that each of the $23$ sets consists of $47$ squarefree semiprimes and has reciprocal sum $1$, and \lean{Sol23_card} proves that there are $23$ distinct sets.
+The numerical facts are checked by the kernel through \code{decide} and \code{norm\_num}.
+In particular, the existence part of \cref{thm:A} (sharpness) is fully formally verified.
+
+\paragraph{Conditional completeness.}
+The exhaustive searches are not reproduced in Lean. Instead, \cref{claim:46,claim:47} are stated as the propositions \lean{Search46} and \lean{Search47} (reproduced in \cref{app:lean}). These are ordinary definitions used as hypotheses, not axioms. Lean proves:
+\begin{itemize}
+\item \lean{no_integral_sum_le_46}, which is \cref{thm:A} with \lean{Search46} as a hypothesis, and its reformulation \lean{card_ge_47_of_integral};
+\item \lean{solutions47_iff}, which is \cref{thm:B} with \lean{Search47} as a hypothesis; \lean{solutions47_integral_iff} states the version for integral sums, and \lean{solutions47_ncard} states that the set of all $47$-term representations of $1$ has exactly $23$ elements.
+\end{itemize}
+Consequently the complete proofs of \cref{thm:A,thm:B} are formally verified \emph{modulo} \lean{Search46} and \lean{Search47}, which are established only by the computations of \cref{sec:proof46,sec:proof47}. Two points are not verified in Lean:
+\begin{itemize}
+\item the fact that the C++ programs implement these propositions correctly (\cref{sec:claimmatch});
+\item the fact that the recorded runs produced the stated output.
+\end{itemize}
+
+While the development was being written, the formalization exposed the two corrections of \cref{rem:segments,rem:component}. The Step~1 hypothesis is stated with the upper-segment condition of \cref{def:admissible}. With only the final value test, it would not describe what the search checks.
+
+% =====================================================================
+\section{Computational reproducibility}\label{sec:repro}
+% =====================================================================
+
+\paragraph{Arithmetic.}
+Neither C++ program uses a floating-point type (\code{float}, \code{double} or \code{long double}), nor any floating-point library function.
+\begin{itemize}
+\item Congruences are computed with machine integers modulo primes at most $73$.
+\item Exact rational comparisons (the values $H_k$, the verification of solutions, the exact value tests of covers) use either a small arbitrary-precision natural-number type or $128$-bit integers over the common denominator $D=\prod_{p\in\Sset}p\approx4.0\cdot10^{28}$.
+\item Bounds on sums of reciprocals use the $96$-bit fixed-point numbers $\up$ and $\lo$ of \cref{sec:step1}. Upper bounds are always formed from $\up$ and lower bounds from $\lo$. Every pruning decision compares an upper bound of a quantity that must be at least $1$ with $2^{96}$, or a lower bound of a quantity that must be at most $1$ with $2^{96}$.
+\end{itemize}
+Rounding can therefore only make a test \emph{weaker}. It may keep a core or shape that exact arithmetic would discard, and this costs only time; it can never discard an admissible core or a feasible shape. All fixed-point sums are below $3\cdot2^{96}<2^{128}$.
+The Python program uses exact rationals throughout.
+
+\paragraph{Primality and factorization.}
+Both programs decide primality of $64$-bit integers with the Miller--Rabin test \cite{Rabin1980} to the bases $2,3,5,\dots,37$ (the first $12$ primes).
+This test is deterministic for all $n<\psi_{12}=318\,665\,857\,834\,031\,151\,167\,461\approx3.2\cdot10^{23}$ \cite{SorensonWebster2017}, and in particular for all $n<2^{64}$.
+The $b=1$ branch contains a probabilistic test for integers of at least $2^{64}$. It was never used: the run reports $0$ probable primes.
+Factorizations use trial division and Pollard's rho method \cite{Pollard1975}. The correctness of the result does not depend on the heuristics of the method, because every returned factor is certified prime and the factors multiply to the input by construction; only termination does, and the runs terminated.
+The inverses modulo $p$ are computed as $a^{p-2}\bmod p$.
+
+\paragraph{Build and run.}
+The programs need a C++11 compiler with \code{unsigned \_\_int128} (GCC or Clang):
+{\small
+\begin{verbatim}
+g++ -O3 -march=native -pthread -o semiprime_reciprocals semiprime_reciprocals.cpp
+./semiprime_reciprocals 4               # budget 46, 4 threads
+g++ -O3 -march=native -pthread -o semiprime47 semiprime47.cpp
+./semiprime47 4 --selftest --dump cores47.txt
+gunzip -k cores47.txt.gz && python3 complete47.py cores47.txt 47
+\end{verbatim}
+}
+The recorded runs used $4$ threads. The budget-$46$ search took $1179$\,s (19\,min\,40\,s wall-clock), and the budget-$47$ run took $20\,898$\,s for the search and 5\,h\,48\,min wall-clock in total.
+The resident memory of the search is only a few megabytes; the virtual size of about $300$\,MB reported in the repository documentation consists mostly of thread stacks.
+The recorded outputs do not state the processor model.
+The re-execution of \cref{sec:rerun} used a cloud container with $4$ virtual CPUs (Intel Xeon, 2.10\,GHz) and GCC~13.3.0.
+
+\paragraph{Files.}
+The repository (\repourl) contains the following files.
+\begin{itemize}
+\item Programs: \file{semiprime_reciprocals.cpp}, \file{semiprime47.cpp} and \file{complete47.py}.
+\item Recorded outputs: \file{proof_run_output.txt}, \file{selftest_output.txt}, \file{run47_output.txt} and \file{run47_python_crosscheck.txt}.
+\item Data: the core dump \file{cores47.txt.gz} and the list \file{solutions47.txt}.
+\item The Lean development \file{lean/}.
+\item The files of this paper in \file{paper/}, including the verification scripts, the brute-force test and the logs of the re-execution (\file{paper/verification/}).
+\end{itemize}
+
+% =====================================================================
+\section{Discussion}\label{sec:discussion}
+% =====================================================================
+
+We have shown that at least $47$ distinct squarefree semiprimes are needed to obtain an integral sum of reciprocals, and that exactly $23$ sets of $47$ such numbers have reciprocal sum $1$.
+The minimality result confirms Watanabe's conjecture \cite{Watanabe2020}.
+
+The main mathematical point is the finite reduction. The local criterion (\cref{lem:local}) turns integrality into a condition at each vertex of a graph. The core decomposition bounds the number of unsatisfied small primes. The star lemma and the component equation bound the large primes by divisibility, not by size.
+That large primes occur, for example $3779$, shows that a bound of this kind is unavoidable.
+A single large--large edge is handled by an explicit factorization identity. Configurations with two or more such edges are excluded here only by the computation: no feasible shape with $b\ge2$ exists for budget $47$. For larger budgets this case would need further ideas.
+
+\paragraph{Limitations.}
+The proofs are computer-assisted.
+\begin{itemize}
+\item Their weakest point is Step~1, which has a single implementation. This implementation has been tested against brute force on reduced instances and executed three times for budget $46$, but not reimplemented at full scale.
+\item Step~2 has been implemented twice, and the two implementations agree.
+\item The reduction and the $23$ solutions are verified in Lean. The connection between the Lean hypotheses \lean{Search46} and \lean{Search47} and the C++ programs rests on the informal argument of \cref{sec:claimmatch}.
+\end{itemize}
+A fully formal proof would require the search to emit a certificate, such as the list of admissible cores with a refutation of each feasible shape, that can be checked in Lean. This is a natural direction for future work.
+An independent reimplementation of Step~1, preferably by other authors and with a different enumeration strategy, would also strengthen the result considerably.
+
+\paragraph{Further questions.}
+The same method applies to other targets and budgets. Examples include the minimal number of terms for the integer $2$, or for denominators with exactly three distinct prime factors (compare \cite{ButlerErdosGraham2015}). The cost of Step~1 grows quickly with the budget: from $1.4\cdot10^{11}$ nodes for budget $46$ to $1.8\cdot10^{12}$ for budget $47$.
+It would also be interesting to count the representations of $1$ with $48$ terms.
+
+% =====================================================================
+\section{Disclosure of the use of generative AI}\label{sec:ai}
+% =====================================================================
+
+% This statement is intended to be easily editable to follow the policy of the target journal.
+Generative AI tools, specifically Claude Code (Anthropic), an AI coding assistant based on large language models, were used substantially throughout this project, and not only for preparing the manuscript.
+Under the direction of the authors, the AI tool developed the mathematical reduction presented here, and it wrote the following:
+\begin{itemize}
+\item the C++ programs and the Python cross-check;
+\item the Lean formalization;
+\item the documentation files of the repository;
+\item the verification scripts written for this paper;
+\item a first draft of this manuscript.
+\end{itemize}
+The exploratory mathematical reasoning was also carried out with the tool.
+The two corrections of \cref{rem:segments,rem:component} were found during the AI-assisted formalization and a later audit of the code.
+
+All mathematical claims in this article were checked by the verification procedures described in \cref{sec:verification,sec:lean}:
+\begin{itemize}
+\item exact computation;
+\item a second implementation of Step~2;
+\item brute-force validation of Step~1 on reduced instances;
+\item a Lean~4 formalization of the analytic reduction and of the $23$ solutions.
+\end{itemize}
+These checks were themselves designed and executed with the assistance of the same tool.
+The extent of the computer-assisted part and of the formally verified part, and the exact status of every result, are stated explicitly in \cref{fig:status} and \cref{sec:proof46,sec:proof47,sec:verification,sec:lean}.
+[\emph{Editable by the authors: describe here any independent human checking of the code, the computations and the proofs that has been carried out.}]
+No AI system is an author of this work. The authors take full responsibility for its content.
+
+% =====================================================================
+\section*{Acknowledgements}
+% =====================================================================
+% Intentionally left blank -- to be completed by the authors.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+% =====================================================================
+\appendix
+\section{The 23 representations of 1 with 47 terms}\label{app:solutions}
+% =====================================================================
+
+The $23$ sets $T\subset\Pset$ with $\card{T}=47$ and $\Rec{T}=1$, in the order of \file{solutions47.txt}. Solutions $1$, $2$, $3$, $5$, $11$ and $12$ contain a prime larger than $73$ (\cref{tab:bigprimes}).
+
+\medskip
+\input{tables/full_solutions.tex}
+
+% =====================================================================
+\section{The computational hypotheses in Lean}\label{app:lean}
+% =====================================================================
+
+The hypotheses of \cref{sec:lean}, verbatim from \file{lean/SemiprimeEgypt/Main.lean}.
+\begin{itemize}
+\item \lean{CoreSet C} says that every element of $C$ lies in $\Pset_\Sset$.
+\item \lean{Admissible K C} is \cref{def:admissible}.
+\item \lean{ShapeOK K C d b} is \cref{def:shape}.
+\item \lean{StarCand m C d P A} is \cref{def:candidate}.
+\item \lean{mult}, \lean{starEdges} and \lean{starVal} are the multiplicities, elements and value of a star family.
+\item \lean{compN} and \lean{compP\(_1\)}, \lean{compP\(_2\)} are $N$, $P_1$ and $P_2$ of \cref{prop:component}.
+\item \lean{Sol23} is the family of \cref{app:solutions}.
+\end{itemize}
+\fontsize{8.3}{9.6}\selectfont
+\begin{verbatim}
+def Search46 : Prop :=
+  ∀ C : Finset ℕ, CoreSet C → Admissible 46 C →
+    (Uset 73 C).Nonempty ∧
+      ∀ (d : ℕ → ℕ) (b : ℕ), ShapeOK 46 C d b → b = 0 ∧ ∀ P A, ¬ StarCand 10 C d P A
+
+def Search47 : Prop :=
+  (∀ C : Finset ℕ, CoreSet C → Admissible 47 C → Uset 73 C = ∅ → C.Nonempty → C ∈ Sol23) ∧
+  (∀ C : Finset ℕ, CoreSet C → Admissible 47 C → (Uset 73 C).Nonempty →
+      ∀ (d : ℕ → ℕ) (b : ℕ), ShapeOK 47 C d b → b ≤ 1) ∧
+  (∀ (C : Finset ℕ) (d : ℕ → ℕ) (Ps : Finset ℕ) (A : ℕ → Finset ℕ),
+      CoreSet C → Admissible 47 C → (Uset 73 C).Nonempty → ShapeOK 47 C d 0 →
+      (∀ P ∈ Ps, StarCand 11 C d P (A P)) →
+      (∀ q ∈ smallPrimes 73, mult Ps A q = d q) →
+      recipSum C + starVal Ps A = 1 →
+      C ∪ starEdges Ps A ∈ Sol23) ∧
+  (∀ (C : Finset ℕ) (d : ℕ → ℕ) (Ps : Finset ℕ) (A : ℕ → Finset ℕ) (A₁ A₂ : Finset ℕ)
+      (t X : ℕ),
+      CoreSet C → Admissible 47 C → (Uset 73 C).Nonempty → ShapeOK 47 C d 1 →
+      (∀ P ∈ Ps, StarCand 11 C d P (A P)) →
+      A₁.Nonempty → A₂.Nonempty → A₁ ⊆ smallPrimes 73 → A₂ ⊆ smallPrimes 73 →
+      (∀ q ∈ smallPrimes 73,
+        mult Ps A q + (if q ∈ A₁ then 1 else 0) + (if q ∈ A₂ then 1 else 0) = d q) →
+      recipSum C + starVal Ps A < 1 →
+      0 < t →
+      (t : ℚ) = (1 - recipSum C - starVal Ps A) * (∏ q ∈ A₁, (q : ℚ)) * ∏ q ∈ A₂, (q : ℚ) →
+      0 < X → X ∣ compN A₁ A₂ t → t ∣ X + nA A₁ * ∏ q ∈ A₂, q →
+      t ∣ compN A₁ A₂ t / X + nA A₂ * ∏ q ∈ A₁, q →
+      compP₁ A₁ A₂ t X ≠ compP₂ A₁ A₂ t X →
+      73 < compP₁ A₁ A₂ t X → 73 < compP₂ A₁ A₂ t X →
+      (compP₁ A₁ A₂ t X).Prime → (compP₂ A₁ A₂ t X).Prime →
+      compP₁ A₁ A₂ t X ∉ Ps → compP₂ A₁ A₂ t X ∉ Ps →
+      C ∪ starEdges Ps A ∪ A₁.image (· * compP₁ A₁ A₂ t X) ∪
+          A₂.image (· * compP₂ A₁ A₂ t X) ∪ {compP₁ A₁ A₂ t X * compP₂ A₁ A₂ t X} ∈ Sol23)
+\end{verbatim}
+\normalsize
+
+\end{document}

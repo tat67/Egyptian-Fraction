@@ -1,0 +1,13 @@
+Sun Sep 27 09:36:43 UTC 2026
+largest possible star: 10
+search nodes           : 139830520211
+cores passing Step 1   : 178 (of which |C|+|U| = 46 with U nonempty: 111)
+completion shapes      : 3777 tried, 61 pass parity+value (in 61 cores), 0 candidate stars
+unresolved cores       : 0
+probable primes used   : 0
+solutions              : 0
+
+real	24m52.407s
+user	83m9.466s
+sys	0m14.450s
+Sun Sep 27 10:01:35 UTC 2026

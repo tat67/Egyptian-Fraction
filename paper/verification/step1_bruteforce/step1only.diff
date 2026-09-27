@@ -1,0 +1,8 @@
+151c151
+<     int LOWN = 8;    // smallest LOWN primes handled through precomputed residue tables
+---
+>     int LOWN = LOWN_VALUE;    // smallest LOWN primes handled through precomputed residue tables
+507c507
+<             CompletionResult R = E.complete(U, rhoAll, c, su, zNum);
+---
+>             CompletionResult R;   // TEST COPY: Step 2 disabled

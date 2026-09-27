@@ -1,0 +1,12 @@
+# LaTeX build artifacts of main.tex (the compiled paper is kept as paper.pdf)
+/main.aux
+/main.bbl
+/main.blg
+/main.fdb_latexmk
+/main.fls
+/main.log
+/main.out
+/main.toc
+/main.synctex.gz
+/main.pdf
+/build.log
