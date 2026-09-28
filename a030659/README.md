@@ -151,7 +151,17 @@ The "ties" column counts every `k`-set with largest denominator `a(k)` and recip
 
 Counting every tied set becomes very expensive near the top of the range. The number of ties can be astronomically large, for example at least 7,988,637,175 for `k = 232`. Even for the maximal sizes, the search at largest denominators near 1000 is slow.
 
-Where neither counter finished within the time allowed, the table shows a **proven lower bound** `≥ N`. `N` is the number of distinct optimal sets actually found by CP-SAT or accounted for by the C++ counter before its time limit, and it is always at least 1, since the listed set is one of them. See the summary at the top of `optimal_expansions.txt` for which rows are exact.
+Where neither counter finished within the time allowed, the table shows a **proven lower bound** `≥ N`. `N` is the number of distinct optimal sets actually found by CP-SAT or accounted for by the C++ counter before its time limit, and it is always at least 1, since the listed set is one of them.
+
+**Coverage.**
+
+* The count is exact for **359 of the 471 rows**:
+  * every `k ≤ 341` except `k = 232, 326, 340`;
+  * 23 rows above that: `k = 360, 362, 364, 375, 377, 379, 387, 403, 407–411, 414, 426–428, 436, 442, 444, 454, 460, 473`.
+* The other **112 rows show lower bounds**. 96 of them are larger than 1, for example `k = 232 ≥ 7,988,637,175`, `k = 326 ≥ 175,337,374` and `k = 340 ≥ 2,027,869`.
+* The per-`k` time limits in that last pass were short: 60 s for the C++ counter and 90–100 s for CP-SAT. Longer runs would settle more rows.
+
+**Some features of the exact counts.** The optimal set is unique for 28 values of `k`. The largest exact count is 489,649,433, at `k = 166`.
 
 ## Reproducing
 
