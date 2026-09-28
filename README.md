@@ -189,4 +189,4 @@ The search itself is stated as the explicit hypothesis `Search46`. The theorem `
 
 ## Related: OEIS A030659
 
-[`a030659/`](a030659/README.md) extends OEIS A030659 to every term with `a(n) ≤ 1000`, i.e. `n = 3..473`. A030659 is the smallest possible largest denominator in a representation of 1 as a sum of `n` distinct unit fractions. The directory holds the b-file, an exactly verified witness for every term, and the solver-based upper bounds.
+[`a030659/`](a030659/README.md) extends OEIS A030659 to every term with `a(n) ≤ 1000`, i.e. `n = 3..473`. A030659 is the smallest possible largest denominator in a representation of 1 as a sum of `n` distinct unit fractions. The directory holds the b-file, an exactly verified witness for every term, the solver-based upper bounds, and a table of optimal expansions of 1 into `k` distinct unit fractions for `k = 3..473`, with the number of tied optimal sets.

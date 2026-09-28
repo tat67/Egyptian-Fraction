@@ -95,6 +95,64 @@ In step 2 every `n ≥ 3` had a witness. The only infeasible size was `n = 2`, w
 
 **What the verification does not cover.** The witnesses are checked exactly, so every `a(n)` is certainly `≤` the listed value. The matching lower bounds `f(a(n) − 1) < n` depend on solver infeasibility proofs: two independent CP-SAT models agree on all 394 claims, and SCIP agrees on the smaller cases. They are not formal certificates.
 
+## Optimal expansions for k = 3..473
+
+[`optimal_expansions.txt`](optimal_expansions.txt) gives one optimal expansion of 1 into `k` distinct unit fractions for every `k = 3..473`, together with the number of tied optimal sets. The same table is also available as [`optimal_expansions.csv`](optimal_expansions.csv) and as a LaTeX `longtable` in [`optimal_expansions.tex`](optimal_expansions.tex).
+
+```
+k  | ties | denominators of the optimal expansion
+3  | 1    | 2, 3, 6
+4  | 1    | 2, 4, 6, 12
+5  | 1    | 2, 4, 10, 12, 15
+6  | 1    | 3, 4, 6, 10, 12, 15
+7  | 1    | 3, 4, 9, 10, 12, 15, 18
+8  | 2    | 3, 5, 9, 10, 12, 15, 18, 20
+9  | 2    | 4, 5, 8, 9, 10, 15, 18, 20, 24
+10 | 1    | 5, 6, 8, 9, 10, 12, 15, 18, 20, 24
+11 | 3    | 5, 6, 8, 9, 10, 15, 18, 20, 21, 24, 28
+12 | 2    | 4, 8, 9, 10, 12, 15, 18, 20, 21, 24, 28, 30
+```
+
+**Criterion.**
+
+1. The largest denominator is as small as possible, namely `a(k)`, the A030659 term above.
+2. Among the sets that tie on that, the one listed is the lexicographically smallest denominator list written in increasing order: the smallest `d_1`, then the smallest `d_2`, and so on.
+
+The "ties" column counts every `k`-set with largest denominator `a(k)` and reciprocal sum exactly 1.
+
+**Comparison with the classical table for k ≤ 12.**
+
+* The published table of optimal expansions (Eppstein, MathPages) minimises the largest denominator, and every one of its rows is optimal.
+* Its choice among tied sets is not given by any consistent rule. Rows 8, 9 and 11 are the lexicographically smallest sets, but row 12 (`6, 7, 8, 9, 10, 14, 15, 18, 20, 24, 28, 30`) is the other of the two tied sets.
+* The table here therefore agrees with the published one for `k = 3..11` and lists the other tied set at `k = 12`.
+
+### How the table was computed
+
+* **Smallest set per row: [`optimal_expansions.py`](optimal_expansions.py).** This uses CP-SAT with the exact model above, fixing the largest denominator at `a(k)` and the size at `k`.
+  * Lexicographic order is optimised exactly, window by window. Up to 56 consecutive undecided candidates get weights `2^55, …, 2^0`, with the smaller denominator weighted more, so within a window the weighted objective is exactly lexicographic order.
+  * Each window's optimum is fixed before the next window is solved.
+  * Every row is re-verified with Python `Fraction`s: `k` distinct denominators, largest `a(k)`, and sum exactly 1.
+* **Tie counts: [`count_ties.cpp`](count_ties.cpp).** This is an exact enumerator written independently of the CP-SAT code.
+  * **Search.** Multiples of each large prime `p` (`p² > M`) form one block, whose admissible choices are the subsets with residue 0 mod `p`. The remaining candidates are grouped by largest prime factor.
+  * **Pruning.** It uses reciprocal-sum bounds, and per-group tables of the least and greatest sum for each (residue, count) pair. At the start of each group, per-prime feasibility tables check the remaining candidates for every smaller prime.
+  * **Exactness.** The remaining sum is tracked exactly as an integer multiple of `1/L`, where `L` is the product of the small prime powers (below `2^96`). Floating point is used only for pruning, with a safety margin.
+  * **Merging.** Identical states (stage, terms left, exact remaining sum) are counted once through a memo table.
+  * **Smallest set.** A second pass also reports the lexicographically smallest set, whenever there are at most `2·10⁷` ties.
+* **Tie counts where there are few ties: [`count_ties_cpsat.py`](count_ties_cpsat.py).** This enumerates every solution with CP-SAT. Its count is complete only when the solver reports `OPTIMAL`.
+
+### Checks
+
+* All 471 listed sets pass the exact `Fraction` check.
+* Wherever the enumerator or a complete CP-SAT enumeration also produced the smallest set, it equals the listed set exactly; see the output of [`make_table.py`](make_table.py).
+* Where both counters finished the same `k`, their counts agree.
+* **Validation on known cases.** The counts agree with an exhaustive brute force (`lexmin_bruteforce.cpp`) and with CP-SAT enumeration for `k = 8, 9, 11, 12, 20, 25`. For `k = 61, 62, 101` they agree with CP-SAT enumeration. Every build of the counter gave identical counts on these cases.
+
+### Limits
+
+Counting every tied set becomes very expensive near the top of the range. The number of ties can be astronomically large, for example at least 7,988,637,175 for `k = 232`. Even for the maximal sizes, the search at largest denominators near 1000 is slow.
+
+Where neither counter finished within the time allowed, the table shows a **proven lower bound** `≥ N`. `N` is the number of distinct optimal sets actually found by CP-SAT or accounted for by the C++ counter before its time limit, and it is always at least 1, since the listed set is one of them. See the summary at the top of `optimal_expansions.txt` for which rows are exact.
+
 ## Reproducing
 
     pip install ortools pyscipopt        # OR-Tools 9.15 and SCIP 10.0 were used
@@ -103,6 +161,11 @@ In step 2 every `n ≥ 3` had a witness. The only infeasible size was `n = 2`, w
     python3 verify_witnesses.py          # -> witnesses.txt; exact check of every witness
     python3 verify_ub_cpsat2.py          # -> ub_cpsat2.txt; independent upper bounds (about 12 min)
     python3 run_scip_parallel.py 321 900 4   # -> ub_scip.txt; SCIP cross-check
+    python3 run_expansions.py 3 473 1 0 4 expansions.jsonl   # table rows (CP-SAT, lexicographic)
+    g++ -O2 -march=native -o count_ties count_ties.cpp
+    python3 run_ties.py ./count_ties 3 473 4 600 26          # tie counts, 10 min per k
+    python3 count_ties_cpsat.py 1800 473                     # CP-SAT enumeration for a few k
+    python3 make_table.py                                    # -> optimal_expansions.{txt,csv,tex}
 
 The recorded run is stored compressed as `f_values.jsonl.gz`. The scripts other than `compute_f.py` read the compressed file directly when the plain one is absent.
 
@@ -120,3 +183,8 @@ The recorded run is stored compressed as `f_values.jsonl.gz`. The scripts other 
 | `rerun_check.txt` | comparison of the recorded run with a second full run |
 | `admissible.py`, `compute_f.py`, `records.py`, `make_outputs.py` | computation |
 | `verify_witnesses.py`, `verify_ub_cpsat2.py`, `verify_ub_scip.py`, `run_scip_parallel.py` | verification |
+| `optimal_expansions.txt`, `.csv`, `.tex` | the table of optimal expansions for `k = 3..473`, with tie counts |
+| `expansions_even.jsonl`, `expansions_odd.jsonl` | raw output of `optimal_expansions.py`: one lexicographically smallest optimal set per `k` |
+| `ties_raw.txt`, `ties_partial.txt`, `ties_cpsat.txt` | raw tie counts: exact counts from `count_ties.cpp`, its time-limited lower bounds, and CP-SAT enumerations (`status=OPTIMAL` means complete) |
+| `optimal_expansions.py`, `run_expansions.py` | computation of the table rows |
+| `count_ties.cpp`, `run_ties.py`, `count_ties_cpsat.py`, `lexmin_bruteforce.cpp`, `make_table.py` | tie counting, brute-force validation and assembly |
