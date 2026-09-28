@@ -13,7 +13,7 @@
 
 The terms, in OEIS b-file format, are in [`b030659.txt`](b030659.txt).
 
-The OEIS data section lists `n = 3..62`, and all 60 of those terms are reproduced exactly. The OEIS b-file (by T. Watanabe) goes to `n = 147`, where `a(147) = 322` here. That b-file could not be fetched from this environment, so it has not been compared term by term.
+All 145 previously known terms (`n = 3..147`, up to `a(147) = 322`) are reproduced exactly. They are compared against the original OEIS b-file in [`oeis_b030659_original.txt`](oeis_b030659_original.txt), and `make_outputs.py` repeats the comparison. The new terms are `n = 148..473`.
 
 ```
 a(63..)  = 145, 150, 152, 153, 154, 155, 155, 160, 161, 161, 162, 168, 171, 174, 174, 175, ...
@@ -91,7 +91,7 @@ In step 2 every `n ≥ 3` had a witness. The only infeasible size was `n = 2`, w
   * It never found a solution that would contradict a claim. Its results are in [`ub_scip.txt`](ub_scip.txt), with columns `M−1`, `N`, status and seconds.
   * SCIP slows down sharply as `M` grows: a single claim at `M = 500` was not settled in 15 minutes, while CP-SAT needs under 15 s even at `M = 1000`. So this check covers only small `M`.
 * **Reproducibility.** A second, complete run of `compute_f.py` gave the same `f(M)` for all `M ≤ 1000`; see [`rerun_check.txt`](rerun_check.txt).
-* **Known values.** The 60 terms in the OEIS data section (`n = 3..62`) are reproduced exactly.
+* **Known values.** All 145 existing OEIS terms (`n = 3..147`) are reproduced exactly, with no differences.
 
 **What the verification does not cover.** The witnesses are checked exactly, so every `a(n)` is certainly `≤` the listed value. The matching lower bounds `f(a(n) − 1) < n` depend on solver infeasibility proofs: two independent CP-SAT models agree on all 394 claims, and SCIP agrees on the smaller cases. They are not formal certificates.
 
@@ -99,7 +99,7 @@ In step 2 every `n ≥ 3` had a witness. The only infeasible size was `n = 2`, w
 
     pip install ortools pyscipopt        # OR-Tools 9.15 and SCIP 10.0 were used
     python3 compute_f.py 1000 4          # -> f_values.jsonl (resumable; about 13 min on 4 cores)
-    python3 make_outputs.py              # -> b030659.txt, f_table.txt; checks the OEIS data
+    python3 make_outputs.py              # -> b030659.txt, f_table.txt; compares with the OEIS terms
     python3 verify_witnesses.py          # -> witnesses.txt; exact check of every witness
     python3 verify_ub_cpsat2.py          # -> ub_cpsat2.txt; independent upper bounds (about 12 min)
     python3 run_scip_parallel.py 321 900 4   # -> ub_scip.txt; SCIP cross-check
@@ -113,6 +113,7 @@ The recorded run is stored compressed as `f_values.jsonl.gz`. The scripts other 
 | `b030659.txt` | `n a(n)` for `n = 3..473` |
 | `witnesses.txt` | for each `n`, the `n` denominators of a representation of 1 with largest denominator `a(n)` |
 | `f_table.txt` | `f(M)` for `M = 1..1000` |
+| `oeis_b030659_original.txt` | the existing OEIS b-file (`n = 3..147`), for comparison |
 | `f_values.jsonl.gz` | raw per-`M` records of the recorded run: status, time and witnesses |
 | `compute_f.log` | progress log of the recorded run |
 | `ub_cpsat2.txt`, `ub_scip.txt` | results of the two upper-bound cross-checks |
