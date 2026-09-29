@@ -186,3 +186,9 @@ The search itself is stated as the explicit hypothesis `Search46`. The theorem `
 * `semiprime_reciprocals.cpp`: the complete proof program. It is integer-only, needs C++11 or later and `unsigned __int128` (GCC or Clang).
 * `proof_run_output.txt`: output of the proof run (4 threads).
 * `selftest_output.txt`: output of `--selftest`, restricted to the self-test part.
+
+## Related results in this repository
+
+* [`README47.md`](README47.md): all 23 subsets `T ⊆ P` with `|T| = 47` and `Σ 1/n = 1`, with a completeness proof (`semiprime47.cpp`).
+* [`README48.md`](README48.md): all subsets with `|T| = 48` and `Σ 1/n = 1`, with a completeness proof. `semiprime48.cpp` adds a much stronger pruning bound, which also re-proves the 46-term bound in seconds and the 47-term classification in about a minute.
+* [`paper/`](paper/README_PAPER.md): a manuscript that combines this result and the 47-term classification.
