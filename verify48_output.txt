@@ -1,0 +1,4 @@
+48-element sets in the log: 620, verified independently: 620
+smaller sets in the log (all verified): {47: 23}
+47-element sets found = the 23 sets of solutions47.txt: True
+wrote solutions48.txt
