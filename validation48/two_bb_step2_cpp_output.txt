@@ -1,0 +1,1 @@
+cores 73, surviving shapes 2838, two-big-big-edge component problems 62169, unresolved 0, solutions 0

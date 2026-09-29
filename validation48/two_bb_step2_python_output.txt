@@ -1,0 +1,2 @@
+cores 73 solutions 0 unresolved cores 0
+shapes with two big-big edges solved: 73

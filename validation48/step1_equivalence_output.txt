@@ -1,0 +1,113 @@
+== part A: reduced instances ==
+OLD sb 13 K 40 threads 1 split 2 nodes 48 cores 13 ms 0
+NEW sb 13 K 40 threads 1 split 2 nodes 48 cores 13 ms 0
+sb=13 K=40 old vs new: IDENTICAL (13 cores)
+sb=13 K=40 new 1 thread vs 3 threads: IDENTICAL (13 cores)
+  brute force: SB 13 K 40: |D|=13 distinct=13 |SEG|=13 |FIN|=140  SEG<=D: True  D<=FIN: True  |FIN\SEG|=127 |D\SEG|=0
+  brute force: RESULT PASS
+OLD sb 13 K 45 threads 1 split 2 nodes 462 cores 161 ms 1
+NEW sb 13 K 45 threads 1 split 2 nodes 462 cores 161 ms 0
+sb=13 K=45 old vs new: IDENTICAL (161 cores)
+sb=13 K=45 new 1 thread vs 3 threads: IDENTICAL (161 cores)
+  brute force: SB 13 K 45: |D|=161 distinct=161 |SEG|=156 |FIN|=512  SEG<=D: True  D<=FIN: True  |FIN\SEG|=356 |D\SEG|=5
+  brute force: RESULT PASS
+OLD sb 13 K 50 threads 1 split 2 nodes 1449 cores 586 ms 3
+NEW sb 13 K 50 threads 1 split 2 nodes 1449 cores 586 ms 2
+sb=13 K=50 old vs new: IDENTICAL (586 cores)
+sb=13 K=50 new 1 thread vs 3 threads: IDENTICAL (586 cores)
+  brute force: SB 13 K 50: |D|=586 distinct=586 |SEG|=539 |FIN|=1284  SEG<=D: True  D<=FIN: True  |FIN\SEG|=745 |D\SEG|=47
+  brute force: RESULT PASS
+OLD sb 13 K 60 threads 1 split 2 nodes 4693 cores 2390 ms 13
+NEW sb 13 K 60 threads 1 split 2 nodes 4693 cores 2390 ms 5
+sb=13 K=60 old vs new: IDENTICAL (2390 cores)
+sb=13 K=60 new 1 thread vs 3 threads: IDENTICAL (2390 cores)
+  brute force: SB 13 K 60: |D|=2390 distinct=2390 |SEG|=2083 |FIN|=3872  SEG<=D: True  D<=FIN: True  |FIN\SEG|=1789 |D\SEG|=307
+  brute force: RESULT PASS
+OLD sb 13 K 80 threads 1 split 2 nodes 12355 cores 8492 ms 55
+NEW sb 13 K 80 threads 1 split 2 nodes 12355 cores 8492 ms 24
+sb=13 K=80 old vs new: IDENTICAL (8492 cores)
+sb=13 K=80 new 1 thread vs 3 threads: IDENTICAL (8492 cores)
+  brute force: SB 13 K 80: |D|=8492 distinct=8492 |SEG|=7260 |FIN|=10774  SEG<=D: True  D<=FIN: True  |FIN\SEG|=3514 |D\SEG|=1232
+  brute force: RESULT PASS
+OLD sb 17 K 40 threads 1 split 2 nodes 160 cores 32 ms 1
+NEW sb 17 K 40 threads 1 split 2 nodes 160 cores 32 ms 0
+sb=17 K=40 old vs new: IDENTICAL (32 cores)
+sb=17 K=40 new 1 thread vs 3 threads: IDENTICAL (32 cores)
+  brute force: SB 17 K 40: |D|=32 distinct=32 |SEG|=32 |FIN|=484  SEG<=D: True  D<=FIN: True  |FIN\SEG|=452 |D\SEG|=0
+  brute force: RESULT PASS
+OLD sb 17 K 45 threads 1 split 2 nodes 7668 cores 2422 ms 36
+NEW sb 17 K 45 threads 1 split 2 nodes 7668 cores 2422 ms 5
+sb=17 K=45 old vs new: IDENTICAL (2422 cores)
+sb=17 K=45 new 1 thread vs 3 threads: IDENTICAL (2422 cores)
+  brute force: SB 17 K 45: |D|=2422 distinct=2422 |SEG|=2388 |FIN|=10001  SEG<=D: True  D<=FIN: True  |FIN\SEG|=7613 |D\SEG|=34
+  brute force: RESULT PASS
+OLD sb 17 K 50 threads 1 split 2 nodes 37349 cores 13669 ms 107
+NEW sb 17 K 50 threads 1 split 2 nodes 37349 cores 13669 ms 29
+sb=17 K=50 old vs new: IDENTICAL (13669 cores)
+sb=17 K=50 new 1 thread vs 3 threads: IDENTICAL (13669 cores)
+  brute force: SB 17 K 50: |D|=13669 distinct=13669 |SEG|=13111 |FIN|=36845  SEG<=D: True  D<=FIN: True  |FIN\SEG|=23734 |D\SEG|=558
+  brute force: RESULT PASS
+OLD sb 17 K 60 threads 1 split 2 nodes 172555 cores 79084 ms 947
+NEW sb 17 K 60 threads 1 split 2 nodes 172555 cores 79084 ms 195
+sb=17 K=60 old vs new: IDENTICAL (79084 cores)
+sb=17 K=60 new 1 thread vs 3 threads: IDENTICAL (79084 cores)
+  brute force: SB 17 K 60: |D|=79084 distinct=79084 |SEG|=72019 |FIN|=139032  SEG<=D: True  D<=FIN: True  |FIN\SEG|=67013 |D\SEG|=7065
+  brute force: RESULT PASS
+OLD sb 19 K 40 threads 1 split 2 nodes 223 cores 20 ms 1
+NEW sb 19 K 40 threads 1 split 2 nodes 223 cores 20 ms 0
+sb=19 K=40 old vs new: IDENTICAL (20 cores)
+sb=19 K=40 new 1 thread vs 3 threads: IDENTICAL (20 cores)
+  brute force: SB 19 K 40: |D|=20 distinct=20 |SEG|=20 |FIN|=2535  SEG<=D: True  D<=FIN: True  |FIN\SEG|=2515 |D\SEG|=0
+  brute force: RESULT PASS
+OLD sb 19 K 45 threads 1 split 2 nodes 140469 cores 38109 ms 303
+NEW sb 19 K 45 threads 1 split 2 nodes 140469 cores 38109 ms 153
+sb=19 K=45 old vs new: IDENTICAL (38109 cores)
+sb=19 K=45 new 1 thread vs 3 threads: IDENTICAL (38109 cores)
+  brute force: SB 19 K 45: |D|=38109 distinct=38109 |SEG|=38109 |FIN|=175804  SEG<=D: True  D<=FIN: True  |FIN\SEG|=137695 |D\SEG|=0
+  brute force: RESULT PASS
+OLD sb 19 K 50 threads 1 split 2 nodes 1442742 cores 478084 ms 4862
+NEW sb 19 K 50 threads 1 split 2 nodes 1442742 cores 478084 ms 1375
+sb=19 K=50 old vs new: IDENTICAL (478084 cores)
+sb=19 K=50 new 1 thread vs 3 threads: IDENTICAL (478084 cores)
+  brute force: SB 19 K 50: |D|=478084 distinct=478084 |SEG|=475652 |FIN|=1146681  SEG<=D: True  D<=FIN: True  |FIN\SEG|=671029 |D\SEG|=2432
+  brute force: RESULT PASS
+OLD sb 23 K 40 threads 1 split 2 nodes 146 cores 0 ms 0
+NEW sb 23 K 40 threads 1 split 2 nodes 146 cores 0 ms 0
+sb=23 K=40 old vs new: IDENTICAL (0 cores)
+sb=23 K=40 new 1 thread vs 3 threads: IDENTICAL (0 cores)
+OLD sb 23 K 45 threads 1 split 2 nodes 1681093 cores 274486 ms 3259
+NEW sb 23 K 45 threads 1 split 2 nodes 1681093 cores 274486 ms 1127
+sb=23 K=45 old vs new: IDENTICAL (274486 cores)
+sb=23 K=45 new 1 thread vs 3 threads: IDENTICAL (274486 cores)
+OLD sb 23 K 50 threads 1 split 2 nodes 73384040 cores 21038736 ms 92736
+NEW sb 23 K 50 threads 1 split 2 nodes 73384040 cores 21038736 ms 75620
+sb=23 K=50 old vs new: IDENTICAL (21038736 cores)
+sb=23 K=50 new 1 thread vs 3 threads: IDENTICAL (21038736 cores)
+== part B: S = primes <= 73, budgets 40..45 ==
+OLD sb 73 K 40 threads 4 split 61 nodes 28040 cores 0 ms 0
+NEW sb 73 K 40 threads 4 split 43 nodes 4 cores 0 ms 0
+K=40 old vs new: IDENTICAL (0 cores)
+OLD sb 73 K 41 threads 4 split 61 nodes 380986 cores 0 ms 5
+NEW sb 73 K 41 threads 4 split 43 nodes 4 cores 0 ms 0
+K=41 old vs new: IDENTICAL (0 cores)
+OLD sb 73 K 42 threads 4 split 61 nodes 4818539 cores 0 ms 57
+NEW sb 73 K 42 threads 4 split 43 nodes 380 cores 0 ms 0
+K=42 old vs new: IDENTICAL (0 cores)
+OLD sb 73 K 43 threads 4 split 61 nodes 62440966 cores 0 ms 1050
+NEW sb 73 K 43 threads 4 split 43 nodes 1819 cores 0 ms 0
+K=43 old vs new: IDENTICAL (0 cores)
+OLD sb 73 K 44 threads 4 split 61 nodes 819315334 cores 0 ms 10921
+NEW sb 73 K 44 threads 4 split 43 nodes 57971 cores 0 ms 3
+K=44 old vs new: IDENTICAL (0 cores)
+OLD sb 73 K 45 threads 4 split 61 nodes 10744778486 cores 0 ms 135660
+NEW sb 73 K 45 threads 4 split 43 nodes 1166640 cores 0 ms 91
+K=45 old vs new: IDENTICAL (0 cores)
+== part C: archived dumps of the old program ==
+NEW sb 73 K 46 threads 4 split 43 nodes 26112391 cores 178 ms 2395
+K=46 archived (paper/verification/rerun/cores46.txt.gz) vs new: IDENTICAL (178 cores)
+NEW sb 73 K 47 threads 4 split 43 nodes 598305041 cores 22382 ms 63869
+K=47 archived (cores47.txt.gz) vs new: IDENTICAL (22382 cores)
+
+real	10m10.044s
+user	19m9.116s
+sys	3m33.630s
