@@ -1,0 +1,1 @@
+n=10 K=22790 mode=witness UNDECIDED (node budget exceeded) nodes=1500 time_ms=1348796

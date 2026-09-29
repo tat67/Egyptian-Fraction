@@ -1,0 +1,15 @@
+n=8 K=3230 mode=prove |U|=2352 primes with multiples=72 threads=4
+  node 1 depth 0 LB-Dhi=-335199436152
+  node 2 depth 1 LB-Dhi=-335199436152
+  node 50 depth 47 LB-Dhi=-78729182276
+  node 100 depth 45 LB-Dhi=-61571732787
+  node 150 depth 61 LB-Dhi=5105498830
+  node 200 depth 58 LB-Dhi=-8519067487
+  node 250 depth 79 LB-Dhi=1263028114
+  node 300 depth 40 LB-Dhi=-116090450151
+  node 350 depth 74 LB-Dhi=-24021090159
+  node 400 depth 64 LB-Dhi=-47463129638
+  node 450 depth 77 LB-Dhi=5697770312
+  node 500 depth 80 LB-Dhi=-12784855655
+  node 550 depth 42 LB-Dhi=-11019300698
+  node 600 depth 71 LB-Dhi=489762905

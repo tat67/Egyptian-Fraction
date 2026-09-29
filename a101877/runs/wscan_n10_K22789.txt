@@ -1,0 +1,1 @@
+n=10 K=22789 mode=witness NONE (all branch-and-bound nodes closed) nodes=2 root_LB-Delta_hi=-3471075943 time_ms=39007

@@ -1,0 +1,5 @@
+n=8 K=3231 mode=witness |U|=2356 primes with multiples=73 threads=2
+  node 1 depth 0 LB-Dhi=-958983947075
+  node 2 depth 1 LB-Dhi=-958983947075
+  node 50 depth 49 LB-Dhi=-377590248137
+  node 100 depth 83 LB-Dhi=-85954410729

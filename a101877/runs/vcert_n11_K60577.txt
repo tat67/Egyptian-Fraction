@@ -1,0 +1,2 @@
+certificate n=11 K=60577: |U|=46579 primes=635 LB-Dhi=1177994470  -> VALID: no S in [1..K] has sum n
+verify time 16 s

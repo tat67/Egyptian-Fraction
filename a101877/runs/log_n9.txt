@@ -1,0 +1,9 @@
+START n=9 2026-09-29T05:47:33+0000
+STOPPED first attempt (prove 9 8507, 2650+ nodes, undecided) 2026-09-29T05:59:18+0000
+rootscan start 2026-09-29T05:59:18+0000
+rootscan end 2026-09-29T05:59:35+0000
+witness scan start 2026-09-29T05:59:51+0000
+witness scan end 2026-09-29T06:05:21+0000
+witness 9 8500 FOUND (3568 nodes) 2026-09-29T06:35:35+0000
+witness 9 8498 stopped (time budget) atTerminated  2026-09-29T07:57:48+0000
+RESULT n=9: 8498 <= a(9) <= 8500 (8497 closed, 8499 not a candidate, 8498 undecided) 2026-09-29T07:57:48+0000

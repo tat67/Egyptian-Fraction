@@ -1,0 +1,1 @@
+n=9 K=8501 mode=witness NONE: 8501 is not a candidate (cannot occur in any set with integral sum)
