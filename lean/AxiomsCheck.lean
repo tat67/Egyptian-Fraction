@@ -27,3 +27,21 @@ open SemiprimeEgypt
 #print axioms solutions47_iff
 #print axioms solutions47_integral_iff
 #print axioms solutions47_ncard
+-- the verified search (semiprime48.cpp, Step 1)
+#print axioms le_topSum
+#print axioms Srch.Inst.loss_bound
+#print axioms Srch.mem_search
+#print axioms Srch.Inst.mkTables_ok
+#print axioms Srch.intAdm_of_admissible
+#print axioms Srch.core_mem_search
+#print axioms Srch.core_of_solution_mem_search
+#print axioms mem_searchCores
+#print axioms recipSum_eq_one_of_integral_48
+#print axioms core_mem_searchCores
+#print axioms search46_of
+#print axioms search47_of
+#print axioms no_integral_sum_le_46'
+#print axioms card_ge_47_of_integral'
+#print axioms solutions47_iff'
+#print axioms solutions47_integral_iff'
+#print axioms solutions47_ncard'

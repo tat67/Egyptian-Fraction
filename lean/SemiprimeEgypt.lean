@@ -7,3 +7,11 @@ import SemiprimeEgypt.Component
 import SemiprimeEgypt.Reduction
 import SemiprimeEgypt.Solutions
 import SemiprimeEgypt.Main
+import SemiprimeEgypt.TopSum
+import SemiprimeEgypt.Search
+import SemiprimeEgypt.LossBound
+import SemiprimeEgypt.SearchCorrect
+import SemiprimeEgypt.SearchTables
+import SemiprimeEgypt.SearchTablesProof
+import SemiprimeEgypt.SearchReal
+import SemiprimeEgypt.MainSearch
