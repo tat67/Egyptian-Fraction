@@ -190,7 +190,7 @@ The search of section 3 is formalized in Lean ([`lean/`](lean/README.md)).
 * `lean/SemiprimeEgypt/Search.lean` writes it as a Lean function: tests (P1)–(P4), the table-driven step for the 8 smallest primes, the final test, and integer arithmetic throughout.
 * Lean proves that the function is exhaustive for every budget `K ≤ 48`. Its output contains every core that passes the exact Step-1 condition (`core_mem_search`), hence the core of every `T` with `|T| ≤ K` and integral reciprocal sum (`core_mem_searchCores`).
 * This proof covers the soundness of the loss bound (`loss_bound`) and of the knapsack tables (`mkTables_ok`).
-* Compiled to native code, the Lean function reproduces the core lists of `semiprime48.cpp` on 12 reduced instances and on the real instance for budgets 40–46 ([`validation48/lean_vs_cpp_output.txt`](validation48/lean_vs_cpp_output.txt)). It is about a thousand times slower, so budgets 47 and 48 were run only in C++.
+* Compiled to native code, the Lean function reproduces the core lists of `semiprime48.cpp` on 12 reduced instances and on the real instance for budgets 40–46 ([`validation48/lean_vs_cpp_output.txt`](validation48/lean_vs_cpp_output.txt)). It is several hundred to several thousand times slower (budget 46: about 8.5 CPU hours, against 4.6 s for the C++ search with one thread), so budgets 47 and 48 were run only in C++.
 * Step 2, including the new case `b = 2`, is not formalized.
 
 ## Running

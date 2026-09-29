@@ -122,7 +122,7 @@ An earlier implementation without the loss bound (\file{semiprime_reciprocals.cp
 \draw[arr] (solslab.south) -- ++(0,-0.3) -| ([xshift=-0.9cm]thm.north);
 \draw[arr] (red.west) -- ++(-0.35,0) |- (thm.west);
 \node[lab,above=1pt of red] {verified in Lean 4 (unconditional)};
-\node[lab,above=1pt of step1] {search defined in Lean; exhaustiveness\\ proved in Lean (unconditional);\\ executed in C++ (and in Lean for budget $\le46$)};
+\node[lab,above=1pt of step1] {search defined in Lean; exhaustiveness\\ proved in Lean (unconditional);\\ executed in C++ (and in Lean for budgets $40$--$46$)};
 \node[lab,below=1pt of thm] {derived in Lean \emph{conditionally} on Step 2};
 \end{tikzpicture}
 \caption{Logical structure of the proofs of \cref{thm:A,thm:B} and the verification status of each component. \cref{thm:C} has the same structure, with an additional completion routine for two large--large elements (\cref{sec:proof48}); its Step~2 is not stated in Lean.}
@@ -188,7 +188,7 @@ H_{35}<1-\tfrac{1757}{79000},\qquad H_{37}<1<H_{38},\qquad H_{46}<H_{47}<H_{48}<
 \begin{proof}
 This is a finite exact computation with rational numbers. It was carried out independently in three ways: with the big-integer routines of the C++ programs (\cref{sec:repro}), in Python with \code{fractions.Fraction} (script \file{paper/verification/verify_paper_facts.py}), and in Lean~4, where the inequalities are proved by \code{norm\_num} (\lean{H35_val}, \lean{H37_lt_one}, \lean{H38_gt_one}, \lean{H46_lt_two}, \lean{H47_lt_two}; \cref{sec:lean}).
 Lean also proves that $a_1,\dots,a_{47}$ are the $47$ smallest elements of $\Pset$.
-Finally $a_{48}=159$ and $H_{48}=H_{47}+1/159<1.0704$.
+Finally $a_{48}=159$ and $H_{48}=H_{47}+1/159<1.0704$ (checked with exact rationals by \file{paper/verification/verify48_facts.py}; \file{semiprime48.cpp} checks $H_{48}<2$ exactly).
 \end{proof}
 
 \begin{corollary}\label{cor:sum-is-one}
@@ -604,7 +604,7 @@ The sum over $k$ changes by a bounded amount when an edge is added or rejected, 
 All quantities are integers, and the shares are rounded up.
 
 \begin{proposition}[Soundness of the loss bound]\label{prop:loss}
-For every core $C$ in the subtree of a node, the left-hand side of \ref{P4} is at least $\mathrm{Val}(C)$. In particular \ref{P4} never discards a node above a core that passes \eqref{eq:leaftest}.
+For every core $C$ with $\card{C}+\card{U(C)}\le\budget$ in the subtree of a node, the left-hand side of \ref{P4} is at least $\mathrm{Val}(C)$. In particular \ref{P4} never discards a node above a core that passes \eqref{eq:leaftest}.
 \end{proposition}
 
 \begin{proof}
@@ -976,13 +976,13 @@ The same brute-force check was passed by \file{semiprime48.cpp} on the reduced i
 
 \subsection{The search as a Lean function}\label{sec:leanrun}
 
-The Lean function \lean{Inst.search} of \cref{sec:lean} is a transcription of Step~1 of \file{semiprime48.cpp}: the same order of the primes, the same splitting into explicit recursion and a final step for the $8$ smallest primes, the same tests \ref{P1}--\ref{P4} with the same integer tables, and the same final test. It is written for clarity, not speed: cores are finite sets of index pairs, and residues are recomputed at every node.
-Lean proves that its output contains every admissible core (\cref{sec:lean}). Its output is not certified to be \emph{equal} to that of the C++ program. To test the correspondence we compiled the Lean function to native code and compared its output with that of \file{semiprime48.cpp} (option \code{--dump}; harness \file{validation48/dfs48_harness.cpp}):
+The Lean function \lean{Inst.search} of \cref{sec:lean} follows Step~1 of \file{semiprime48.cpp}: the same order of the primes, the same splitting into explicit recursion and a final step for the $8$ smallest primes, the same tests \ref{P1}--\ref{P4} with the same integer tables, and the same final test. It is written for clarity, not speed: cores are finite sets of index pairs, residues are recomputed at every node, and the final step runs through all $256$ subsets of the $8$ smallest primes instead of using a table indexed by residues.
+Lean proves that its output contains every admissible core (\cref{sec:lean}). Its output is not certified to be \emph{equal} to that of the C++ program. To test the correspondence we compiled the Lean function to native code and compared its output with that of \file{semiprime48.cpp} (option \code{-{}-dump}; harness \file{validation48/dfs48_harness.cpp}):
 \begin{itemize}
 \item on $12$ reduced instances ($\Sset$ = the primes up to $13$ with budgets $40$, $45$, $50$, $60$; up to $17$ and up to $19$ with budgets $40$, $45$, $50$; up to $23$ with budgets $40$, $45$; instance generator \lean{mkInst}), the two outputs coincide as sets of cores; the largest outputs have $274\,486$ cores ($\Sset$ = primes up to $23$, budget $45$) and $478\,084$ cores ($\Sset$ = primes up to $19$, budget $50$);
-\item on the real instance ($\Sset$ = the primes up to $73$), for budgets $40$ to $45$ both keep no core, and for budget $46$ both keep the same $178$ cores. %K46CHECK
+\item on the real instance ($\Sset$ = the primes up to $73$), for budgets $40$ to $45$ both keep no core, and for budget $46$ both keep the same $178$ cores.
 \end{itemize}
-The compiled Lean function is roughly a thousand times slower than the C++ program, mainly because it recomputes all residues at every node and evaluates all $256$ choices at every final step. For budget $46$ it was therefore run in $4$ processes: \lean{search_eq_rounds} (\file{SearchSplit.lean}) proves that the search is the concatenation, in order, of the searches below the nodes of any refinement of the root, and each process evaluated a quarter of these nodes. Budgets $47$ and $48$ are out of reach for the Lean function.
+The compiled Lean function is several hundred to several thousand times slower than the C++ program (for budget $46$: about $8.5$ CPU hours, against $4.6$\,s for the C++ search with one thread), mainly because it recomputes all residues at every node and evaluates all $256$ choices at every final step. For budget $46$ it was therefore run in several processes: \lean{search_eq_rounds} (\file{SearchSplit.lean}) proves that the search is the concatenation, in order, of the searches below the $890\,624$ work items obtained by $26$ rounds of refinement of the root; the heaviest item was refined further in the same way (\lean{flatMap_expandItem}), and every piece was evaluated by exactly one process (\file{validation48/lean_runner/README.md}). Budgets $47$ and $48$ are out of reach for the Lean function.
 The comparison script and its output are \file{validation48/lean_vs_cpp.sh} and \file{validation48/lean_vs_cpp_output.txt}.
 
 \subsection{Self-tests}
@@ -999,7 +999,7 @@ The engine of \file{semiprime47.cpp} also recovers a planted component with $b=1
 
 The following are \emph{not} independently verified:
 \begin{itemize}
-\item the full-scale Step~1 for budgets $47$ and $48$, which was executed only by the C++ programs; the Lean function whose exhaustiveness is proved was executed for budgets up to $46$ only (\cref{sec:leanrun});
+\item the full-scale Step~1 for budgets $47$ and $48$, which was executed only by the C++ programs; the Lean function whose exhaustiveness is proved was executed for budgets $40$ to $46$ only (\cref{sec:leanrun});
 \item the correctness of the compilers and the hardware;
 \item the informal correspondence of \cref{sec:claimmatch} between \cref{claim:46,claim:47} and the source code, and the corresponding correspondence for Step~2 with budget $48$.
 \end{itemize}
@@ -1042,7 +1042,7 @@ Step~1 is written as a Lean function, and its exhaustiveness is a theorem.
 \item \lean{intAdm_of_admissible} (\file{SearchReal.lean}): for $\Sset$ = the primes up to $73$ and $\budget\le48$ (the instance \lean{inst73}), every core with \code{Admissible K C} (\cref{def:admissible}, with exact rationals) satisfies \lean{IntAdm}. This includes the facts that the residues computed by the search are the residues $\rho$ of the core, that $\lo(n)\le2^{96}/n\le\up(n)$, and that the $49$ listed numbers $158,166,\dots,471$ are the $49$ smallest elements of $\Pset$ with a large prime factor, so that $\mathrm{VB}(x)\ge2^{96}V(x)$.
 \item Hence \lean{core_mem_search}: every admissible core (as its edge set \code{edgesOf C}) is in the output of \code{(inst73 K).search (inst73 K).mkTables}, for every $\budget\le48$; this is \cref{lem:step1}. With \code{searchCores K} the list of cores of that output, \lean{core_mem_searchCores} states that the core of every nonempty $T\subset\Pset$ with $\card{T}\le\budget\le48$ and $\Rec{T}\in\Z$ lies in \code{searchCores K}.
 \end{itemize}
-The search is thus a Lean function whose output is proved to contain the core of every solution; its output is not computed inside Lean's kernel. The function is also executable, and the compiled function reproduces the output of the C++ program for all budgets up to $46$ and on reduced instances (\cref{sec:leanrun}).
+The search is thus a Lean function whose output is proved to contain the core of every solution; its output is not computed inside Lean's kernel. The function is also executable, and the compiled function reproduces the output of the C++ program for budgets $40$ to $46$ and on reduced instances (\cref{sec:leanrun}).
 
 \paragraph{Conditional completeness.}
 Step~2 is not reproduced in Lean. Instead, \cref{claim:46,claim:47} are stated as the propositions \lean{Search46} and \lean{Search47} (reproduced in \cref{app:lean}). These are ordinary definitions used as hypotheses, not axioms. Their weaker versions \lean{Search46'} and \lean{Search47'} quantify only over the cores in \code{searchCores 46} and \code{searchCores 47}, the output of the verified search. By the exhaustiveness theorem, \lean{Search46'} implies \lean{Search46} and \lean{Search47'} implies \lean{Search47} (\lean{search46_of}, \lean{search47_of}). Lean proves:
@@ -1052,7 +1052,7 @@ Step~2 is not reproduced in Lean. Instead, \cref{claim:46,claim:47} are stated a
 \end{itemize}
 Consequently the complete proofs of \cref{thm:A,thm:B} are formally verified \emph{modulo} \lean{Search46'} and \lean{Search47'}: the enumeration of the cores is no longer an assumption, and what remains assumed is the outcome of Step~2 on the cores output by the verified search. These hypotheses are established by the computations of \cref{sec:proof46,sec:proof47}. The following points are not verified in Lean:
 \begin{itemize}
-\item the fact that the C++ Step~1 outputs (at least) the cores of \code{searchCores K}; for $\budget\le46$ this was checked by running the compiled Lean function, and for $\budget=47$ it rests on the C++ program implementing the same function (\cref{sec:leanrun});
+\item the fact that the C++ Step~1 outputs (at least) the cores of \code{searchCores K}; for $\budget=46$ this was checked by running the compiled Lean function, and for $\budget=47$ it rests on the C++ program implementing the same function (\cref{sec:leanrun});
 \item the fact that the C++ Step~2 implements \cref{claim:46,claim:47} correctly (\cref{sec:claimmatch});
 \item the fact that the recorded runs produced the stated output.
 \end{itemize}
@@ -1140,7 +1140,7 @@ On the computational side, the loss bound (\cref{sec:lossbound}) makes Step~1 th
 \paragraph{Limitations.}
 The proofs are computer-assisted.
 \begin{itemize}
-\item Step~1 is now a Lean function with a formal proof of exhaustiveness. The remaining gap is that the full-scale executions for budgets $47$ and $48$ were made by the C++ program, which implements the same function but is not verified; for budgets up to $46$ the compiled Lean function reproduces its output. The two generations of C++ programs share most of their Step~1 code.
+\item Step~1 is now a Lean function with a formal proof of exhaustiveness. The remaining gap is that the full-scale executions for budgets $47$ and $48$ were made by the C++ program, which is meant to compute the same function but is not verified; on every instance on which both were run, including the real instance with budgets $40$ to $46$, the two produce the same cores. The two generations of C++ programs share most of their Step~1 code.
 \item Step~2 has been implemented twice, in C++ and in Python, and the implementations agree for all three budgets.
 \item The reduction, the exhaustiveness of Step~1 and the $23$ solutions are verified in Lean. The connection between the Lean hypotheses \lean{Search46'} and \lean{Search47'} and the C++ Step~2 rests on the informal argument of \cref{sec:claimmatch}. For budget $48$, Step~2 (including the case $b=2$) and the $620$ solutions are not formalized.
 \end{itemize}
@@ -1172,7 +1172,7 @@ All mathematical claims in this article were checked by the verification procedu
 \item exact computation;
 \item second implementations of Step~2;
 \item brute-force validation of Step~1 on reduced instances, and the comparison of the two generations of the search;
-\item a Lean~4 formalization of the analytic reduction, of the exhaustiveness of Step~1 and of the $23$ solutions, and the execution of the verified Lean search for budgets up to $46$.
+\item a Lean~4 formalization of the analytic reduction, of the exhaustiveness of Step~1 and of the $23$ solutions, and the execution of the verified Lean search for budgets $40$ to $46$.
 \end{itemize}
 These checks were themselves designed and executed with the assistance of the same tool.
 The extent of the computer-assisted part and of the formally verified part, and the exact status of every result, are stated explicitly in \cref{fig:status} and \cref{sec:proof46,sec:proof47,sec:proof48,sec:verification,sec:lean}.

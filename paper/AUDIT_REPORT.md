@@ -31,7 +31,7 @@ This section covers the current version of the paper. Sections 1–10 below are 
 
 **What is still not verified.**
 
-* That the C++ Step 1 computes the Lean function for budgets 47 and 48. The compiled Lean function is roughly a thousand times slower than the C++ program, and was run only up to budget 46.
+* That the C++ Step 1 computes the Lean function for budgets 47 and 48. The compiled Lean function is several hundred to several thousand times slower than the C++ program (budget 46: about 8.5 CPU hours), and was run only up to budget 46.
 * Step 2 in Lean. The hypotheses `Search46'` and `Search47'` remain; for 48 terms, Step 2 is not stated in Lean at all.
 * The `b = 2` routine (Section 8.1). It is argued on paper and implemented twice (C++ and Python), but not formalized.
 * The 620 sets in Lean (they are verified exactly by C++ and twice in Python).

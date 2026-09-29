@@ -38,5 +38,6 @@ Run it with `bash step1_equivalence.sh 4` (about 10 minutes on 4 cores). The rec
 | `cores48_two_bb.txt` | the 73 budget-48 cores whose only surviving shapes have two big-big edges (from the first run, where they were still reported as unresolved) |
 | `two_bb_step2_cpp_output.txt`, `two_bb_step2_python_output.txt` | `step2_from_dump` and `../complete48.py` on these 73 cores: no completion, nothing unresolved |
 | `lean_vs_cpp.sh`, `lean_vs_cpp_output.txt` | the Lean search `Inst.search` (`../lean/SemiprimeEgypt/Search.lean`, proved exhaustive in Lean), compiled to native code, compared with the Step-1 output of `../semiprime48.cpp`: 12 reduced instances and the real instance with budgets 40–46, identical in every case |
-| `lean_runner/` | the native runners of the Lean search (`RunG.lean`, `RunS.lean`) and their build steps |
+| `lean46_cores.txt` | the 178 cores output by the Lean search for budget 46; the same as the C++ list |
+| `lean_runner/` | the native runners of the Lean search (`RunG.lean`, `RunS.lean`, `RunT.lean`, `RunU.lean`), their build steps, and the procedure used for budget 46 |
 | `complete48_selftest_output.txt` | `python3 ../complete48.py --selftest`: the planted path and the planted pair of components are recovered. The completion sets (27 and 2) are the same as those printed by `semiprime48 --selftest` in `../run48_output.txt`. |
