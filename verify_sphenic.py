@@ -4,20 +4,19 @@ Independent exact verifier for sphenic_solution.txt.
 
 Checks, using ONLY integer / rational arithmetic (no float, no '/' operator,
 no math module, no `random`):
-  1. T is nonempty, has |T| <= 73081 elements, all distinct;
+  1. T is nonempty, has |T| <= bound (default 6096) elements, all distinct;
   2. every element is a product of exactly three DISTINCT primes
      (trial-division factorisation, independent of the search code);
   3. the sum of 1/n over T, computed with fractions.Fraction (exact rationals),
      is exactly 1;
   4. (second, independent method) the p-adic criterion
         sum_{n in T, p | n} (n/p)^(-1)  ==  0  (mod p)   for every prime p,
-     plus: the sum of the 73081 smallest sphenic reciprocals is < 2, hence any integral sum
-     over <= 73081 terms is 1 -- here we simply confirm the sum equals 1.
+     and (as an independent cross-check) the exact sum is 1.
 """
 import sys
 from fractions import Fraction
 
-K_MAX = 73081
+K_MAX = 6096          # size bound of the current problem (override: 2nd command-line argument)
 
 
 def factor(n):
@@ -36,14 +35,14 @@ def factor(n):
     return fs
 
 
-def main(path):
+def main(path, bound=K_MAX):
     with open(path) as f:
         T = [int(tok) for tok in f.read().split()]
     print(f"read {len(T)} numbers from {path}")
     assert len(T) >= 1, "T must be nonempty"
-    assert len(T) <= K_MAX, f"|T| = {len(T)} exceeds {K_MAX}"
+    assert len(T) <= bound, f"|T| = {len(T)} exceeds {bound}"
     assert len(set(T)) == len(T), "elements are not distinct"
-    print(f"|T| = {len(T)} <= {K_MAX}: OK, all distinct: OK")
+    print(f"|T| = {len(T)} <= {bound}: OK, all distinct: OK")
 
     fac = {}
     for n in T:
@@ -75,4 +74,5 @@ def main(path):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1] if len(sys.argv) > 1 else "sphenic_solution.txt")
+    main(sys.argv[1] if len(sys.argv) > 1 else "sphenic_solution_6096.txt",
+         int(sys.argv[2]) if len(sys.argv) > 2 else K_MAX)

@@ -25,7 +25,7 @@ Method ("top-down repair").
 import sys
 import time
 
-K_MAX = 73081
+K_MAX = 73081          # (kept for reference; the bound is now the --bound option)
 PMAX = 4000            # every prime factor of a sphenic number <= 23309 is < 3885
 
 
@@ -222,39 +222,51 @@ class Attempt:
 
 
 def main():
+    import argparse
+    ap = argparse.ArgumentParser(description="sphenic reciprocal sum = 1, |T| <= BOUND (exact integer arithmetic)")
+    ap.add_argument("--bound", type=int, default=6096, help="maximum |T| (default 6096)")
+    ap.add_argument("--kmin", type=int, default=4900, help="smallest seed size k")
+    ap.add_argument("--kmax", type=int, default=5300, help="seed size k is drawn from [kmin, kmax)")
+    ap.add_argument("--tries", type=int, default=100000, help="maximum number of attempts")
+    ap.add_argument("--minimize", action="store_true", help="use all tries and keep the smallest |T| found")
+    ap.add_argument("--out", default="sphenic_solution.txt")
+    ap.add_argument("--seed", type=int, default=20260929, help="integer PRNG seed")
+    ap.add_argument("--quiet", action="store_true")
+    args = ap.parse_args()
     t0 = time.time_ns()
     primes, isprime = primes_upto(PMAX)
     S = sphenic_list(60000, primes)
-    print("sphenic numbers <= 60000:", len(S), flush=True)
-    rng = SplitMix64(20260929)
+    rng = SplitMix64(args.seed)
     attempts = 0
-    wins = 0
-    sums_seen = {}
-    while True:
+    hist = {}
+    best = None
+    while attempts < args.tries:
         attempts += 1
-        # seed: the k smallest sphenic numbers, k in [4390, 6190)
-        k = 4390 + rng.below(1800)
-        seed_terms = [tr for (_, tr) in S[:k]]
-        at = Attempt(primes, isprime, seed_terms, rng)
-        ok = at.run(PMAX)
-        if not ok:
+        k = args.kmin + rng.below(args.kmax - args.kmin)
+        at = Attempt(primes, isprime, [tr for (_, tr) in S[:k]], rng)
+        if not at.run(PMAX):
             continue
         nums = sorted(a * b * c for (a, b, c) in at.T)
         one, L = sum_is_one(nums)
-        # record which multiple of 1/30 we landed on:  30 * sum = (30 * sum_i L//n_i) // L  (exact)
         num = sum(L // n for n in nums)
-        j30 = (30 * num) // L
+        j30 = (30 * num) // L                     # exact: sum = j30/30
         assert (30 * num) % L == 0, "sum not in (1/30)Z -- repair pass is broken"
-        sums_seen[j30] = sums_seen.get(j30, 0) + 1
-        print(f"attempt {attempts}: k={k} |T|={len(nums)} sum = {j30}/30", flush=True)
-        if one and len(nums) <= K_MAX:
-            with open("sphenic_solution.txt", "w") as f:
-                f.write(" ".join(map(str, nums)) + "\n")
-            print(f"FOUND: |T|={len(nums)}, sum == 1 exactly; largest element {nums[-1]}")
-            print(f"seed size k={k}; wrote sphenic_solution.txt")
-            break
+        hist[j30] = hist.get(j30, 0) + 1
+        if not args.quiet:
+            print(f"attempt {attempts}: k={k} |T|={len(nums)} sum = {j30}/30", flush=True)
+        if one and len(nums) <= args.bound and (best is None or len(nums) < len(best[0])):
+            best = (nums, k, attempts)
+            if not args.minimize:
+                break
     dt = (time.time_ns() - t0) // 1_000_000
-    print(f"attempts={attempts}, elapsed {dt // 1000}.{dt % 1000:03d} s, landed-sums histogram {sorted(sums_seen.items())}")
+    if best is None:
+        print(f"no solution with |T| <= {args.bound} in {attempts} attempts")
+    else:
+        nums, k, att = best
+        with open(args.out, "w") as f:
+            f.write(" ".join(map(str, nums)) + "\n")
+        print(f"FOUND: |T|={len(nums)} <= {args.bound}, sum == 1 exactly; seed size k={k}, attempt {att}; wrote {args.out}")
+    print(f"attempts={attempts}, elapsed {dt // 1000}.{dt % 1000:03d} s, histogram of landed sums j/30: {sorted(hist.items())}")
 
 
 if __name__ == "__main__":
