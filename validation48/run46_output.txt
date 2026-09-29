@@ -1,0 +1,27 @@
+start: 2026-09-29 10:51:55 UTC
+budget K = 46 (all T with |T| <= K and reciprocal sum 1 are found; the answer is |T| = K)
+
+=== Part 1: size lemma ===
+H_46 (sum of the reciprocals of the 46 smallest elements of P) < 1.057751 ; exact check H_46 < 2: yes
+=> every T with |T| <= 46 has 0 < sum < 2, so 'sum = 1' <=> 'sum is an integer' <=> (*) at every prime
+
+=== Part 2: exhaustive search (S = primes <= 73, |C| + |U| <= 46) ===
+threads = 4, split prime = 43, loss bound: theta = 1/145, shares of the larger endpoint (/12): 12 11 11 10 10 9 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8
+largest possible star (neighbours of one big prime): 10
+search nodes           : 26112391
+cores passing Step 1   : 178 (of which |C|+|U| = 46: 111)
+completion shapes      : 3777 tried, 61 pass parity+value (in 61 cores), 0 candidate stars
+surviving shapes by number of big-big edges: 0: 61, 1: 0, >=2 (all are = 2 unless reported): 0
+two big-big edges      : 0 component problems solved, largest prime bound 0
+unresolved cores       : 0
+probable (not proven) primes used: 0
+search + completion time: 2.081 s
+
+=== Part 3: the solutions, each verified with exact rational arithmetic ===
+
+=== RESULT ===
+number of 46-element subsets T of P with sum 1/n = 1: 0 (all 0 verified exactly)
+The list is complete: every 46-element T with reciprocal sum 1 is listed above.
+start: 2026-09-29 10:51:55 UTC
+end:   2026-09-29 10:51:57 UTC
+total elapsed: 2.081 s
