@@ -24,7 +24,9 @@
 //  4. Step 2 (completion): for every core find ALL big parts G with sum(G) = 1 - sum(C) and
 //     |G| <= K - |C|.  Shapes (d_q, nbb) are filtered by the excess, parity and value tests;
 //     nbb = 0: stars P | n(A), all exact covers;  nbb = 1: one two-prime component, solved by a
-//     divisor equation;  nbb >= 2: reported as unresolved (the run shows that none survives).
+//     divisor equation;  nbb = 2: a path P0-P1-P2 or two one-edge components, solved exactly by
+//     bounding one big prime through the value and enumerating it (README48.md, section 4);
+//     nbb >= 3: reported as unresolved (the run shows that none survives).
 //     All star arithmetic is done in 128 bits (stars have up to K - 36 = 12 neighbours).
 //  5. Every solution is checked: distinct squarefree semiprimes (factors proved prime), exact
 //     sum 1.  The search covers every T with |T| <= K, so the run also re-finds the 23 known
@@ -34,6 +36,7 @@
 // ---------------------------------------------------------------------------------------
 
 #include <algorithm>
+#include <array>
 #include <atomic>
 #include <chrono>
 #include <cstdint>
@@ -152,6 +155,26 @@ static bool mulOK(u128 a, u128 b, u128& out) {
     out = a * b; return true;
 }
 
+// ----- exact nonnegative rationals n/d in 128 bits (every operation reports overflow) -----
+struct Rat { u128 n = 0, d = 1; };
+static Rat ratOf(u128 n, u128 d) { u128 g = gcd128(n, d); if (!g) g = 1; return Rat{n / g, d / g}; }
+static bool ratAdd(const Rat& a, const Rat& b, Rat& r) {
+    u128 g = gcd128(a.d, b.d), x, y, z;
+    if (!mulOK(a.n, b.d / g, x) || !mulOK(b.n, a.d / g, y) || !mulOK(a.d, b.d / g, z) || x + y < x) return false;
+    r = ratOf(x + y, z); return true;
+}
+// r = a - b: returns 1 if a > b (r set), 0 if a <= b, -1 on overflow
+static int ratSubPos(const Rat& a, const Rat& b, Rat& r) {
+    u128 g = gcd128(a.d, b.d), x, y, z;
+    if (!mulOK(a.n, b.d / g, x) || !mulOK(b.n, a.d / g, y) || !mulOK(a.d, b.d / g, z)) return -1;
+    if (x <= y) return 0;
+    r = ratOf(x - y, z); return 1;
+}
+static bool ratTerm(u128 a, u128 b, u128 P, Rat& r) {       // r = a / (b P)
+    u128 den; if (!mulOK(b, P, den)) return false; r = ratOf(a, den); return true;
+}
+static u128 isqrt128(u128 x) { u128 r = 0; for (int k = 63; k >= 0; --k) { u128 c = r | ((u128)1 << k); if (c * c <= x) r = c; } return r; }
+
 // ----- 96-bit fixed point: x is represented by an integer X ~ x * 2^96 -----
 static const int FP = 96;
 static const u128 ONE = (u128)1 << FP;
@@ -257,6 +280,7 @@ struct Engine {
     long long endStates = 0, endTight = 0, unresolved = 0;
     long long shapesTried = 0, shapesAlive = 0, starCands = 0, coresWithShape = 0, probablePrimes = 0;
     long long aliveByNbb[3] = {0, 0, 0};
+    long long twoBBsolves = 0; u128 maxBound = 0;  // statistics of the two-big-big-edge solver
     set<vector<Elem>> solutionSet;              // all solutions found (sorted element lists)
     FILE* dumpFile = nullptr;                   // optional: record every core that survives Step 1
     bool runStep2 = true;                       // false: Step 1 only (used by the validation harness)
@@ -406,7 +430,8 @@ struct Engine {
     // nbb = 0 : all big primes are stars; ALL exact covers are enumerated.
     // nbb = 1 : one component {P1,P2} (edge P1P2) plus stars; solved exactly through
     //           (t P1 - a1 b2)(t P2 - a2 b1) = b1 b2 (t + a1 a2),  t = Z_K b1 b2.
-    // nbb >= 2: reported as unresolved (the run shows that no such shape survives).
+    // nbb = 2 : a path or two one-edge components plus stars; see solveTwoBB below.
+    // nbb >= 3: reported as unresolved (the run shows that no such shape survives).
     u64 pminFor(int qi, int r) const {         // least prime P > SB with P == (-r)^{-1} mod pr[qi]
         u64 q = pr[qi]; u64 a = invmodPrime((q - (u64)r % q) % q, q);
         u64 P = a; while (P <= (u64)SB || !isPrime64(P)) P += q;
@@ -416,7 +441,8 @@ struct Engine {
     struct Star { u128 P; uint32_t mask; u128 valNum; };      // value of the star = valNum / Dall
     struct Solution { vector<Elem> big; };
     struct CompletionResult { vector<Solution> sols; bool unresolved = false; long long shapes = 0, shapesAlive = 0, cand = 0;
-                              long long probablePrimes = 0; long long aliveNbb[3] = {0, 0, 0}; string note; };
+                              long long probablePrimes = 0; long long aliveNbb[3] = {0, 0, 0}; string note;
+                              long long twoBBsolves = 0; u128 maxBound = 0; };
     // all prime factors > SB of n(A) = sum_{q in A} prod(A)/q (each certified prime; A has <= 21 elements)
     const vector<u128>& bigFactors(uint32_t Amask, StarCache& cache, CompletionResult& R) const {
         auto it = cache.find(Amask);
@@ -493,7 +519,7 @@ struct Engine {
                     u128 tot = ub + (u128)nbb * recipUp((u128)bigList[0] * bigList[1]);
                     if (tot < Zlo) continue;                                 // (iv)
                     ++R.shapesAlive; R.aliveNbb[min(nbb, 2)]++;
-                    if (nbb >= 2) {
+                    if (nbb >= 3) {
                         R.unresolved = true;
                         R.note += " [shape with " + to_string(nbb) + " big-big edges]";
                         continue;
@@ -534,6 +560,7 @@ struct Engine {
             }
             return;
         }
+        if (nbb == 2) { solveTwoBB(d, W, cand, zNum, R); return; }
         // nbb == 1: attachment sets A1 (of P1) and A2 (of P2), both nonempty subsets of W
         auto fail = [&](const char* why) { R.unresolved = true; R.note += string(" [") + why + "]"; };
         for (uint32_t m1 = 1; m1 < (1u << w); ++m1)
@@ -591,6 +618,196 @@ struct Engine {
             }
     }
 
+    // ---------------- two big-big edges (README48.md, section 4) ----------------
+    // Such a big part consists of stars plus either a path P0 - P1 - P2 (attachment sets A0, A2
+    // nonempty, A1 possibly empty) or two components P0 - P1 and P2 - P3 (all Ai nonempty).
+    // Its value Z_K = Z - (stars) is a sum of 5 (resp. 6) positive terms a_i/(b_i P_i) and
+    // 1/(P P') over the big-big edges, so one term is >= Z_K/5 (resp. Z_K/6).  This bounds one
+    // of the big primes: P_i <= 5 a_i/(b_i Z_K), or min(P, P') <= sqrt(5/Z_K).  Every prime p up
+    // to that bound is tried in every position.  If p is the middle of the path, both ends are
+    // stars on A0 u {p}, A2 u {p} (finitely many prime factors).  Otherwise the neighbour of p
+    // is either a star on A u {p} or the rest is a one-edge component in which p is one more
+    // attachment; that component is solved by the divisor equation.  Every candidate is accepted
+    // only if its exact value is Z_K.
+    static const u128 MAXBOUND = 50000000;
+    vector<u128> bigPrimeFactors(u128 x, CompletionResult& R) const {
+        vector<u128> fs; bool prob = false; factor128(x, fs, &prob);
+        if (prob) R.probablePrimes++;
+        vector<u128> out;
+        for (u128 f : fs) if (f > (u128)SB && (out.empty() || out.back() != f)) out.push_back(f);
+        return out;
+    }
+    // all (P1, P2), distinct primes > SB, with a1/(b1 P1) + a2/(b2 P2) + 1/(P1 P2) = Z (a1, a2 > 0);
+    // false on overflow (the caller then reports the core as unresolved)
+    bool pairSolutions(u128 b1, u128 a1, u128 b2, u128 a2, const Rat& Z, vector<pair<u128, u128>>& out, CompletionResult& R) const {
+        u128 B, a1b2, a2b1, a1a2;
+        if (!mulOK(b1, b2, B) || !mulOK(a1, b2, a1b2) || !mulOK(a2, b1, a2b1) || !mulOK(a1, a2, a1a2) ||
+            (a1b2 >> 126) || (a2b1 >> 126)) return false;
+        u128 g = gcd128(B, Z.d), Q = Z.d / g;                      // t = Z b1 b2 must be an integer
+        if (Z.n % Q != 0) return true;
+        u128 t; if (!mulOK(Z.n / Q, B / g, t)) return false;
+        if (t == 0) return true;
+        u128 L = t + a1a2, N;
+        if (L < t || (L >> 100) || !mulOK(B, L, N) || (N >> 126)) return false;
+        vector<u128> fs; bool prob = false;
+        factor128(L, fs, &prob); factor128(b1, fs, &prob); factor128(b2, fs, &prob);
+        if (prob) return false;
+        sort(fs.begin(), fs.end());
+        vector<pair<u128, int>> pe;
+        for (u128 q : fs) { if (!pe.empty() && pe.back().first == q) pe.back().second++; else pe.push_back({q, 1}); }
+        vector<u128> divs{1};
+        for (auto& x : pe) { size_t sz = divs.size(); u128 pk = 1;
+            for (int k = 1; k <= x.second; ++k) { pk *= x.first; for (size_t j = 0; j < sz; ++j) divs.push_back(divs[j] * pk); } }
+        for (u128 X : divs) {
+            u128 Y = N / X;
+            if ((X + a1b2) % t != 0 || (Y + a2b1) % t != 0) continue;
+            u128 P1 = (X + a1b2) / t, P2 = (Y + a2b1) / t;
+            if (P1 == P2 || P1 <= (u128)SB || P2 <= (u128)SB) continue;
+            int pp1 = isPrime128(P1), pp2 = isPrime128(P2);
+            if (!pp1 || !pp2) continue;
+            if (pp1 == 2 || pp2 == 2) R.probablePrimes++;
+            out.push_back({P1, P2});
+        }
+        return true;
+    }
+    // P_i <= bound for at least one i (see above); ns slots, nt = number of terms
+    static bool termBound(const u128* b, const u128* a, int ns, int nt, const Rat& ZK, u128& bound) {
+        u128 x;                                   // x = nt * ZK.d
+        if (!mulOK((u128)nt, ZK.d, x)) return false;
+        bound = isqrt128(x / ZK.n);               // 1/(P P') >= Z_K/nt  =>  min(P, P') <= sqrt(nt / Z_K)
+        for (int s = 0; s < ns; ++s) {
+            if (!a[s]) continue;
+            u128 num, den;                       // a_s/(b_s P_s) >= Z_K/nt  =>  P_s <= nt a_s ZK.d / (b_s ZK.n)
+            if (!mulOK(x, a[s], num) || !mulOK(b[s], ZK.n, den)) return false;
+            if (num / den > bound) bound = num / den;
+        }
+        return true;
+    }
+    // exact value of the path component (P1 the middle)
+    static bool pathValue(const u128* b, const u128* a, u128 P0, u128 P1, u128 P2, Rat& v) {
+        Rat t0, t1, t2, e01, e12, s;
+        if (!ratTerm(a[0], b[0], P0, t0) || !ratTerm(a[1], b[1], P1, t1) || !ratTerm(a[2], b[2], P2, t2) ||
+            !ratTerm(1, P0, P1, e01) || !ratTerm(1, P1, P2, e12)) return false;
+        return ratAdd(t0, t1, s) && ratAdd(s, t2, s) && ratAdd(s, e01, s) && ratAdd(s, e12, v);
+    }
+    static bool twoEdgeValue(const u128* b, const u128* a, const u128* P, Rat& v) {
+        Rat s{0, 1}, t;
+        for (int i = 0; i < 4; ++i) { if (!ratTerm(a[i], b[i], P[i], t) || !ratAdd(s, t, s)) return false; }
+        if (!ratTerm(1, P[0], P[1], t) || !ratAdd(s, t, s) || !ratTerm(1, P[2], P[3], t) || !ratAdd(s, t, v)) return false;
+        return true;
+    }
+    bool solvePath(const u128* b, const u128* a, const Rat& ZK, vector<array<u128, 4>>& found, CompletionResult& R) const {
+        u128 bound; if (!termBound(b, a, 3, 5, ZK, bound) || bound > MAXBOUND) return false;
+        R.maxBound = max(R.maxBound, bound);
+        for (int pi : primesUpTo((int)bound)) {
+            u128 p = (u128)pi; if (p <= (u128)SB) continue;
+            // p is the middle prime P1
+            u128 m0, m2; if (!mulOK(p, a[0], m0) || !mulOK(p, a[2], m2)) return false;
+            m0 += b[0]; m2 += b[2];
+            vector<u128> F0 = bigPrimeFactors(m0, R), F2 = bigPrimeFactors(m2, R);
+            for (u128 P0 : F0) if (P0 != p) for (u128 P2 : F2) if (P2 != p && P2 != P0) {
+                Rat v; if (!pathValue(b, a, P0, p, P2, v)) return false;
+                if (v.n == ZK.n && v.d == ZK.d) found.push_back({P0, p, P2, 0});
+            }
+            // p is an end prime P_e; the middle P1 gets the extra neighbour p
+            for (int e = 0; e <= 2; e += 2) {
+                int o = 2 - e;
+                Rat t, Zr; if (!ratTerm(a[e], b[e], p, t)) return false;
+                int sg = ratSubPos(ZK, t, Zr); if (sg < 0) return false; if (sg == 0) continue;
+                u128 bm, am; if (!mulOK(b[1], p, bm) || !mulOK(a[1], p, am)) return false;
+                am += b[1];                                              // n(A1 u {p}) = p a1 + b1
+                vector<pair<u128, u128>> prs;
+                if (!pairSolutions(bm, am, b[o], a[o], Zr, prs, R)) return false;
+                for (auto& pq : prs) {
+                    if (pq.first == p || pq.second == p) continue;
+                    array<u128, 4> A; A[e] = p; A[1] = pq.first; A[o] = pq.second; A[3] = 0;
+                    Rat v; if (!pathValue(b, a, A[0], A[1], A[2], v)) return false;
+                    if (v.n == ZK.n && v.d == ZK.d) found.push_back(A);
+                }
+            }
+        }
+        return true;
+    }
+    bool solveTwoEdges(const u128* b, const u128* a, const Rat& ZK, vector<array<u128, 4>>& found, CompletionResult& R) const {
+        u128 bound; if (!termBound(b, a, 4, 6, ZK, bound) || bound > MAXBOUND) return false;
+        R.maxBound = max(R.maxBound, bound);
+        for (int pi : primesUpTo((int)bound)) {
+            u128 p = (u128)pi; if (p <= (u128)SB) continue;
+            for (int r = 0; r < 4; ++r) {                                // p = P_r
+                int q = r ^ 1, c0 = r < 2 ? 2 : 0, c1 = c0 + 1;
+                u128 mq; if (!mulOK(p, a[q], mq)) return false;
+                mq += b[q];                                              // P_q | n(A_q u {p})
+                for (u128 Pq : bigPrimeFactors(mq, R)) {
+                    if (Pq == p) continue;
+                    Rat t1, t2, e, V, Zr;
+                    if (!ratTerm(a[r], b[r], p, t1) || !ratTerm(a[q], b[q], Pq, t2) || !ratTerm(1, p, Pq, e) ||
+                        !ratAdd(t1, t2, V) || !ratAdd(V, e, V)) return false;
+                    int sg = ratSubPos(ZK, V, Zr); if (sg < 0) return false; if (sg == 0) continue;
+                    vector<pair<u128, u128>> prs;
+                    if (!pairSolutions(b[c0], a[c0], b[c1], a[c1], Zr, prs, R)) return false;
+                    for (auto& pq : prs) {
+                        if (pq.first == p || pq.first == Pq || pq.second == p || pq.second == Pq) continue;
+                        u128 P[4]; P[r] = p; P[q] = Pq; P[c0] = pq.first; P[c1] = pq.second;
+                        Rat v; if (!twoEdgeValue(b, a, P, v)) return false;
+                        if (v.n == ZK.n && v.d == ZK.d) found.push_back({P[0], P[1], P[2], P[3]});
+                    }
+                }
+            }
+        }
+        return true;
+    }
+    void solveTwoBB(const vector<int>& d, const vector<int>& W, const vector<Star>& cand, u128 zNum, CompletionResult& R) const {
+        int w = (int)W.size();
+        for (int type = 0; type < 2; ++type) {                           // 0: path, 1: two components
+            int ns = type == 0 ? 3 : 4;
+            vector<uint32_t> sm(ns, 0);                                   // attachment sets, bitmasks over W
+            vector<int> need(w, 0);
+            function<void(int)> assign = [&](int i) {
+                if (i == w) {
+                    if (type == 0 ? (!sm[0] || !sm[2]) : (!sm[0] || !sm[1] || !sm[2] || !sm[3])) return;
+                    vector<vector<int>> covers; vector<int> chosen;
+                    allCovers(w, need, cand, 0, chosen, covers);
+                    if (covers.empty()) return;
+                    u128 b[4] = {1, 1, 1, 1}, a[4] = {0, 0, 0, 0};
+                    for (int s = 0; s < ns; ++s) {
+                        for (int k = 0; k < w; ++k) if (sm[s] >> k & 1) b[s] *= (u128)pr[W[k]];
+                        for (int k = 0; k < w; ++k) if (sm[s] >> k & 1) a[s] += b[s] / (u128)pr[W[k]];
+                    }
+                    for (auto& cv : covers) {
+                        u128 sv = 0; for (int id : cv) sv += cand[id].valNum;
+                        if (sv >= zNum) continue;
+                        Rat ZK = ratOf(zNum - sv, Dall);
+                        vector<array<u128, 4>> found;
+                        bool ok = type == 0 ? solvePath(b, a, ZK, found, R) : solveTwoEdges(b, a, ZK, found, R);
+                        R.twoBBsolves++;
+                        if (!ok) { R.unresolved = true; R.note += " [two big-big edges: overflow or bound too large]"; continue; }
+                        for (auto& P : found) {
+                            bool dup = false;
+                            for (int id : cv) for (int s = 0; s < ns; ++s) if (cand[id].P == P[s]) dup = true;
+                            if (dup) continue;
+                            Solution S;
+                            for (int id : cv) for (int k = 0; k < w; ++k) if (cand[id].mask >> k & 1) S.big.push_back({(u128)pr[W[k]], cand[id].P});
+                            for (int s = 0; s < ns; ++s) for (int k = 0; k < w; ++k) if (sm[s] >> k & 1) S.big.push_back({(u128)pr[W[k]], P[s]});
+                            auto edge = [&](u128 x, u128 y) { S.big.push_back({min(x, y), max(x, y)}); };
+                            if (type == 0) { edge(P[0], P[1]); edge(P[1], P[2]); } else { edge(P[0], P[1]); edge(P[2], P[3]); }
+                            R.sols.push_back(S);
+                        }
+                    }
+                    return;
+                }
+                for (uint32_t sub = 0; sub < (1u << ns); ++sub) {
+                    int k = __builtin_popcount(sub);
+                    if (k > d[W[i]]) continue;
+                    for (int s = 0; s < ns; ++s) if (sub >> s & 1) sm[s] |= 1u << i;
+                    need[i] = d[W[i]] - k;
+                    assign(i + 1);
+                    for (int s = 0; s < ns; ++s) if (sub >> s & 1) sm[s] &= ~(1u << i);
+                }
+            };
+            assign(0);
+        }
+    }
+
     // ---------------- Step 1: the depth-first search over the primes of S ----------------
     // Work distribution: every thread walks the (small) part of the tree above level splitJ in
     // the same deterministic order; the nodes at level splitJ are numbered 0,1,2,... and each
@@ -635,6 +852,7 @@ struct Engine {
             if (c + e == E.KT) E.endTight++;
             E.shapesTried += R.shapes; E.shapesAlive += R.shapesAlive; E.starCands += R.cand; E.probablePrimes += R.probablePrimes;
             for (int k = 0; k < 3; ++k) E.aliveByNbb[k] += R.aliveNbb[k];
+            E.twoBBsolves += R.twoBBsolves; E.maxBound = max(E.maxBound, R.maxBound);
             if (R.shapesAlive) E.coresWithShape++;
             if (R.unresolved) {
                 E.unresolved++;
@@ -822,28 +1040,43 @@ int main(int argc, char** argv) {
             if (v == vector<u128>{109591, 139823, 154939}) hit1 = true;
         }
         printf("\n  planted star recovered: %s\n", hit1 ? "yes" : "NO");
-        // (2) a planted component with one big-big edge: P1 ~ {2, P2}, P2 ~ {11, 13, P1}
-        {
-            vector<int> rho2(Z.m, 0);
-            u64 P1 = 193, P2 = 191;   // 193 | 191 + 2 ; 191 | 193*(11+13) + 143
-            vector<pair<u64, u64>> big = {{2, P1}, {11, P2}, {13, P2}};
-            for (auto& b : big) { int i = idx(b.first); rho2[i] = (int)((rho2[i] + b.first - invmodPrime(b.second, b.first)) % b.first); }
-            uint32_t U2 = 0; for (int i = 0; i < Z.m; ++i) if (rho2[i]) U2 |= 1u << i;
-            u128 num = 191ull * 143 + 193ull * 2 * 13 + 193ull * 2 * 11 + 2 * 143;   // over 2*143*191*193
-            u128 den = (u128)2 * 143 * 191 * 193;
+        // (2),(4),(5): planted big parts G (all elements q*P, P > 73, or P*P'): the core residues are
+        // set to cancel G, 1 - sum(C) = value(G), and |C| = K - |G| (no slack beyond G itself)
+        auto planted = [&](const char* name, const vector<pair<u64, u64>>& G) {
+            vector<int> rhoP(Z.m, 0);
+            set<u64> ps; for (auto& e : G) { ps.insert(e.first); ps.insert(e.second); }
+            for (auto& e : G) for (int side = 0; side < 2; ++side) {
+                u64 q = side ? e.second : e.first, P = side ? e.first : e.second;
+                int i = idx(q); if (i < 0) continue;                        // q in S: residue -1/P
+                rhoP[i] = (int)((rhoP[i] + q - invmodPrime(P, q)) % q);
+            }
+            uint32_t UP = 0; for (int i = 0; i < Z.m; ++i) if (rhoP[i]) UP |= 1u << i;
+            u128 den = 1; for (u64 p : ps) den *= p;
+            u128 num = 0; for (auto& e : G) num += den / ((u128)e.first * e.second);
             u128 g = gcd128(num, den); num /= g; den /= g;                   // den divides Dall
             u128 zNum = num * (Z.Dall / den);
             u128 suUp = ONE - (ONE / den) * num;
-            auto R2 = Z.complete(U2, rho2, K - 4, suUp, zNum, cache);
-            printf("planted component 2*193, 11*191, 13*191, 191*193: %zu completion(s):", R2.sols.size());
-            bool hit = false;
-            for (auto& S : R2.sols) {
+            auto RP = Z.complete(UP, rhoP, K - (int)G.size(), suUp, zNum, cache);
+            vector<u128> want; for (auto& e : G) want.push_back((u128)e.first * e.second); sort(want.begin(), want.end());
+            set<vector<u128>> distinctSols;
+            for (auto& S : RP.sols) {
                 vector<u128> v; for (auto& b : S.big) v.push_back(b.first * b.second); sort(v.begin(), v.end());
-                printf(" {"); for (u128 x : v) printf(" %s", u128str(x).c_str()); printf(" }");
-                if (v == vector<u128>{386, 2101, 2483, 36863}) hit = true;
+                distinctSols.insert(v);
             }
-            printf("\n  planted structure recovered: %s\n", hit ? "yes" : "NO");
-        }
+            printf("%s: %zu distinct completion(s):", name, distinctSols.size());
+            bool hit = distinctSols.count(want) > 0;
+            for (auto& v : distinctSols) { printf(" {"); for (u128 x : v) printf(" %s", u128str(x).c_str()); printf(" }"); }
+            printf("\n  planted structure recovered: %s%s\n", hit ? "yes" : "NO", RP.unresolved ? " (UNRESOLVED shapes!)" : "");
+        };
+        // (2) one big-big edge: 193 ~ {2, 191}, 191 ~ {11, 13, 193}
+        planted("planted component 2*193, 11*191, 13*191, 191*193", {{2, 193}, {11, 191}, {13, 191}, {191, 193}});
+        // (4) two big-big edges, a path 167 - 499 - 317 with attachments {2}, {3}, {5, 7}:
+        //     167 | 499 + 2,  317 | 499*(5+7) + 35,  499 | 167*317 + 3*(167+317)
+        planted("planted path 2*167, 3*499, 5*317, 7*317, 167*499, 499*317",
+                {{2, 167}, {3, 499}, {5, 317}, {7, 317}, {167, 499}, {317, 499}});
+        // (5) two big-big edges in two components: 193 - 191 as in (2), and 89 ~ {3, 353}, 353 ~ {23, 29, 89}
+        planted("planted pair of components 2*193, 11*191, 13*191, 191*193, 3*89, 23*353, 29*353, 89*353",
+                {{2, 193}, {11, 191}, {13, 191}, {191, 193}, {3, 89}, {23, 353}, {29, 353}, {89, 353}});
         // (3) 128-bit arithmetic: a star with 12 neighbours needs n(A) > 2^64
         {
             uint32_t A = 0; for (int i = Z.m - 12; i < Z.m; ++i) A |= 1u << i;
@@ -877,7 +1110,8 @@ int main(int argc, char** argv) {
     printf("cores passing Step 1   : %lld (of which |C|+|U| = %d: %lld)\n", E.endStates, K, E.endTight);
     printf("completion shapes      : %lld tried, %lld pass parity+value (in %lld cores), %lld candidate stars\n",
            E.shapesTried, E.shapesAlive, E.coresWithShape, E.starCands);
-    printf("surviving shapes by number of big-big edges: 0: %lld, 1: %lld, >=2: %lld\n", E.aliveByNbb[0], E.aliveByNbb[1], E.aliveByNbb[2]);
+    printf("surviving shapes by number of big-big edges: 0: %lld, 1: %lld, >=2 (all are = 2 unless reported): %lld\n", E.aliveByNbb[0], E.aliveByNbb[1], E.aliveByNbb[2]);
+    printf("two big-big edges      : %lld component problems solved, largest prime bound %s\n", E.twoBBsolves, u128str(E.maxBound).c_str());
     printf("unresolved cores       : %lld\n", E.unresolved);
     for (auto& s : E.unresolvedList) printf("    UNRESOLVED %s\n", s.c_str());
     printf("probable (not proven) primes used: %lld\n", E.probablePrimes);
