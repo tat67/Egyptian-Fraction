@@ -23,9 +23,12 @@ Seventeen of them involve only primes at most $73$, and each of the other six in
 The proofs are computer-assisted.
 A $p$-adic argument turns integrality into a congruence condition at every vertex of a graph on the primes.
 A decomposition into a ``core'' of small primes and a ``large-prime part'', together with value, parity and star-size lemmas and an explicit divisor equation for a single edge between two large primes, reduces the problem to a finite exhaustive computation, even though arbitrarily large prime factors are allowed.
+The enumeration of the cores uses a new pruning bound, a Lagrangian relaxation of the value condition combined with a knapsack over residues, which reduces the size of the search tree by a factor of about $3000$ for $47$ terms.
 The computation uses exact integer arithmetic and directed rounding only.
-We describe independent checks: a second implementation of the completion step, repeated executions of both searches with identical results, a brute-force validation of the core enumeration on reduced instances, and an exact verification of all $23$ solutions.
-The analytic reduction and the $23$ solutions are verified in Lean~4 with Mathlib; there the completeness statements are derived from explicitly stated hypotheses that encode the outcome of the exhaustive searches, and these hypotheses themselves are not verified in Lean.
+With the same method we also determined all $48$-term representations of $1$: there are exactly $620$ of them.
+We describe independent checks: a second implementation of the completion step, two implementations of the core enumeration with identical outputs, brute-force validation on reduced instances, and exact verification of all solutions.
+The analytic reduction and the $23$ solutions are verified in Lean~4 with Mathlib. The core enumeration is written as a Lean function, and Lean proves that this search is exhaustive: its output contains the core of every solution.
+The remaining completion step enters the Lean proofs as explicitly stated hypotheses about the cores in that output; these hypotheses are established by computation and are not verified in Lean.
 \end{abstract}
 
 \tableofcontents
@@ -76,12 +79,29 @@ Of these $23$ sets:
 In particular, the $17$ solutions of (i) are exactly the solutions all of whose prime factors are at most $101$.
 Our $17$ solutions of type (i) have the same count as Watanabe's list of $17$ examples. We have not compared the two lists term by term.
 
+The method is not limited to $47$ terms. Run with budget $48$, the same search and completion determine all representations of $1$ by $48$ distinct squarefree semiprimes.
+
+\begin{maintheorem}[Forty-eight terms]\label{thm:C}
+There are exactly $620$ sets $T\subset\Pset$ with $\card{T}=48$ and $\Rec{T}=1$ (equivalently, $\Rec{T}\in\Z$). They are listed in the file \file{solutions48.txt} of the repository. Of these $620$ sets:
+\begin{enumerate}[label=\textup{(\roman*)}]
+\item $397$ involve only primes at most $73$;
+\item $187$ involve exactly one prime $P>73$, all of whose neighbours are at most $73$;
+\item $18$ involve exactly two primes $P,P'>73$, neither of which divides an element of $T$ together with the other;
+\item $18$ involve exactly two primes $P_1,P_2>73$ and contain the element $P_1P_2$.
+\end{enumerate}
+\end{maintheorem}
+
+\cref{thm:C} rests on one further computational ingredient, the treatment of shapes with two large--large elements (\cref{sec:proof48}), which is not needed for \cref{thm:A,thm:B}. The largest prime that occurs in a $48$-term representation is $1\,210\,883$ (\cref{sec:proof48}).
+
 \paragraph{Nature of the proof.}
-Both theorems are \emph{computer-assisted}.
-\cref{sec:prelim,sec:graph,sec:core,sec:stars} give a complete mathematical reduction of both statements to finite computations.
-We state these computations precisely as \cref{claim:46,claim:47}.
-The computations were carried out by the C++ programs \file{semiprime_reciprocals.cpp} and \file{semiprime47.cpp}, which use exact integer arithmetic and directed rounding only (\cref{sec:proof46,sec:proof47,sec:repro}).
-\cref{sec:verification} describes the independent checks, and \cref{sec:lean} describes a Lean~4 formalization of the reduction.
+All three theorems are \emph{computer-assisted}.
+\cref{sec:prelim,sec:graph,sec:core,sec:stars} give a complete mathematical reduction of the statements to finite computations.
+We state the computations for \cref{thm:A,thm:B} precisely as \cref{claim:46,claim:47}.
+The computation has two steps: the enumeration of all possible ``cores'' (Step~1) and their completion (Step~2).
+Step~1 is carried out by a depth-first search with a new pruning bound, the \emph{loss bound} (\cref{sec:lossbound}); it is written as a Lean function, and Lean proves that the search is exhaustive (\cref{sec:lean}).
+Both steps were executed by the C++ program \file{semiprime48.cpp}, which uses exact integer arithmetic and directed rounding only (\cref{sec:proof46,sec:proof47,sec:proof48,sec:repro}).
+An earlier implementation without the loss bound (\file{semiprime_reciprocals.cpp} and \file{semiprime47.cpp}) produced identical results for \cref{thm:A,thm:B}.
+\cref{sec:verification} describes the independent checks, and \cref{sec:lean} describes the Lean~4 formalization.
 \Cref{fig:status} summarizes the logical status of each ingredient.
 
 \begin{figure}[t]
@@ -91,18 +111,21 @@ The computations were carried out by the C++ programs \file{semiprime_reciprocal
   lab/.style={font=\scriptsize\itshape,align=center},
   arr/.style={-{Stealth[length=2.2mm]},thick}]
 \node[box] (red) {Analytic reduction\\ (\cref{sec:prelim,sec:graph,sec:core,sec:stars})};
-\node[box,right=1.6cm of red] (claim) {Exhaustive searches\\ \cref{claim:46,claim:47}\\ (\lean{Search46}, \lean{Search47})};
-\node[box,below=1.3cm of red] (sols) {The $23$ explicit solutions\\ (\cref{app:solutions})};
-\node[box,below=1.3cm of claim] (thm) {\cref{thm:A,thm:B}};
-\draw[arr] (red) -- node[lab,sloped,above,pos=0.42]{implies (with the searches)} (thm);
-\draw[arr] (claim) -- (thm);
-\draw[arr] (sols) -- (thm);
+\node[box,right=1.6cm of red] (step1) {Step 1: the core search\\ with the loss bound (\cref{sec:step1})};
+\node[box,below=1.5cm of step1] (claim) {Step 2 on the cores found\\ \cref{claim:46,claim:47} (\lean{Search46'}, \lean{Search47'})};
+\node[box,below=1.5cm of red] (sols) {The $23$ explicit solutions\\ (\cref{app:solutions})};
+\node[lab,below=1pt of sols] (solslab) {verified exactly: C++, Python, Lean (unconditional)};
+\node[lab,below=1pt of claim] (claimlab) {computed in C++ and in Python; \emph{not} verified in Lean};
+\node[box,below=1.4cm of $(solslab.south)!0.5!(claimlab.south)$] (thm) {\cref{thm:A,thm:B}};
+\draw[arr] (step1) -- (claim);
+\draw[arr] (claimlab.south) -- ++(0,-0.3) -| ([xshift=0.9cm]thm.north);
+\draw[arr] (solslab.south) -- ++(0,-0.3) -| ([xshift=-0.9cm]thm.north);
+\draw[arr] (red.west) -- ++(-0.35,0) |- (thm.west);
 \node[lab,above=1pt of red] {verified in Lean 4 (unconditional)};
-\node[lab,above=1pt of claim] {computed in C++ (Step 2 also in Python);\\ \emph{not} verified in Lean};
-\node[lab,below=1pt of sols] {verified exactly: C++, Python, Lean (unconditional)};
-\node[lab,below=1pt of thm] {derived in Lean \emph{conditionally} on the searches};
+\node[lab,above=1pt of step1] {search defined in Lean; exhaustiveness\\ proved in Lean (unconditional);\\ executed in C++ (and in Lean for budget $\le46$)};
+\node[lab,below=1pt of thm] {derived in Lean \emph{conditionally} on Step 2};
 \end{tikzpicture}
-\caption{Logical structure of the proof and the verification status of each component.}
+\caption{Logical structure of the proofs of \cref{thm:A,thm:B} and the verification status of each component. \cref{thm:C} has the same structure, with an additional completion routine for two large--large elements (\cref{sec:proof48}); its Step~2 is not stated in Lean.}
 \label{fig:status}
 \end{figure}
 
@@ -117,7 +140,7 @@ The solution with the prime $3779=29\cdot37+29\cdot41+37\cdot41$ shows that such
 \paragraph{Organization.}
 \cref{sec:prelim} gives the size bounds, and \cref{sec:graph} the graph-theoretic form of integrality.
 \cref{sec:core,sec:stars} develop the finite reduction.
-\cref{sec:proof46,sec:proof47} describe the two computations and prove \cref{thm:A,thm:B} from them.
+\cref{sec:proof46} describes the core search, including the loss bound, and proves \cref{thm:A}. \cref{sec:proof47,sec:proof48} prove \cref{thm:B,thm:C}.
 \cref{sec:verification,sec:lean,sec:repro} cover verification, formalization and reproducibility.
 \cref{sec:discussion} discusses limitations, and \cref{sec:ai} discloses the use of generative AI.
 
@@ -143,7 +166,7 @@ Write $T=\{t_1<\dots<t_m\}$ with $m\le k$. The elements $t_1,\dots,t_i$ are $i$ 
 \begin{proposition}[Exact values]\label{prop:Hk}
 The values of $H_k$ in \cref{tab:Hk} are exact reduced fractions. In particular
 \[
-H_{35}<1-\tfrac{1757}{79000},\qquad H_{37}<1<H_{38},\qquad H_{46}<H_{47}<2 .
+H_{35}<1-\tfrac{1757}{79000},\qquad H_{37}<1<H_{38},\qquad H_{46}<H_{47}<H_{48}<2 .
 \]
 \end{proposition}
 
@@ -163,19 +186,21 @@ H_{35}<1-\tfrac{1757}{79000},\qquad H_{37}<1<H_{38},\qquad H_{46}<H_{47}<2 .
 \end{table}
 
 \begin{proof}
-This is a finite exact computation with rational numbers. It was carried out independently in three ways: with the big-integer routines of both C++ programs (\cref{sec:repro}), in Python with \code{fractions.Fraction} (script \file{paper/verification/verify_paper_facts.py}), and in Lean~4, where the inequalities are proved by \code{norm\_num} (\lean{H35_val}, \lean{H37_lt_one}, \lean{H38_gt_one}, \lean{H46_lt_two}, \lean{H47_lt_two}; \cref{sec:lean}).
+This is a finite exact computation with rational numbers. It was carried out independently in three ways: with the big-integer routines of the C++ programs (\cref{sec:repro}), in Python with \code{fractions.Fraction} (script \file{paper/verification/verify_paper_facts.py}), and in Lean~4, where the inequalities are proved by \code{norm\_num} (\lean{H35_val}, \lean{H37_lt_one}, \lean{H38_gt_one}, \lean{H46_lt_two}, \lean{H47_lt_two}; \cref{sec:lean}).
 Lean also proves that $a_1,\dots,a_{47}$ are the $47$ smallest elements of $\Pset$.
+Finally $a_{48}=159$ and $H_{48}=H_{47}+1/159<1.0704$.
 \end{proof}
 
 \begin{corollary}\label{cor:sum-is-one}
-Let $T\subset\Pset$ be nonempty with $\card{T}\le 47$ and $\Rec{T}\in\Z$. Then $\Rec{T}=1$ and $\card{T}\ge 38$.
+Let $T\subset\Pset$ be nonempty with $\card{T}\le 48$ and $\Rec{T}\in\Z$. Then $\Rec{T}=1$ and $\card{T}\ge 38$.
 \end{corollary}
 
 \begin{proof}
-By \cref{lem:exchange,prop:Hk}, $0<\Rec{T}\le H_{47}<2$, so $\Rec{T}=1$. If $\card{T}\le 37$ then $\Rec{T}\le H_{37}<1$, a contradiction.
+By \cref{lem:exchange,prop:Hk}, $0<\Rec{T}\le H_{48}<2$, so $\Rec{T}=1$. If $\card{T}\le 37$ then $\Rec{T}\le H_{37}<1$, a contradiction.
 \end{proof}
 
-Consequently, \cref{thm:A} is equivalent to the statement that no set of at most $46$ elements of $\Pset$ has reciprocal sum $1$. Likewise, the $47$-element sets with integral sum in \cref{thm:B} are exactly those with sum $1$.
+In Lean, the case $\card{T}\le47$ is \lean{recipSum_eq_one_of_integral}. For $\card{T}\le48$ (\lean{recipSum_eq_one_of_integral_48}) Lean uses the cruder bound $\Rec{T}\le H_{47}+1/6<3/2+1/6$, obtained by removing one element.
+Consequently, \cref{thm:A} is equivalent to the statement that no set of at most $46$ elements of $\Pset$ has reciprocal sum $1$. Likewise, the $47$-element sets with integral sum in \cref{thm:B}, and the $48$-element sets with integral sum in \cref{thm:C}, are exactly those with sum $1$.
 
 % =====================================================================
 \section{The graph of a set of semiprimes and the local criterion}\label{sec:graph}
@@ -222,7 +247,7 @@ In Lean the lemma is \lean{integral_iff_localCond}. Its proof uses the common de
 \section{Core decomposition and the finite reduction}\label{sec:core}
 % =====================================================================
 
-Throughout this section $\budget\in\{46,47\}$ is a \emph{budget}, and $T\subset\Pset$ is a finite set with
+Throughout this section $\budget\in\{46,47,48\}$ is a \emph{budget}, and $T\subset\Pset$ is a finite set with
 \begin{equation}\label{eq:setting}
 \Rec{T}=1,\qquad \card{T}\le\budget .
 \end{equation}
@@ -337,7 +362,7 @@ A large--large element is $PP'$ with $79\le P<P'$, so $P'\ge83$ and $1/(PP')\le1
 \item The shape is one of finitely many, because all $d_q$ and $b$ are bounded by \ref{S2}.
 \item The large part is then subject to the constraints of \cref{sec:stars}: a large prime whose neighbours are all small divides an explicit positive integer, and a single large--large edge is governed by a factorization identity. Both confine the large primes to explicit finite sets.
 \end{enumerate}
-The only case not reduced by theory is $b\ge2$. The computation shows that no feasible shape with $b\ge2$ exists for $\budget=47$, and none with $b\ge1$ for $\budget=46$ (\cref{sec:proof46,sec:proof47}). If such shapes had survived, further analysis would have been needed; the programs were written to report them as ``unresolved'' rather than discard them.
+The only case not reduced by theory is $b\ge2$. The computation shows that no feasible shape with $b\ge2$ exists for $\budget=47$, and none with $b\ge1$ for $\budget=46$ (\cref{sec:proof46,sec:proof47}). For $\budget=48$, feasible shapes with $b=2$ do occur, and they are handled by the additional argument of \cref{sec:twobb}; no feasible shape with $b\ge3$ exists. The programs were written to report every shape they cannot handle as ``unresolved'' rather than discard it.
 
 % =====================================================================
 \section{Large primes: stars and the large--large component}\label{sec:stars}
@@ -365,7 +390,7 @@ For a fixed set $A$ of leaves only the finitely many prime divisors of $\nA(A)$ 
 This is the mechanism that bounds the large primes.
 
 \begin{lemma}[Star size]\label{lem:starsize}
-Suppose $T$ satisfies \eqref{eq:setting} and $P$ is a large prime all of whose neighbours lie in $\Sset$. Then $\card{\Nb(P)}\le\card{T}-36\le\budget-36$. Thus a star has at most $10$ leaves if $\budget=46$ and at most $11$ if $\budget=47$.
+Suppose $T$ satisfies \eqref{eq:setting} and $P$ is a large prime all of whose neighbours lie in $\Sset$. Then $\card{\Nb(P)}\le\card{T}-36\le\budget-36$. Thus a star has at most $10$ leaves if $\budget=46$, at most $11$ if $\budget=47$ and at most $12$ if $\budget=48$.
 \end{lemma}
 
 \begin{proof}
@@ -373,7 +398,7 @@ Let $d=\card{\Nb(P)}$. The $d$ elements $qP$ contribute at most $\frac1{79}\sum_
 If $d\ge\card{T}-35$, the other at most $35$ elements contribute at most $H_{35}<1-\frac{1757}{79000}$ by \cref{lem:exchange,prop:Hk}. Then $\Rec{T}<1$, a contradiction.
 \end{proof}
 
-The programs use the slightly sharper bound $\frac1{79}\sum_{i<d}1/p_i+H_{\budget-d}\ge1$, with $p_0<p_1<\dots$ the primes of $\Sset$. Recomputed with exact rationals, it gives the same maxima, $10$ and $11$.
+The programs use the slightly sharper bound $\frac1{79}\sum_{i<d}1/p_i+H_{\budget-d}\ge1$, with $p_0<p_1<\dots$ the primes of $\Sset$. Recomputed with exact rationals, it gives the same maxima, $10$, $11$ and $12$.
 
 \begin{definition}[Candidate stars]\label{def:candidate}
 Let $C$ be a core and $(d,b)$ a feasible shape, and put $W=\{q\in\Sset: d_q\ge1\}$. A \emph{candidate star} for $(C,d)$ with at most $m$ leaves is a pair $(P,A)$ with $A\subseteq W$, $2\le\card{A}\le m$, $P>73$ prime, $P\mid\nA(A)$, and $P^{-1}\equiv-\rho(q)\pmod q$ for every $q\in A$ with $d_q=1$.
@@ -471,11 +496,13 @@ All choices of $A_1$, $A_2$ and $F$ range over finite sets, so the $b=1$ complet
 Interchanging $(A_1,P_1)$ and $(A_2,P_2)$ replaces $X$ by $N/X$, so unordered pairs $\{A_1,A_2\}$ suffice.
 
 % =====================================================================
-\section{Computer-assisted proof of the lower bound}\label{sec:proof46}
+\section{The core search and the proof of the lower bound}\label{sec:proof46}
 % =====================================================================
 
-This section describes the computation carried out by \file{semiprime_reciprocals.cpp} for $\budget=46$ and proves \cref{thm:A} from its outcome.
+This section describes the computation and proves \cref{thm:A} from its outcome for $\budget=46$.
 The computation consists of two steps: enumeration of all admissible cores (Step~1) and, for each of them, enumeration of all feasible shapes and completions (Step~2).
+Both steps are carried out by the program \file{semiprime48.cpp} for any budget $\budget\le48$.
+Its Step~1 is the depth-first search of the earlier programs \file{semiprime_reciprocals.cpp} (budget $46$) and \file{semiprime47.cpp} (budget $47$), with one additional pruning test, the loss bound (P4) of \cref{sec:lossbound}. That test reduces the number of search nodes by a factor of about $5000$ for budget $46$ and $3000$ for budget $47$, and it does not change the output (\cref{lem:sameoutput}).
 
 \subsection{Step 1: enumeration of the admissible cores}\label{sec:step1}
 
@@ -511,9 +538,10 @@ B_{j,i}(R)=\max_{\substack{x_1+x_2\le R\\ x_1\le i}}\Bigl(M_{j,i}(x_1)+M'_j(x_2)
 Here $M_{j,i}(x)$ is the sum of the $x$ largest values $\up(p_jp_k)$ with $k<i$ (possible further edges at $p_j$), and $M'_j(x)$ is the sum of the $x$ largest values $\up(p_kp_l)$ with $k<l<j$ (possible edges among smaller primes).
 \end{enumerate}
 Test \ref{P3} is also applied to the tentative set $U_0\cup\{p_j\}$, with $R$ replaced by $R-1$, before $p_j$ is put into $U$.
+The fourth test, \ref{P4}, is described in \cref{sec:lossbound}.
 At a leaf, where the complete core $C$ and $U$ are known, the core is kept only if \ref{P1} and \ref{P2} hold and
 \begin{equation}\label{eq:leaftest}
-\up(C)+\sum_{q\in U}\up(79q)+\mathrm{VB}(\budget-\card{C}-\card{U})\ge2^{96}.
+\mathrm{Val}(C):=\up(C)+\sum_{q\in U}\up(79q)+\mathrm{VB}(\budget-\card{C}-\card{U})\ge2^{96}.
 \end{equation}
 
 \begin{algorithm}[t]
@@ -523,7 +551,7 @@ At a leaf, where the complete core $C$ and $U$ are known, the core is kept only 
   \If{$j=0$} \Comment{prime $2$: no lower neighbours}
      \State decide $2\in U$ from $\rho(2)$; apply \ref{P1}; \Call{Leaf}{$C_0$, $U_0$}; \Return
   \EndIf
-  \ForAll{$L\subseteq\{p_0,\dots,p_{j-1}\}$ not excluded by \ref{P1}--\ref{P3}} \Comment{explicit + table}
+  \ForAll{$L\subseteq\{p_0,\dots,p_{j-1}\}$ not excluded by \ref{P1}--\ref{P4}} \Comment{explicit + table}
      \State $C_1\gets C_0\cup\{p_jq:q\in L\}$; compute $\rho(p_j)$ and the residue updates at $q\in L$
      \State $U_1\gets U_0\cup\{p_j\}$ if $\rho(p_j)\ne0$ else $U_0$ \Comment{\ref{P3} tested for $U_1$}
      \State \Call{Level}{$j-1$, $C_1$, $U_1$}
@@ -534,6 +562,55 @@ At a leaf, where the complete core $C$ and $U$ are known, the core is kept only 
 \EndProcedure
 \end{algorithmic}
 \end{algorithm}
+
+\subsection{The loss bound}\label{sec:lossbound}
+
+\paragraph{Why the search without \ref{P4} is slow.}
+Profiling the search with \ref{P1}--\ref{P3} only shows that almost all nodes lie in branches in which some prime has been put into $U$.
+For instance, for budget $45$ the search visits $1.07\cdot10^{10}$ nodes, but only $2.9\cdot10^{7}$ when unsatisfied primes are switched off (the latter is not a valid search; it only shows where the nodes are).
+Once a prime is in $U$, every set of neighbours is allowed at it, and the value bound \ref{P3} ignores the congruences \eqref{eq:local} that the primes not yet processed will have to satisfy. Satisfying them forces a loss of value that \ref{P3} cannot see, so such branches die only many levels further down.
+Test \ref{P4} makes this loss visible, prime by prime.
+
+\paragraph{Weights.}
+All quantities are integers in units of $2^{-96}$. Fix $\theta=\lfloor2^{96}/145\rfloor$ (any $\theta\ge0$ would be valid; this value was tuned by experiment). For an edge $e=p_ap_b$ with $a<b$ and for $q\in\Sset$ put
+\[
+w(e)=\up(p_ap_b)-\theta,\qquad g(q)=\up(79q)-\theta,\qquad V_\theta=\max_{0\le x\le\budget}\bigl(\mathrm{VB}(x)-x\theta\bigr).
+\]
+If $C$ is a core with $\card{C}+\card{U}\le\budget$ and $x=\budget-\card{C}-\card{U}$, then
+\begin{equation}\label{eq:lagrange}
+\mathrm{Val}(C)=\budget\theta+\sum_{e\in C}w(e)+\sum_{q\in U}g(q)+\bigl(\mathrm{VB}(x)-x\theta\bigr)\ \le\ \budget\theta+V_\theta+\sum_{e\in C}w(e)+\sum_{q\in U}g(q).
+\end{equation}
+The weights may be negative; $\theta$ acts as a Lagrange multiplier for the budget constraint.
+
+\paragraph{Shares.}
+The weight of an edge $e=p_ap_b$, $a<b$, is split between its endpoints. With $\sigma_a=s_a/12$, where $(s_0,\dots,s_5)=(12,11,11,10,10,9)$ and $s_a=8$ for $a\ge6$, the larger endpoint receives $\mathrm{sh}_b(e)=\lceil\sigma_a w(e)\rceil$ and the smaller one $\mathrm{sh}_a(e)=\lceil(1-\sigma_a)w(e)\rceil$. Then $\mathrm{sh}_a(e)+\mathrm{sh}_b(e)\ge w(e)$. (Any $\sigma_a\in[0,1]$ is valid; these values were tuned by experiment.)
+
+\paragraph{Local bounds.}
+Consider a prime $p_k$ whose membership in $U$ is not yet decided, let $X$ be the set of its possible further neighbours, and let $r$ be the residue at $p_k$ of its decided edges. In a final core, either $p_k\in U$, or the set $Y\subseteq X$ of its further neighbours satisfies $r+\sum_{y\in Y}y^{-1}\equiv0\pmod{p_k}$. Hence the shares received by $p_k$ from its further edges, plus $g(p_k)$ if $p_k\in U$, total at most
+\[
+\mathrm{loc}(k;X,r)=\max\Bigl(g(p_k)+\sum_{x\in X}\max\bigl(\mathrm{sh}_k(p_kx),0\bigr),\ \max_{\substack{Y\subseteq X\\ r+\sum_{y\in Y}y^{-1}\equiv0\ (p_k)}}\ \sum_{y\in Y}\mathrm{sh}_k(p_ky)\Bigr).
+\]
+The inner maximum is a knapsack over the residues modulo $p_k$. At a node of the search, $X$ depends only on the level $(j,i)$ and on $k$, so every value of $\mathrm{loc}$ that can occur is a precomputed table entry indexed by the level, $k$ and $r$ (about $20\,000$ entries).
+
+\begin{enumerate}[label=\textup{(P\arabic*)},start=4]
+\item\label{P4} At a node with decided core edges $C_0$ and decided unsatisfied primes $U_0$, the search discards the node if
+\[
+\up(C_0)+\sum_{q\in U_0}\up(79q)+\bigl(\budget-\card{C_0}-\card{U_0}\bigr)\theta+V_\theta+\sum_{k}\mathrm{loc}(k;X_k,r_k)<2^{96},
+\]
+where $k$ runs over the primes not yet decided, $X_k$ is the set of their possible further neighbours and $r_k$ the residue of their decided edges.
+\end{enumerate}
+
+The sum over $k$ changes by a bounded amount when an edge is added or rejected, and for the table-driven step a $256$-entry array gives it for all subsets of the $8$ smallest primes at once.
+All quantities are integers, and the shares are rounded up.
+
+\begin{proposition}[Soundness of the loss bound]\label{prop:loss}
+For every core $C$ in the subtree of a node, the left-hand side of \ref{P4} is at least $\mathrm{Val}(C)$. In particular \ref{P4} never discards a node above a core that passes \eqref{eq:leaftest}.
+\end{proposition}
+
+\begin{proof}
+Split $C=C_0\cup C_1$ and $U=U_0\cup U_1$ into the decided and undecided parts. Then $\sum_{C_0}w+\sum_{U_0}g=\up(C_0)+\sum_{U_0}\up(79q)-(\card{C_0}+\card{U_0})\theta$, so by \eqref{eq:lagrange} it suffices to show $F:=\sum_{e\in C_1}w(e)+\sum_{q\in U_1}g(q)\le\sum_k\mathrm{loc}(k;X_k,r_k)$.
+Every edge of $C_1$ joins two undecided primes, and $w(e)\le\mathrm{sh}_a(e)+\mathrm{sh}_b(e)$. Hence $F$ is at most the sum over the undecided primes $p_k$ of the shares that $p_k$ receives from its edges in $C_1$, plus $g(p_k)$ if $p_k\in U_1$. By the choice of $\mathrm{loc}$, the contribution of $p_k$ is at most $\mathrm{loc}(k;X_k,r_k)$.
+\end{proof}
 
 \begin{lemma}[Soundness of Step 1]\label{lem:step1}
 Every $\budget$-admissible core (\cref{def:admissible}) reaches a leaf of the search and is passed to Step~2.
@@ -548,13 +625,25 @@ For \ref{P3}, let $x_1$ and $x_2$ be the numbers of edges of $C\setminus C_0$ at
 \up(C_0)+\sum_{q\in U_0}\up(79q)+B_{j,i}(R)\ \ge\ 2^{96}\Bigl(\Rec{C}+\sum_{q\in U_0}\frac1{79q}+V(\budget-\card{C}-\card{U_0})\Bigr)\ \ge\ 2^{96},
 \]
 where the last step is \eqref{eq:value} for the upper segment $U'=U_0$.
-The tentative test with $U_0\cup\{p_j\}$ is again a test of this form for the upper segment $U\cap[p_j,\infty)$, and \eqref{eq:leaftest} is the case $U'=U$.
+The tentative test with $U_0\cup\{p_j\}$ is again a test of this form for the upper segment $U\cap[p_j,\infty)$, and \eqref{eq:leaftest} is the case $U'=U$; in particular $\mathrm{Val}(C)\ge2^{96}$.
+Finally \ref{P4} fails by \cref{prop:loss}.
 \end{proof}
 
 Because of the rounding, the search may keep a few cores that are not admissible. This is harmless: they are examined further in Step~2.
+\cref{lem:step1} is proved in Lean for the search written as a Lean function (\lean{core_mem_search}, \cref{sec:lean}).
+
+\begin{lemma}[Same output]\label{lem:sameoutput}
+The search with \ref{P1}--\ref{P4} outputs exactly the same cores as the search with \ref{P1}--\ref{P3} only.
+\end{lemma}
+
+\begin{proof}
+Adding a test can only remove cores. Conversely, a core output by the search without \ref{P4} passes \eqref{eq:leaftest}, so by \cref{prop:loss} test \ref{P4} does not discard any node above it.
+\end{proof}
+
+In agreement with \cref{lem:sameoutput}, the archived core lists of the earlier programs for budgets $46$ and $47$ are reproduced line for line by \file{semiprime48.cpp} (\cref{sec:rerun}).
 
 \paragraph{Parallelization.}
-The search tree above a fixed level (the prime $61$) is traversed by every thread in the same deterministic order, and the nodes at that level are numbered consecutively.
+The search tree above a fixed level (the prime $43$ in \file{semiprime48.cpp}, $61$ in the earlier programs) is traversed by every thread in the same deterministic order, and the nodes at that level are numbered consecutively.
 Each thread obtains node numbers from a shared atomic counter and processes only the nodes whose numbers it obtained.
 Tickets are handed out in increasing order, and a thread requests a new ticket only after passing the node of its previous ticket. Hence the ticket a thread obtains is never smaller than its current position, and every node number below the total count is obtained by exactly one thread.
 So every subtree is processed exactly once, regardless of scheduling. Only the reported node counts depend on the number of threads, because the upper part of the tree is traversed by every thread.
@@ -566,12 +655,13 @@ For each core $C$ output by Step~1:
 \item If $U=\varnothing$, then $C$ satisfies \eqref{eq:local} at every prime: at the primes of $\Sset$ by the definition of $U$, and trivially at all other primes. So $\Rec{C}\in\Z$. If $C\ne\varnothing$, then $\Rec{C}=1$ by \cref{cor:sum-is-one}, and the program reports $C$ as a solution. The empty core is not admissible, because $V(\budget)\le\budget/158<1$.
 \item If $U\ne\varnothing$, the program enumerates all $(d,b)$ satisfying \ref{S1} and \ref{S2}, discards those that violate \ref{S3} or \ref{S4}, and processes the survivors.
 In \ref{S4} the right-hand side is rounded up and $1-\Rec{C}$ is rounded down, so no feasible shape is discarded.
-A surviving shape with $b>0$ is reported as \emph{unresolved}.
-For a surviving shape with $b=0$, the program lists all candidate stars with at most $10$ leaves (\cref{def:candidate}); it finds the centres by factoring $\nA(A)$ completely.
-It then searches for an exact cover of the multiplicities by candidate stars with distinct centres that also satisfies the congruences \eqref{eq:local} at every $q\in W$.
+For a surviving shape with $b=0$, the program lists all candidate stars with at most $\budget-36$ leaves (\cref{def:candidate}); it finds the centres by factoring $\nA(A)$ completely.
+It then enumerates the exact covers of the multiplicities by candidate stars with distinct centres whose total value is $1-\Rec{C}$.
+Surviving shapes with $b=1$ and $b=2$ are treated in \cref{sec:proof47,sec:twobb}; a surviving shape with $b\ge3$ is reported as \emph{unresolved}.
 \end{enumerate}
+For budget $46$ the earlier program \file{semiprime_reciprocals.cpp} only searched for one cover satisfying \eqref{eq:local} at every $q\in W$ and reported every shape with $b>0$ as unresolved; for this budget the difference does not matter, because no candidate star and no shape with $b>0$ occurs.
 
-\begin{claim}[Budget $46$; Lean: \protect\lean{Search46}]\label{claim:46}
+\begin{claim}[Budget $46$; Lean: \protect\lean{Search46}, \protect\lean{Search46'}]\label{claim:46}
 For every $46$-admissible core $C$:
 \begin{enumerate}[label=\textup{(\roman*)}]
 \item $U(C)\ne\varnothing$;
@@ -582,34 +672,40 @@ For every $46$-admissible core $C$:
 
 \begin{table}[t]
 \centering
-\caption{Recorded results of the two searches (\protect\file{proof_run_output.txt}, \protect\file{run47_output.txt}). Numbers marked $^\dagger$ were obtained by the Python re-implementation of Step~2 (\cref{sec:python}); all other numbers were printed by the C++ programs.}
+\caption{Recorded results of \protect\file{semiprime48.cpp} with $4$ threads (\protect\file{validation48/run46_output.txt}, \protect\file{validation48/run47_output.txt}, \protect\file{run48_output.txt}). For budgets $46$ and $47$ the earlier programs (\protect\file{proof_run_output.txt}, \protect\file{run47_output.txt}) printed the same values for all quantities they report; they did not report the split by $b$ (for budget $47$ it was obtained at the time with the Python program of \cref{sec:python}, with the same result). Their node counts and times are given in the last rows.}
 \label{tab:results}
 \small
-\begin{tabular}{@{}lrr@{}}
+\begin{tabular}{@{}lrrr@{}}
 \toprule
- & budget $46$ & budget $47$\\
+ & budget $46$ & budget $47$ & budget $48$\\
 \midrule
-maximal number of leaves of a star (\cref{lem:starsize}) & $10$ & $11$\\
-search nodes (4 threads) & $139\,830\,520\,211$ & $1\,795\,181\,713\,099$\\
-cores kept by Step 1 & $178$ & $22\,382$\\
-\quad of which $U=\varnothing$ & $0$ & $17$\\
-\quad of which $U\ne\varnothing$ and $\card{C}+\card{U}=\budget$ & $111$ & $11\,287$\\
-shapes satisfying \ref{S1}--\ref{S3} & $3\,777$ & $1\,107\,702$\\
-shapes satisfying \ref{S1}--\ref{S4} & $61$ & $8\,049$\\
-\quad cores with at least one such shape & $61$ & $7\,432$\\
-\quad with $b=0$ / $b=1$ / $b\ge2$ & $61$ / $0$ / $0$ & $7\,981^\dagger$ / $68^\dagger$ / $0$\\
-candidate stars (summed over surviving shapes) & $0$ & $125$\\
-unresolved cores & $0$ & $0$\\
-probable (not proven) primes used & -- & $0$\\
-solutions found & $0$ & $23$\\
-wall-clock time of the recorded run & 19\,min\,40\,s & 5\,h\,48\,min\\
+maximal number of leaves of a star (\cref{lem:starsize}) & $10$ & $11$ & $12$\\
+search nodes & $26\,112\,391$ & $598\,305\,041$ & $13\,344\,629\,391$\\
+cores kept by Step 1 & $178$ & $22\,382$ & $1\,491\,334$\\
+\quad of which $U=\varnothing$ & $0$ & $17$ & $414$\\
+\quad of which $U\ne\varnothing$ and $\card{C}+\card{U}=\budget$ & $111$ & $11\,287$ & $702\,715$\\
+shapes satisfying \ref{S1}--\ref{S3} & $3\,777$ & $1\,107\,702$ & $116\,874\,859$\\
+shapes satisfying \ref{S1}--\ref{S4} & $61$ & $8\,049$ & $601\,685$\\
+\quad cores with at least one such shape & $61$ & $7\,432$ & $509\,055$\\
+\quad with $b=0$ & $61$ & $7\,981$ & $592\,627$\\
+\quad with $b=1$ & $0$ & $68$ & $8\,985$\\
+\quad with $b=2$ & $0$ & $0$ & $73$\\
+\quad with $b\ge3$ & $0$ & $0$ & $0$\\
+candidate stars (summed over surviving shapes) & $0$ & $125$ & $24\,065$\\
+unresolved cores & $0$ & $0$ & $0$\\
+probable (not proven) primes used & $0$ & $0$ & $0$\\
+solutions with $\card{T}=\budget$ & $0$ & $23$ & $620$\\
+wall-clock time (search and completion) & $2.1$\,s & $65$\,s & $29$\,min\,$30$\,s\\
+\midrule
+search nodes without \ref{P4} (earlier programs) & $139\,830\,520\,211$ & $1\,795\,181\,713\,099$ & --\\
+wall-clock time of the earlier programs & 19\,min\,40\,s & 5\,h\,48\,min & --\\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The recorded run of \file{semiprime_reciprocals.cpp} produced the output summarized in \cref{tab:results}. The search visited $1.4\cdot10^{11}$ nodes and kept $178$ cores; none of them has $U=\varnothing$. Step~2 examined $3777$ shapes satisfying \ref{S1}--\ref{S3}. Only $61$ of them also satisfy \ref{S4}, all with $b=0$, and for none of these $61$ shapes does a candidate star exist. Nothing was reported as unresolved and no solution was found.
+The run of \file{semiprime48.cpp} with budget $46$ produced the output summarized in \cref{tab:results}. The search visited $2.6\cdot10^{7}$ nodes and kept $178$ cores; none of them has $U=\varnothing$. Step~2 examined $3777$ shapes satisfying \ref{S1}--\ref{S3}. Only $61$ of them also satisfy \ref{S4}, all with $b=0$, and for none of these $61$ shapes does a candidate star exist. Nothing was reported as unresolved and no solution was found.
 This is precisely \cref{claim:46}; see \cref{sec:claimmatch} for the correspondence in detail.
-The run was repeated for this paper with identical results (\cref{sec:rerun}).
+The recorded run of the earlier program \file{semiprime_reciprocals.cpp}, which visited $1.4\cdot10^{11}$ nodes, kept the same $178$ cores and printed the same Step~2 counts; it was repeated for the first version of this paper with identical results (\cref{sec:rerun}).
 
 \begin{proof}[Proof of \cref{thm:A}, assuming \cref{claim:46}]
 Let $T\subset\Pset$ be nonempty with $\card{T}\le46$ and $\Rec{T}\in\Z$.
@@ -626,10 +722,10 @@ Hence $\card{T}\ge47$. Sharpness follows from \cref{thm:B}, or directly from any
 \section{Classification of the 47-term representations}\label{sec:proof47}
 % =====================================================================
 
-The program \file{semiprime47.cpp} runs the same Step~1 with $\budget=47$. Its Step~2 enumerates \emph{all} completions instead of stopping at the first one:
+For $\budget=47$ the program \file{semiprime48.cpp} runs Step~1 as in \cref{sec:proof46}. Its Step~2 enumerates \emph{all} completions, as did Step~2 of the earlier program \file{semiprime47.cpp}:
 \begin{itemize}
 \item cores with $U=\varnothing$ are recorded as solutions;
-\item for a surviving shape with $b=0$, all exact covers by candidate stars with at most $11$ leaves and distinct centres are enumerated, and a cover is kept if its value equals $1-\Rec{C}$ \emph{exactly}. The value is computed as an integer multiple of $1/D$, where $D=\prod_{p\in\Sset}p<2^{128}$ is a common denominator of all core and star values;
+\item for a surviving shape with $b=0$, all exact covers by candidate stars with at most $11$ leaves and distinct centres are enumerated, and a cover is kept if its value equals $1-\Rec{C}$ \emph{exactly}. The value is computed as an integer multiple of $1/D$, where $D=\prod_{p\in\Sset}p<2^{128}$ is a common denominator of all core and star values (the value of a star $(P,A)$ is $(\nA(A)/P)/\prod_{q\in A}q$);
 \item for a surviving shape with $b=1$, the program enumerates the following, as in \cref{sec:component}:
   \begin{itemize}
   \item all unordered pairs $\{A_1,A_2\}$ of nonempty subsets of $W$ with $[q\in A_1]+[q\in A_2]\le d_q$;
@@ -638,11 +734,11 @@ The program \file{semiprime47.cpp} runs the same Step~1 with $\budget=47$. Its S
   \item all positive divisors $X$ of $N$, obtained from the complete factorization of $t+a_1a_2$ and of $b_1b_2$.
   \end{itemize}
   It keeps the pairs for which $P_1\ne P_2$ are primes larger than $73$ and distinct from the star centres;
-\item a surviving shape with $b\ge2$ is reported as unresolved.
+\item a surviving shape with $b=2$ is treated as in \cref{sec:twobb} (in \file{semiprime47.cpp}: reported as unresolved), and a surviving shape with $b\ge3$ is reported as unresolved.
 \end{itemize}
 Every recorded set is then verified exactly: it has $47$ elements, they are distinct squarefree semiprimes, and their reciprocal sum is $1$ (\cref{sec:exact}).
 
-\begin{claim}[Budget $47$; Lean: \protect\lean{Search47}]\label{claim:47}
+\begin{claim}[Budget $47$; Lean: \protect\lean{Search47}, \protect\lean{Search47'}]\label{claim:47}
 Let $\mathcal{T}_{23}$ be the family of the $23$ sets listed in \cref{app:solutions}.
 \begin{enumerate}[label=\textup{(\roman*)}]
 \item Every $47$-admissible core $C\ne\varnothing$ with $U(C)=\varnothing$ belongs to $\mathcal{T}_{23}$.
@@ -659,13 +755,14 @@ Let $\mathcal{T}_{23}$ be the family of the $23$ sets listed in \cref{app:soluti
 \end{enumerate}
 \end{claim}
 
-The recorded run (\cref{tab:results}) kept $22\,382$ cores. Seventeen of them have $U=\varnothing$, all with $\card{C}=47$, and these are the $17$ solutions with all primes at most $73$.
+The run of \file{semiprime48.cpp} and the recorded run of \file{semiprime47.cpp} (\cref{tab:results}) kept the same $22\,382$ cores. Seventeen of them have $U=\varnothing$, all with $\card{C}=47$, and these are the $17$ solutions with all primes at most $73$.
 Of the remaining $22\,365$ cores, $11\,287$ have $\card{C}+\card{U}=47$.
 The printed count ``$\card{C}+\card{U}=47$: $11\,287$'' in \file{run47_output.txt} excludes the $17$ cores with $U=\varnothing$. Including them, the dump of all kept cores contains $11\,304$ cores with $\card{C}+\card{U}=47$.
 Step~2 examined $1\,107\,702$ shapes. Of these, $8\,049$ shapes in $7\,432$ cores satisfy \ref{S1}--\ref{S4}: $7\,981$ with $b=0$, $68$ with $b=1$, and none with $b\ge2$.
 For the $68$ shapes with $b=1$ there are $7\,896$ admissible attachment pairs; $t$ is an integer in $957$ cases, and none of them yields a solution.
 The surviving shapes with $b=0$ have $125$ candidate stars in total. They produce exactly the $6$ solutions of \cref{tab:bigprimes}, each consisting of a core with $44$ elements and a single star with three leaves.
-No shape was unresolved. Every number declared prime is below $2^{64}$, where the primality test is deterministic, and ``composite'' verdicts of the Miller--Rabin test are always correct. So all primality decisions are rigorous (\cref{sec:repro}).
+No shape was unresolved. In the run of \file{semiprime47.cpp} every number declared prime is below $2^{64}$, where the primality test is deterministic, and ``composite'' verdicts of the Miller--Rabin test are always correct; \file{semiprime48.cpp} reports $0$ probable primes. So all primality decisions are rigorous (\cref{sec:repro}).
+Both programs found exactly the same $23$ solutions.
 
 \begin{proof}[Proof of \cref{thm:B}, assuming \cref{claim:47}]
 By \cref{sec:exact}, each of the $23$ listed sets has $47$ elements and reciprocal sum $1$, and the sets are pairwise distinct.
@@ -707,34 +804,122 @@ no. & max.\ prime & core & $P>73$ & remaining $24$ elements\\
 
 \cref{claim:46,claim:47} are stated with exact rational quantities, and the programs implement them as follows.
 \begin{itemize}
-\item \textbf{Step~1.} By \cref{lem:step1}, every admissible core is output by the search.
+\item \textbf{Step~1.} By \cref{lem:step1}, every admissible core is output by the search. For the search written as a Lean function this is a theorem of the formalization (\cref{sec:lean}). That the C++ program computes the same function is not proved; it is supported by the comparisons of \cref{sec:leanrun}, where the compiled Lean function reproduces the C++ output.
 \item \textbf{Shapes.} The shape enumeration generates every $(d,b)$ satisfying \ref{S1} and \ref{S2}. Since \ref{S4} is tested with a rounded-up right-hand side, every feasible shape passes.
 \item \textbf{Candidate stars.} For every $A\subseteq W$ with $2\le\card{A}\le m$, the program removes all prime factors at most $73$ from $\nA(A)$ and factors the remainder completely. Each factor is certified prime by a deterministic test, and the product of the factors equals the remainder by construction. So every candidate star of \cref{def:candidate} is found. The residue condition for $d_q=1$ is tested exactly.
 \item \textbf{Covers.} Covers are enumerated over index-increasing sequences of candidates with distinct centres, so every family of \cref{claim:47}(iii) is produced exactly once.
 \item \textbf{Case $b=1$.} The program uses unordered pairs $\{A_1,A_2\}$, whereas \cref{claim:47}(iv) quantifies over ordered pairs. Swapping $(A_1,P_1)\leftrightarrow(A_2,P_2)$ replaces $X$ by $N/X$ and yields the same set.
-\item \textbf{Magnitudes.} All intermediate integers in the $b=1$ branch are stored in $128$-bit words without explicit overflow checks. The Python recount (\cref{sec:python}) shows that in the actual run the largest of them, $N$, has at most $59$ bits. Moreover, $b_1b_2$, $a_1b_2$ and $a_2b_1$ have at most $31$ bits and $t+a_1a_2$ at most $28$ bits. So no overflow occurred.
+\item \textbf{Magnitudes.} In \file{semiprime47.cpp} all intermediate integers in the $b=1$ branch are stored in $128$-bit words without explicit overflow checks. The Python recount (\cref{sec:python}) shows that in the actual budget-$47$ run the largest of them, $N$, has at most $59$ bits. Moreover, $b_1b_2$, $a_1b_2$ and $a_2b_1$ have at most $31$ bits and $t+a_1a_2$ at most $28$ bits. So no overflow occurred. In \file{semiprime48.cpp} all star and component arithmetic is $128$-bit with explicit overflow checks, and an overflow would be reported as unresolved.
 \end{itemize}
 This correspondence is an informal argument about the source code. It is \emph{not} machine-checked; see \cref{sec:lean}.
+
+% =====================================================================
+\section{Forty-eight terms}\label{sec:proof48}
+% =====================================================================
+
+With budget $\budget=48$ the same two steps determine all sets $T\subset\Pset$ with $\card{T}\le48$ and $\Rec{T}=1$.
+Step~1 is the search of \cref{sec:proof46}, which is exhaustive by \cref{lem:step1}; in Lean this is \lean{core_mem_searchCores} with $\budget=48$.
+Step~2 is that of \cref{sec:proof47}, with stars of at most $12$ leaves (\cref{lem:starsize}), and with one additional routine for shapes with $b=2$.
+
+\subsection{Two large--large elements}\label{sec:twobb}
+
+Suppose that $T$ satisfies \eqref{eq:setting} and that its shape has $b=2$.
+Every large prime that divides no large--large element is the centre of a star, as in \cref{sec:component}.
+The two large--large elements either share a prime, forming a path $P_0-P_1-P_2$, or they are disjoint, forming two edges $P_0P_1$ and $P_2P_3$.
+For each of these large primes $P_i$ let $A_i=\Nb(P_i)\cap\Sset$ be its set of small neighbours, and let $a_i=\nA(A_i)$ and $b_i=\prod_{q\in A_i}q$ (with $a_i=0$, $b_i=1$ if $A_i=\varnothing$).
+By \cref{cor:degree}, $A_i\ne\varnothing$ for every $P_i$ except the middle prime $P_1$ of a path.
+The value of these elements is
+\[
+Z=1-\Rec{C}-\Rec{F}=\sum_i\frac{a_i}{b_iP_i}+\sum_{PP'}\frac1{PP'},
+\]
+where $F$ is the set of star elements and the last sum runs over the two large--large elements.
+This is a sum of at most $5$ positive terms for a path and at most $6$ for two edges.
+Hence one term is at least $Z/5$ or $Z/6$, respectively, and therefore some $P_i$ satisfies $P_i\le 6a_i/(b_iZ)$, or some large--large element $PP'$ satisfies $\min(P,P')\le\sqrt{6/Z}$.
+For fixed $C$, attachment sets and stars, $Z$ is known, so at least one of the large primes is bounded by an explicit number $B$ (the program uses the sharper constant $5$ for paths).
+
+The program tries every prime $p$ with $73<p\le B$ in every position:
+\begin{itemize}
+\item if $p$ is the middle of a path, then the two ends have the neighbours $A_0\cup\{p\}$ and $A_2\cup\{p\}$, so by \cref{lem:star} they are prime factors of $\nA(A_0\cup\{p\})=pa_0+b_0$ and of $pa_2+b_2$;
+\item if $p$ is an end of a path, the other two primes form a single large--large edge in which $p$ is one more neighbour of the middle prime, and they are found through the divisor equation of \cref{prop:component};
+\item if $p$ lies on one of two disjoint edges, its partner is a prime factor of $pa+b$ for the attachment data $(a,b)$ of the partner, and the other edge is found through the divisor equation.
+\end{itemize}
+A candidate is accepted only if its exact value is $Z$, and every accepted set is then verified exactly. Since in every completion some large prime is at most $B$, every completion with $b=2$ is found.
+This argument is not formalized in Lean.
+
+\subsection{The computation}
+
+The run of \file{semiprime48.cpp} with budget $48$ is summarized in the last column of \cref{tab:results}.
+Step~1 kept $1\,491\,334$ cores, $414$ of them with $U=\varnothing$.
+Step~2 examined $116\,874\,859$ shapes; $601\,685$ of them, in $509\,055$ cores, satisfy \ref{S1}--\ref{S4}: $592\,627$ with $b=0$, $8\,985$ with $b=1$, $73$ with $b=2$ (in $73$ cores), and none with $b\ge3$.
+For the $73$ shapes with $b=2$ the program solved $62\,169$ problems of the above form (choices of attachment sets and star covers); the largest bound $B$ was $1581$, and none of them yields a completion.
+No core was unresolved and no probable prime was used; primality is decided by the Miller--Rabin test with the first $13$ prime bases, which is deterministic below $3.3\cdot10^{24}$ \cite{SorensonWebster2017}, and every number tested lies below that bound.
+The run took $29$\,min\,$30$\,s with $4$ threads.
+
+Step~2 finds every completion $G$ with $\card{G}\le48-\card{C}$, so the run finds every $T$ with $\card{T}\le48$ and $\Rec{T}=1$. It found $620$ sets with $48$ elements and, as a built-in consistency check, exactly the $23$ sets of \cref{thm:B}.
+
+\begin{proof}[Proof of \cref{thm:C}, assuming the computation]
+Let $\card{T}=48$ and $\Rec{T}\in\Z$; then $\Rec{T}=1$ by \cref{cor:sum-is-one}. The core of $T$ is $48$-admissible, so it is output by Step~1 (\cref{lem:step1}). Its shape is feasible (\cref{lem:shape}), and its large part is a completion of one of the kinds enumerated by Step~2: $b\le2$, since no feasible shape with $b\ge3$ occurs, and the completions with $b=0$, $1$ and $2$ are enumerated completely by \cref{sec:stars,sec:component,sec:twobb}. Hence $T$ is one of the $620$ listed sets. Conversely, each listed set has $48$ elements and reciprocal sum $1$ (verified exactly, see below).
+The classification (i)--(iv) is read off from the list.
+\end{proof}
+
+\paragraph{Structure of the $620$ solutions.}
+\cref{tab:solutions48} gives the classification of \cref{thm:C}; since no completion with $b=2$ exists, every solution has at most one large--large element.
+The largest prime that occurs is $1\,210\,883$, in the set that contains
+\[
+11\cdot1\,210\,883,\quad 29\cdot1\,210\,883,\quad 37\cdot1\,210\,883,\quad 12\,109\cdot1\,210\,883,\quad 17\cdot12\,109 ;
+\]
+its largest element $12\,109\cdot1\,210\,883=14\,662\,582\,247$ is the largest element of any of the $620$ sets.
+Exactly $12$ numbers lie in every solution: $6$, $10$, $14$, $15$, $21$, $22$, $26$, $33$, $34$, $38$, $39$, $46$.
+In particular, the $48$-term representation of $1$ attributed to Johnson \cite{Johnson1978} in \cite{Watanabe2020} must be one of the $620$ sets. We have not been able to consult \cite{Johnson1978} and have not identified it.
+
+\begin{table}[ht]
+\centering
+\caption{The $620$ sets $T\subset\Pset$ with $\card{T}=48$ and $\Rec{T}=1$, by the primes larger than $73$ that they contain (\protect\file{solutions48.txt}; recomputed by \protect\file{paper/verification/verify48_facts.py}).}
+\label{tab:solutions48}
+\small
+\begin{tabular}{@{}lr@{}}
+\toprule
+primes larger than $73$ & number of sets\\
+\midrule
+none & $397$\\
+one prime $P$, the centre of a star & $187$\\
+two primes, both centres of stars & $18$\\
+two primes $P_1,P_2$ with $P_1P_2\in T$ & $18$\\
+\midrule
+total & $620$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Verification.}
+Every listed set was verified in three ways: by \file{semiprime48.cpp} with big-integer fractions; by \file{verify48.py}, with its own factorization, a deterministic primality test and Python fractions; and by \file{paper/verification/verify48_facts.py}, which uses trial division, checks $\Rec{T}=1$ with Python fractions, checks the congruences \eqref{eq:local} at every vertex, and recomputes all numbers of this subsection.
+The Python program \file{complete48.py} is an independent implementation of Step~2 for budget $48$, including its own code for $b=2$. Run on all $1\,491\,334$ cores of the dump \file{cores48.txt.gz}, it finds the same $620+23$ sets and no unresolved core.
+Both implementations of the routine for $b=2$ recover planted examples (a path and a pair of disjoint edges) with identical sets of completions.
+An earlier run, made before the $b=2$ routine existed, reported exactly the $73$ cores with $b=2$ as unresolved and produced a core dump identical to that of the final run.
+
+\paragraph{Status.}
+\cref{thm:C} is computer-assisted in the same sense as \cref{thm:A,thm:B}, with two differences: its Step~2, including the routine for $b=2$, is not stated in Lean, and the $620$ sets are verified exactly by the C++ and Python programs but not in Lean. The Lean formalization covers the reduction to Step~2 for budget $48$: the integrality of $\Rec{T}$ implies $\Rec{T}=1$ (\lean{recipSum_eq_one_of_integral_48}), and the core of every solution is in the output of the verified search (\lean{core_mem_searchCores}).
 
 % =====================================================================
 \section{Exact and independent verification}\label{sec:verification}
 % =====================================================================
 
-We distinguish four layers of evidence:
+We distinguish five layers of evidence:
 \begin{enumerate*}[label=(\arabic*)]
-\item the optimized C++ searches;
-\item an independent Python re-implementation of Step~2;
-\item exact verification of the $23$ solutions;
-\item the Lean formalization (\cref{sec:lean}).
+\item the optimized C++ searches, in two generations (without and with the loss bound);
+\item independent Python re-implementations of Step~2;
+\item exact verification of the solutions;
+\item the search written as a Lean function, proved exhaustive in Lean and executed for comparison;
+\item the Lean formalization of the reduction (\cref{sec:lean}).
 \end{enumerate*}
-We also report checks performed specifically for this paper.
+We also report checks performed specifically for this paper. The verification of the $620$ sets of \cref{thm:C} is described in \cref{sec:proof48}.
 
 \subsection{Exact verification of the 23 solutions}\label{sec:exact}
 
-Each of the $23$ sets was verified in four independent ways.
+Each of the $23$ sets was verified in five independent ways.
 \begin{itemize}
-\item \file{semiprime47.cpp} factors every element by trial division, certifies both factors with a deterministic primality test, and computes the reciprocal sum as a big-integer fraction over the product of all primes involved.
-\item \file{complete47.py} checks the sum with Python's \code{fractions.Fraction}.
+\item \file{semiprime47.cpp} and \file{semiprime48.cpp} factor every element by trial division, certify both factors with a deterministic primality test, and compute the reciprocal sum as a big-integer fraction over the product of all primes involved.
+\item \file{complete47.py} checks the sum with Python's \code{fractions.Fraction}; so does \file{verify48.py}, which also checks that the $47$-element sets found by the budget-$48$ run are exactly these $23$.
 \item In Lean, \lean{Sol23_valid} proves that each set consists of $47$ squarefree semiprimes, with explicit factorizations and primality proved by \code{norm\_num}, and has reciprocal sum exactly $1$. \lean{Sol23_card} proves that the $23$ sets are pairwise distinct.
 \item For this paper, the script \file{paper/verification/verify_paper_facts.py} rechecks everything with exact integer arithmetic and trial division. It checks distinctness of the elements and of the sets, the squarefree-semiprime property, $\Rec{T}=1$, and the congruences \eqref{eq:local} at every vertex. It also recomputes all numbers quoted in \cref{sec:prelim,sec:stars} and generates all tables of this paper from the data.
 \end{itemize}
@@ -746,15 +931,19 @@ It imposes no bound on the number of leaves of a candidate star, so it examines 
 Run on the file \file{cores47.txt.gz} of all $22\,382$ cores kept by Step~1 with $\budget=47$, it finds the same $23$ solutions and no unresolved core (\file{run47_python_crosscheck.txt}).
 For this paper we reran it with additional counters (\file{paper/verification/analyze47.py}, identical logic). It reproduces every count in the budget-$47$ column of \cref{tab:results}: $1\,107\,702$ shapes, of which $8\,049$ survive in $7\,432$ cores, and $125$ candidate stars (with or without the bound of $11$ leaves). It also gives the split by $b$ and the magnitudes quoted in \cref{sec:claimmatch}. The run takes about half a minute.
 
-\emph{Limitations.} The Python program checks Step~2 only. It consumes the output of the C++ Step~1 and cannot detect a core that Step~1 failed to output. It was written within the same project and implements the same mathematical reduction (\cref{sec:core,sec:stars}), so it is an independent \emph{implementation}, not an independent \emph{argument}.
+The Python program \file{complete48.py} does the same for budget $48$, with its own implementation of the routine of \cref{sec:twobb} (\cref{sec:proof48}).
+
+\emph{Limitations.} The Python programs check Step~2 only. They consume the output of the C++ Step~1 and cannot detect a core that Step~1 failed to output; that gap is addressed by \cref{lem:step1}, its formal version, and the comparisons of \cref{sec:leanrun}. They were written within the same project and implement the same mathematical reduction (\cref{sec:core,sec:stars}), so they are independent \emph{implementations}, not independent \emph{arguments}.
 
 \subsection{Re-executions and the budget-46 cross-check}\label{sec:rerun}
 
 \input{tables/rerun_text.tex}
 
+\paragraph{Old and new search.} By \cref{lem:sameoutput} the searches with and without \ref{P4} have the same output. This was checked directly (\file{validation48/}): \file{semiprime48.cpp} reproduces the archived core dumps of the earlier programs line for line, $178$ cores for budget $46$ (with $2.6\cdot10^{7}$ instead of $1.4\cdot10^{11}$ nodes) and $22\,382$ cores for budget $47$ (with $6.0\cdot10^{8}$ instead of $1.8\cdot10^{12}$ nodes). For budgets $40$--$45$ on the real instance both programs keep no core, and on $15$ reduced instances ($\Sset$ = the primes up to $13$, $17$, $19$ and $23$, with up to $21$ million cores) the two programs produce identical dumps. On these small instances \ref{P4} prunes nothing, so they test the bookkeeping of the new code rather than the pruning itself.
+
 \subsection{Validation of Step 1 by brute force on reduced instances}\label{sec:bruteforce}
 
-Step~1 is the only part of the computation that has no second full-scale implementation. To test its code, we ran the engine of \file{semiprime47.cpp} on reduced instances, with $\Sset$ replaced by the primes up to $13$, $17$ and $19$ and with various budgets. We compared its output with a brute-force enumeration of \emph{all} $2^{15}$, $2^{21}$ and $2^{28}$ cores, respectively.
+Step~1 has no second full-scale implementation in C++ or Python (the two C++ generations share most of their code, and the Lean function of \cref{sec:leanrun} is too slow for budgets above $46$). To test the C++ code, we ran the engine of \file{semiprime47.cpp} on reduced instances, with $\Sset$ replaced by the primes up to $13$, $17$ and $19$ and with various budgets. We compared its output with a brute-force enumeration of \emph{all} $2^{15}$, $2^{21}$ and $2^{28}$ cores, respectively.
 For this test only, a copy of the program with Step~2 disabled was used; the Step~1 code is unchanged.
 For every core the brute force computes two sets, using the same fixed-point rounding as the program:
 \begin{itemize}
@@ -783,6 +972,18 @@ $s$ & edges & budget & $\card{\mathrm{SEG}}$ & $8$ & $3$ & $\card{\mathrm{FIN}}$
 \end{table}
 
 These tests exercise the same code path as the real search, including the table-driven enumeration, the residue bookkeeping, the $U$-accounting, all pruning tests and the parallel work distribution, on instances small enough to enumerate completely. They do not replace an independent full-scale implementation of Step~1.
+The same brute-force check was passed by \file{semiprime48.cpp} on the reduced instances with $\Sset$ = the primes up to $13$, $17$ and $19$ (\file{validation48/step1_equivalence_output.txt}).
+
+\subsection{The search as a Lean function}\label{sec:leanrun}
+
+The Lean function \lean{Inst.search} of \cref{sec:lean} is a transcription of Step~1 of \file{semiprime48.cpp}: the same order of the primes, the same splitting into explicit recursion and a final step for the $8$ smallest primes, the same tests \ref{P1}--\ref{P4} with the same integer tables, and the same final test. It is written for clarity, not speed: cores are finite sets of index pairs, and residues are recomputed at every node.
+Lean proves that its output contains every admissible core (\cref{sec:lean}). Its output is not certified to be \emph{equal} to that of the C++ program. To test the correspondence we compiled the Lean function to native code and compared its output with that of \file{semiprime48.cpp} (option \code{--dump}; harness \file{validation48/dfs48_harness.cpp}):
+\begin{itemize}
+\item on $12$ reduced instances ($\Sset$ = the primes up to $13$ with budgets $40$, $45$, $50$, $60$; up to $17$ and up to $19$ with budgets $40$, $45$, $50$; up to $23$ with budgets $40$, $45$; instance generator \lean{mkInst}), the two outputs coincide as sets of cores; the largest outputs have $274\,486$ cores ($\Sset$ = primes up to $23$, budget $45$) and $478\,084$ cores ($\Sset$ = primes up to $19$, budget $50$);
+\item on the real instance ($\Sset$ = the primes up to $73$), for budgets $40$ to $45$ both keep no core, and for budget $46$ both keep the same $178$ cores. %K46CHECK
+\end{itemize}
+The compiled Lean function is roughly a thousand times slower than the C++ program, mainly because it recomputes all residues at every node and evaluates all $256$ choices at every final step. For budget $46$ it was therefore run in $4$ processes: \lean{search_eq_rounds} (\file{SearchSplit.lean}) proves that the search is the concatenation, in order, of the searches below the nodes of any refinement of the root, and each process evaluated a quarter of these nodes. Budgets $47$ and $48$ are out of reach for the Lean function.
+The comparison script and its output are \file{validation48/lean_vs_cpp.sh} and \file{validation48/lean_vs_cpp_output.txt}.
 
 \subsection{Self-tests}
 
@@ -798,11 +999,11 @@ The engine of \file{semiprime47.cpp} also recovers a planted component with $b=1
 
 The following are \emph{not} independently verified:
 \begin{itemize}
-\item the full-scale Step~1 for either budget, which has a single implementation, validated only on reduced instances;
-\item the correctness of the compiler and the hardware;
-\item the informal correspondence of \cref{sec:claimmatch} between \cref{claim:46,claim:47} and the source code.
+\item the full-scale Step~1 for budgets $47$ and $48$, which was executed only by the C++ programs; the Lean function whose exhaustiveness is proved was executed for budgets up to $46$ only (\cref{sec:leanrun});
+\item the correctness of the compilers and the hardware;
+\item the informal correspondence of \cref{sec:claimmatch} between \cref{claim:46,claim:47} and the source code, and the corresponding correspondence for Step~2 with budget $48$.
 \end{itemize}
-The budget-$46$ Step~1 was, however, executed three times with identical results: in the recorded run, in a re-execution, and through the engine of the second program. The budget-$47$ search was executed twice, and the two runs produced identical core dumps and identical solution lists (\cref{sec:rerun}).
+The budget-$46$ Step~1 was, however, executed five times with identical results: in the recorded run, in a re-execution, through the engine of \file{semiprime47.cpp}, by \file{semiprime48.cpp}, and as the compiled Lean function. The budget-$47$ search was executed three times (twice without and once with \ref{P4}), and all runs produced identical core dumps and identical solution lists (\cref{sec:rerun}). The budget-$48$ search was executed twice, with identical core dumps (\cref{sec:proof48}).
 
 % =====================================================================
 \section{Lean formalization}\label{sec:lean}
@@ -810,8 +1011,8 @@ The budget-$46$ Step~1 was, however, executed three times with identical results
 
 The directory \file{lean/} contains a Lean~4 \cite{Lean4} development based on Mathlib \cite{Mathlib2020}. It uses the toolchain \file{leanprover/lean4:v4.35.0-rc3} and the Mathlib commit
 \begin{center}\ttfamily 3cb72cfd416d1b5ec4b930d67648ef036a5df24f\end{center}
-and consists of nine files with about $2{,}700$ lines and about $180$ theorems and lemmas.
-It contains no \code{sorry}, \code{admit}, \code{axiom} or \code{native\_decide}. The main theorems depend only on the axioms \code{propext}, \code{Classical.choice} and \code{Quot.sound}, as reported by \code{\#print axioms} (\file{lean/AxiomsCheck.lean}).
+and consists of $18$ files with about $5{,}100$ lines and about $320$ theorems and lemmas: nine files for the analytic reduction and the solutions, and nine files for the search (\file{TopSum}, \file{Search}, \file{LossBound}, \file{SearchCorrect}, \file{SearchTables}, \file{SearchTablesProof}, \file{SearchReal}, \file{MainSearch}, \file{SearchSplit}).
+It contains no \code{sorry}, \code{admit}, \code{axiom} or \code{native\_decide}. The main theorems depend only on the axioms \code{propext}, \code{Classical.choice} and \code{Quot.sound}, as reported by \code{\#print axioms} (\file{lean/AxiomsCheck.lean}; output in \file{paper/verification/lean_axioms_output.txt}).
 Auto-bound implicit variables are disabled.
 The development builds with \code{lake build}.
 
@@ -819,7 +1020,7 @@ The development builds with \code{lake build}.
 The following results are proved in Lean without any computational hypothesis:
 \begin{itemize}
 \item the local criterion (\cref{lem:local}; \lean{integral_iff_localCond});
-\item the exchange lemma, the list of the $47$ smallest elements of $\Pset$ together with the fact that it is complete, the inequalities of \cref{prop:Hk}, and \cref{cor:sum-is-one} (\lean{recipSum_le_Aupto}, \lean{sp_le_158}, \lean{H37_lt_one}, \lean{H38_gt_one}, \lean{H47_lt_two}, \lean{recipSum_eq_one_of_integral}, \lean{card_ge_38});
+\item the exchange lemma, the list of the $47$ smallest elements of $\Pset$ together with the fact that it is complete, the inequalities of \cref{prop:Hk}, and \cref{cor:sum-is-one} (\lean{recipSum_le_Aupto}, \lean{sp_le_158}, \lean{H37_lt_one}, \lean{H38_gt_one}, \lean{H47_lt_two}, \lean{recipSum_eq_one_of_integral}, \lean{recipSum_eq_one_of_integral_48}, \lean{card_ge_38});
 \item \cref{lem:U} (\lean{card_Uset_le}), \cref{lem:value} in the general form for every $U'\subseteq U$ (\lean{value_lower_subset}), and all parts of \cref{lem:shape} (\lean{dcount_pos_of_mem_U}, \lean{dcount_ne_one_of_not_mem_U}, \lean{excess_le}, \lean{parity_two}, \lean{shape_value_bound});
 \item the star lemmas and the star-size lemma (\lean{star_dvd}, \lean{star_card_ne_one}, \lean{star_size}), the decomposition of $G$ into stars and large--large edges (\lean{bigPart_eq}, \lean{recipSum_bigPart_eq}, \lean{dcount_eq_mult}), and the finiteness of the candidate stars (\lean{starCand_finite});
 \item all parts of \cref{prop:component} (\lean{comp_value}, \lean{comp_local_iff}, \lean{comp_divisor_eq}, \lean{comp_enum}, \lean{comp_of_divisor}, \lean{comp_pairs_finite});
@@ -831,38 +1032,54 @@ The following results are proved in Lean without any computational hypothesis:
 The numerical facts are checked by the kernel through \code{decide} and \code{norm\_num}.
 In particular, the existence part of \cref{thm:A} (sharpness) is fully formally verified.
 
-\paragraph{Conditional completeness.}
-The exhaustive searches are not reproduced in Lean. Instead, \cref{claim:46,claim:47} are stated as the propositions \lean{Search46} and \lean{Search47} (reproduced in \cref{app:lean}). These are ordinary definitions used as hypotheses, not axioms. Lean proves:
+\paragraph{The search, and the proof that it is exhaustive.}
+Step~1 is written as a Lean function, and its exhaustiveness is a theorem.
 \begin{itemize}
-\item \lean{no_integral_sum_le_46}, which is \cref{thm:A} with \lean{Search46} as a hypothesis, and its reformulation \lean{card_ge_47_of_integral};
-\item \lean{solutions47_iff}, which is \cref{thm:B} with \lean{Search47} as a hypothesis; \lean{solutions47_integral_iff} states the version for integral sums, and \lean{solutions47_ncard} states that the set of all $47$-term representations of $1$ has exactly $23$ elements.
+\item \file{Search.lean} defines an \emph{instance} (the primes of $\Sset$, the budget, the least large prime, the list $v_1,v_2,\dots$ of \cref{sec:step1}, $\theta$, the share numerators and the number $8$ of primes of the final step) and the search \lean{Inst.search} as a recursive function over the levels $(j,i)$ of \cref{alg:step1}. A core is a finite set of index pairs $(a,b)$, $a<b$, standing for $p_ap_b$. The tests \ref{P1}--\ref{P4} and the final test \eqref{eq:leaftest} are Boolean functions with exact natural-number and integer arithmetic. The expensive tables ($\mathrm{VB}$, the maxima $M$ of \ref{P3}, $V_\theta$ and the local bounds of \ref{P4}) are an argument of the search.
+\item \file{SearchTables.lean} computes these tables with the formulas of the C++ program, the local bounds by a knapsack over residues (\lean{dpRun}).
+\item \lean{mem_search} (\file{SearchCorrect.lean}): for every instance and every family of tables with the soundness properties \lean{TablesOK}, the output of the search contains every core that satisfies the rounded admissibility condition \lean{IntAdm} (the budget, $\lo(C)\le2^{96}$, and the rounded value test \eqref{eq:leaftest} for every upper segment of $U$). The proof follows the path to the core in the search tree and shows that no test fails there; for \ref{P4} it uses \lean{loss_bound} (\file{LossBound.lean}), the formal version of \cref{prop:loss}, including the rounding of the shares.
+\item \lean{mkTables_ok} (\file{SearchTablesProof.lean}): the computed tables satisfy \lean{TablesOK}; in particular the knapsack computes upper bounds of the local maxima.
+\item \lean{intAdm_of_admissible} (\file{SearchReal.lean}): for $\Sset$ = the primes up to $73$ and $\budget\le48$ (the instance \lean{inst73}), every core with \code{Admissible K C} (\cref{def:admissible}, with exact rationals) satisfies \lean{IntAdm}. This includes the facts that the residues computed by the search are the residues $\rho$ of the core, that $\lo(n)\le2^{96}/n\le\up(n)$, and that the $49$ listed numbers $158,166,\dots,471$ are the $49$ smallest elements of $\Pset$ with a large prime factor, so that $\mathrm{VB}(x)\ge2^{96}V(x)$.
+\item Hence \lean{core_mem_search}: every admissible core (as its edge set \code{edgesOf C}) is in the output of \code{(inst73 K).search (inst73 K).mkTables}, for every $\budget\le48$; this is \cref{lem:step1}. With \code{searchCores K} the list of cores of that output, \lean{core_mem_searchCores} states that the core of every nonempty $T\subset\Pset$ with $\card{T}\le\budget\le48$ and $\Rec{T}\in\Z$ lies in \code{searchCores K}.
 \end{itemize}
-Consequently the complete proofs of \cref{thm:A,thm:B} are formally verified \emph{modulo} \lean{Search46} and \lean{Search47}, which are established only by the computations of \cref{sec:proof46,sec:proof47}. Two points are not verified in Lean:
+The search is thus a Lean function whose output is proved to contain the core of every solution; its output is not computed inside Lean's kernel. The function is also executable, and the compiled function reproduces the output of the C++ program for all budgets up to $46$ and on reduced instances (\cref{sec:leanrun}).
+
+\paragraph{Conditional completeness.}
+Step~2 is not reproduced in Lean. Instead, \cref{claim:46,claim:47} are stated as the propositions \lean{Search46} and \lean{Search47} (reproduced in \cref{app:lean}). These are ordinary definitions used as hypotheses, not axioms. Their weaker versions \lean{Search46'} and \lean{Search47'} quantify only over the cores in \code{searchCores 46} and \code{searchCores 47}, the output of the verified search. By the exhaustiveness theorem, \lean{Search46'} implies \lean{Search46} and \lean{Search47'} implies \lean{Search47} (\lean{search46_of}, \lean{search47_of}). Lean proves:
 \begin{itemize}
-\item the fact that the C++ programs implement these propositions correctly (\cref{sec:claimmatch});
+\item \lean{no_integral_sum_le_46}, which is \cref{thm:A} with \lean{Search46} as a hypothesis, its reformulation \lean{card_ge_47_of_integral}, and the same statements with the hypothesis \lean{Search46'} (\lean{no_integral_sum_le_46'}, \lean{card_ge_47_of_integral'});
+\item \lean{solutions47_iff}, which is \cref{thm:B} with \lean{Search47} as a hypothesis; \lean{solutions47_integral_iff} states the version for integral sums, and \lean{solutions47_ncard} states that the set of all $47$-term representations of $1$ has exactly $23$ elements; the primed versions use the hypothesis \lean{Search47'}.
+\end{itemize}
+Consequently the complete proofs of \cref{thm:A,thm:B} are formally verified \emph{modulo} \lean{Search46'} and \lean{Search47'}: the enumeration of the cores is no longer an assumption, and what remains assumed is the outcome of Step~2 on the cores output by the verified search. These hypotheses are established by the computations of \cref{sec:proof46,sec:proof47}. The following points are not verified in Lean:
+\begin{itemize}
+\item the fact that the C++ Step~1 outputs (at least) the cores of \code{searchCores K}; for $\budget\le46$ this was checked by running the compiled Lean function, and for $\budget=47$ it rests on the C++ program implementing the same function (\cref{sec:leanrun});
+\item the fact that the C++ Step~2 implements \cref{claim:46,claim:47} correctly (\cref{sec:claimmatch});
 \item the fact that the recorded runs produced the stated output.
 \end{itemize}
+For \cref{thm:C}, Lean provides the reduction to the cores of \code{searchCores 48} (\lean{core_mem_searchCores}), but the Step~2 statement for budget $48$ (in particular the case $b=2$ of \cref{sec:twobb}) is not formalized, and the $620$ sets are not verified in Lean.
 
-While the development was being written, the formalization exposed the two corrections of \cref{rem:segments,rem:component}. The Step~1 hypothesis is stated with the upper-segment condition of \cref{def:admissible}. With only the final value test, it would not describe what the search checks.
+While the first part of the development was being written, the formalization exposed the two corrections of \cref{rem:segments,rem:component}. The Step~1 hypothesis is stated with the upper-segment condition of \cref{def:admissible}. With only the final value test, it would not describe what the search checks.
 
 % =====================================================================
 \section{Computational reproducibility}\label{sec:repro}
 % =====================================================================
 
 \paragraph{Arithmetic.}
-Neither C++ program uses a floating-point type (\code{float}, \code{double} or \code{long double}), nor any floating-point library function.
+None of the C++ programs uses a floating-point type (\code{float}, \code{double} or \code{long double}), nor any floating-point library function.
 \begin{itemize}
 \item Congruences are computed with machine integers modulo primes at most $73$.
 \item Exact rational comparisons (the values $H_k$, the verification of solutions, the exact value tests of covers) use either a small arbitrary-precision natural-number type or $128$-bit integers over the common denominator $D=\prod_{p\in\Sset}p\approx4.0\cdot10^{28}$.
 \item Bounds on sums of reciprocals use the $96$-bit fixed-point numbers $\up$ and $\lo$ of \cref{sec:step1}. Upper bounds are always formed from $\up$ and lower bounds from $\lo$. Every pruning decision compares an upper bound of a quantity that must be at least $1$ with $2^{96}$, or a lower bound of a quantity that must be at most $1$ with $2^{96}$.
+\item The loss bound \ref{P4} uses signed $128$-bit integers; the shares are rounded up and the knapsack tables are exact maxima, so it is an upper bound as in \cref{prop:loss}.
 \end{itemize}
 Rounding can therefore only make a test \emph{weaker}. It may keep a core or shape that exact arithmetic would discard, and this costs only time; it can never discard an admissible core or a feasible shape. All fixed-point sums are below $3\cdot2^{96}<2^{128}$.
 The Python program uses exact rationals throughout.
 
 \paragraph{Primality and factorization.}
-Both programs decide primality of $64$-bit integers with the Miller--Rabin test \cite{Rabin1980} to the bases $2,3,5,\dots,37$ (the first $12$ primes).
+The earlier programs decide primality of $64$-bit integers with the Miller--Rabin test \cite{Rabin1980} to the bases $2,3,5,\dots,37$ (the first $12$ primes).
 This test is deterministic for all $n<\psi_{12}=318\,665\,857\,834\,031\,151\,167\,461\approx3.2\cdot10^{23}$ \cite{SorensonWebster2017}, and in particular for all $n<2^{64}$.
-The $b=1$ branch contains a probabilistic test for integers of at least $2^{64}$. It was never used: the run reports $0$ probable primes.
+The $b=1$ branch of \file{semiprime47.cpp} contains a probabilistic test for integers of at least $2^{64}$. It was never used: the run reports $0$ probable primes.
+\file{semiprime48.cpp} uses the first $13$ prime bases, which give a deterministic test below $\psi_{13}\approx3.3\cdot10^{24}$ \cite{SorensonWebster2017}, and counts every number above that bound that passes the test as a probable prime; all its runs report $0$ probable primes.
 Factorizations use trial division and Pollard's rho method \cite{Pollard1975}. The correctness of the result does not depend on the heuristics of the method, because every returned factor is certified prime and the factors multiply to the input by construction; only termination does, and the runs terminated.
 The inverses modulo $p$ are computed as $a^{p-2}\bmod p$.
 
@@ -870,14 +1087,24 @@ The inverses modulo $p$ are computed as $a^{p-2}\bmod p$.
 The programs need a C++11 compiler with \code{unsigned \_\_int128} (GCC or Clang):
 {\small
 \begin{verbatim}
+g++ -O3 -march=native -pthread -o semiprime48 semiprime48.cpp
+./semiprime48 4 --budget 46             # Theorem A, 4 threads (~2 s)
+./semiprime48 4 --budget 47             # Theorem B (~1 min)
+./semiprime48 4 --selftest --dump cores48.txt   # Theorem C (~30 min)
+python3 verify48.py run48_output.txt
+gunzip -k cores48.txt.gz && python3 complete48.py cores48.txt 48 4
+bash validation48/step1_equivalence.sh 4        # old vs new Step 1
+# earlier programs:
 g++ -O3 -march=native -pthread -o semiprime_reciprocals semiprime_reciprocals.cpp
-./semiprime_reciprocals 4               # budget 46, 4 threads
+./semiprime_reciprocals 4               # budget 46
 g++ -O3 -march=native -pthread -o semiprime47 semiprime47.cpp
 ./semiprime47 4 --selftest --dump cores47.txt
 gunzip -k cores47.txt.gz && python3 complete47.py cores47.txt 47
 \end{verbatim}
 }
-The recorded runs used $4$ threads. The budget-$46$ search took $1179$\,s (19\,min\,40\,s wall-clock), and the budget-$47$ run took $20\,898$\,s for the search and 5\,h\,48\,min wall-clock in total.
+The recorded runs of \file{semiprime48.cpp} used $4$ threads and took $2.1$\,s (budget $46$), $65$\,s (budget $47$) and $1770$\,s (budget $48$, 29\,min\,30\,s) for search and completion.
+The recorded runs of the earlier programs also used $4$ threads. The budget-$46$ search took $1179$\,s (19\,min\,40\,s wall-clock), and the budget-$47$ run took $20\,898$\,s for the search and 5\,h\,48\,min wall-clock in total.
+The Lean search is compiled to native code with the scripts in \file{validation48/lean_runner/}, and \file{validation48/lean_vs_cpp.sh} compares its output with that of \file{semiprime48.cpp}.
 The resident memory of the search is only a few megabytes; the virtual size of about $300$\,MB reported in the repository documentation consists mostly of thread stacks.
 The recorded outputs do not state the processor model.
 The re-executions of \cref{sec:rerun} used a cloud container with $4$ virtual CPUs (Intel Xeon, 2.10\,GHz) and GCC~13.3.0. There the budget-$47$ search took $19\,388$\,s with $4$ threads.
@@ -885,9 +1112,15 @@ The re-executions of \cref{sec:rerun} used a cloud container with $4$ virtual CP
 \paragraph{Files.}
 The repository (\repourl) contains the following files.
 \begin{itemize}
-\item Programs: \file{semiprime_reciprocals.cpp}, \file{semiprime47.cpp} and \file{complete47.py}.
-\item Recorded outputs: \file{proof_run_output.txt}, \file{selftest_output.txt}, \file{run47_output.txt} and \file{run47_python_crosscheck.txt}.
-\item Data: the core dump \file{cores47.txt.gz} and the list \file{solutions47.txt}.
+\item Programs: \file{semiprime48.cpp}, \file{complete48.py} and \file{verify48.py}; the earlier programs \file{semiprime_reciprocals.cpp}, \file{semiprime47.cpp} and \file{complete47.py}.
+\item Recorded outputs:
+  \begin{itemize}
+  \item of \file{semiprime48.cpp}: \file{run48_output.txt}, \file{validation48/run46_output.txt} and \file{validation48/run47_output.txt};
+  \item of the Python checks: \file{run48_python_crosscheck.txt}, \file{verify48_output.txt} and \file{run47_python_crosscheck.txt};
+  \item of the earlier programs: \file{proof_run_output.txt}, \file{selftest_output.txt} and \file{run47_output.txt}.
+  \end{itemize}
+\item Data: the core dumps \file{cores47.txt.gz} and \file{cores48.txt.gz}, and the lists \file{solutions47.txt} and \file{solutions48.txt}.
+\item Validation of the new search: \file{validation48/} (old versus new Step~1, brute force, the case $b=2$, Lean versus C++).
 \item The Lean development \file{lean/}.
 \item The files of this paper in \file{paper/}, including the verification scripts, the brute-force test and the logs of the re-execution (\file{paper/verification/}).
 \end{itemize}
@@ -896,26 +1129,26 @@ The repository (\repourl) contains the following files.
 \section{Discussion}\label{sec:discussion}
 % =====================================================================
 
-We have shown that at least $47$ distinct squarefree semiprimes are needed to obtain an integral sum of reciprocals, and that exactly $23$ sets of $47$ such numbers have reciprocal sum $1$.
+We have shown that at least $47$ distinct squarefree semiprimes are needed to obtain an integral sum of reciprocals, and that exactly $23$ sets of $47$ such numbers have reciprocal sum $1$. With the same method we found that exactly $620$ sets of $48$ such numbers have reciprocal sum $1$.
 The minimality result confirms Watanabe's conjecture \cite{Watanabe2020}.
 
 The main mathematical point is the finite reduction. The local criterion (\cref{lem:local}) turns integrality into a condition at each vertex of a graph. The core decomposition bounds the number of unsatisfied small primes. The star lemma and the component equation bound the large primes by divisibility, not by size.
 That large primes occur, for example $3779$, shows that a bound of this kind is unavoidable.
-A single large--large edge is handled by an explicit factorization identity. Configurations with two or more such edges are excluded here only by the computation: no feasible shape with $b\ge2$ exists for budget $47$. For larger budgets this case would need further ideas.
+A single large--large edge is handled by an explicit factorization identity, and two such edges by a size argument that bounds one of the large primes (\cref{sec:twobb}). Configurations with three or more such edges are excluded here only by the computation: no feasible shape with $b\ge3$ exists for budget $48$. For larger budgets this case would need further ideas.
+On the computational side, the loss bound (\cref{sec:lossbound}) makes Step~1 thousands of times faster. It combines a Lagrangian relaxation of the budget constraint with the congruences that every prime not yet processed must eventually satisfy, and it leaves the output of the search unchanged.
 
 \paragraph{Limitations.}
 The proofs are computer-assisted.
 \begin{itemize}
-\item Their weakest point is Step~1, which has a single implementation. This implementation has been tested against brute force on reduced instances and executed three times for budget $46$ and twice for budget $47$, with identical results, but not reimplemented at full scale.
-\item Step~2 has been implemented twice, and the two implementations agree.
-\item The reduction and the $23$ solutions are verified in Lean. The connection between the Lean hypotheses \lean{Search46} and \lean{Search47} and the C++ programs rests on the informal argument of \cref{sec:claimmatch}.
+\item Step~1 is now a Lean function with a formal proof of exhaustiveness. The remaining gap is that the full-scale executions for budgets $47$ and $48$ were made by the C++ program, which implements the same function but is not verified; for budgets up to $46$ the compiled Lean function reproduces its output. The two generations of C++ programs share most of their Step~1 code.
+\item Step~2 has been implemented twice, in C++ and in Python, and the implementations agree for all three budgets.
+\item The reduction, the exhaustiveness of Step~1 and the $23$ solutions are verified in Lean. The connection between the Lean hypotheses \lean{Search46'} and \lean{Search47'} and the C++ Step~2 rests on the informal argument of \cref{sec:claimmatch}. For budget $48$, Step~2 (including the case $b=2$) and the $620$ solutions are not formalized.
 \end{itemize}
-A fully formal proof would require the search to emit a certificate, such as the list of admissible cores with a refutation of each feasible shape, that can be checked in Lean. This is a natural direction for future work.
-An independent reimplementation of Step~1, preferably by other authors and with a different enumeration strategy, would also strengthen the result considerably.
+A fully formal proof would require the computation to emit a certificate that can be checked in Lean, such as the list of cores output by Step~1 together with a refutation or completion of each feasible shape; alternatively, Step~2 could itself be written and verified as a Lean function, as was done here for Step~1, and both executed in a kernel-checkable way. This is a natural direction for future work.
+An independent reimplementation of the search, preferably by other authors and with a different enumeration strategy, would also strengthen the result considerably.
 
 \paragraph{Further questions.}
-The same method applies to other targets and budgets. Examples include the minimal number of terms for the integer $2$, or for denominators with exactly three distinct prime factors (compare \cite{ButlerErdosGraham2015}). The cost of Step~1 grows quickly with the budget: from $1.4\cdot10^{11}$ nodes for budget $46$ to $1.8\cdot10^{12}$ for budget $47$.
-It would also be interesting to count the representations of $1$ with $48$ terms.
+The same method applies to other targets and budgets. Examples include the minimal number of terms for the integer $2$, or for denominators with exactly three distinct prime factors (compare \cite{ButlerErdosGraham2015}). With the loss bound the cost of Step~1 still grows by a factor of about $20$ per unit of budget: $2.6\cdot10^{7}$, $6.0\cdot10^{8}$ and $1.3\cdot10^{10}$ nodes for budgets $46$, $47$ and $48$.
 
 % =====================================================================
 \section{Disclosure of the use of generative AI}\label{sec:ai}
@@ -923,26 +1156,26 @@ It would also be interesting to count the representations of $1$ with $48$ terms
 
 % This statement is intended to be easily editable to follow the policy of the target journal.
 Generative AI tools, specifically Claude Code (Anthropic), an AI coding assistant based on large language models, were used substantially throughout this project, and not only for preparing the manuscript.
-Under the direction of the authors, the AI tool developed the mathematical reduction presented here, and it wrote the following:
+Under the direction of the authors, the AI tool developed the mathematical reduction presented here, including the loss bound of \cref{sec:lossbound} and the treatment of two large--large elements in \cref{sec:twobb}, and it wrote the following:
 \begin{itemize}
-\item the C++ programs and the Python cross-check;
-\item the Lean formalization;
+\item the C++ programs and the Python cross-checks;
+\item the Lean formalization, including the search as a Lean function and the proof of its exhaustiveness;
 \item the documentation files of the repository;
 \item the verification scripts written for this paper;
-\item a first draft of this manuscript.
+\item a first draft of this manuscript and of its revision.
 \end{itemize}
 The exploratory mathematical reasoning was also carried out with the tool.
 The two corrections of \cref{rem:segments,rem:component} were found during the AI-assisted formalization and a later audit of the code.
 
-All mathematical claims in this article were checked by the verification procedures described in \cref{sec:verification,sec:lean}:
+All mathematical claims in this article were checked by the verification procedures described in \cref{sec:proof48,sec:verification,sec:lean}:
 \begin{itemize}
 \item exact computation;
-\item a second implementation of Step~2;
-\item brute-force validation of Step~1 on reduced instances;
-\item a Lean~4 formalization of the analytic reduction and of the $23$ solutions.
+\item second implementations of Step~2;
+\item brute-force validation of Step~1 on reduced instances, and the comparison of the two generations of the search;
+\item a Lean~4 formalization of the analytic reduction, of the exhaustiveness of Step~1 and of the $23$ solutions, and the execution of the verified Lean search for budgets up to $46$.
 \end{itemize}
 These checks were themselves designed and executed with the assistance of the same tool.
-The extent of the computer-assisted part and of the formally verified part, and the exact status of every result, are stated explicitly in \cref{fig:status} and \cref{sec:proof46,sec:proof47,sec:verification,sec:lean}.
+The extent of the computer-assisted part and of the formally verified part, and the exact status of every result, are stated explicitly in \cref{fig:status} and \cref{sec:proof46,sec:proof47,sec:proof48,sec:verification,sec:lean}.
 [\emph{Editable by the authors: describe here any independent human checking of the code, the computations and the proofs that has been carried out.}]
 No AI system is an author of this work. The authors take full responsibility for its content.
 
@@ -968,18 +1201,34 @@ The $23$ sets $T\subset\Pset$ with $\card{T}=47$ and $\Rec{T}=1$, in the order o
 \section{The computational hypotheses in Lean}\label{app:lean}
 % =====================================================================
 
-The hypotheses of \cref{sec:lean}, verbatim from \file{lean/SemiprimeEgypt/Main.lean}.
+The exhaustiveness theorem of the search and the hypotheses of \cref{sec:lean}, verbatim from \file{lean/SemiprimeEgypt/SearchReal.lean}, \file{MainSearch.lean} and \file{Main.lean}.
+The primed hypotheses \lean{Search46'} and \lean{Search47'} are obtained from \lean{Search46} and \lean{Search47} by restricting every quantifier over cores \code{C} to the cores in \code{searchCores K}, the output of the verified search; \lean{Search46'} is shown below, and \lean{Search47'} is \lean{Search47} with \code{∀ C ∈ searchCores 47,} in place of \code{∀ C : Finset ℕ,} in each of its four parts.
 \begin{itemize}
-\item \lean{CoreSet C} says that every element of $C$ lies in $\Pset_\Sset$.
-\item \lean{Admissible K C} is \cref{def:admissible}.
-\item \lean{ShapeOK K C d b} is \cref{def:shape}.
-\item \lean{StarCand m C d P A} is \cref{def:candidate}.
+\item \code{CoreSet C} says that every element of $C$ lies in $\Pset_\Sset$.
+\item \code{Admissible K C} is \cref{def:admissible}.
+\item \code{ShapeOK K C d b} is \cref{def:shape}.
+\item \code{StarCand m C d P A} is \cref{def:candidate}.
 \item \lean{mult}, \lean{starEdges} and \lean{starVal} are the multiplicities, elements and value of a star family.
 \item \lean{compN} and \lean{compP\(_1\)}, \lean{compP\(_2\)} are $N$, $P_1$ and $P_2$ of \cref{prop:component}.
 \item \lean{Sol23} is the family of \cref{app:solutions}.
 \end{itemize}
 \fontsize{8.3}{9.6}\selectfont
 \begin{verbatim}
+theorem core_mem_search {K : ℕ} (hK : K ≤ 48) {C : Finset ℕ} (hC : CoreSet C)
+    (hA : Admissible K C) : edgesOf C ∈ (inst73 K).search (inst73 K).mkTables
+
+def searchCores (K : ℕ) : List (Finset ℕ) :=
+  ((inst73 K).search (inst73 K).mkTables).map coreOf
+
+theorem core_mem_searchCores {T : Finset ℕ} (hT : ∀ n ∈ T, IsSP n) (hne : T.Nonempty)
+    {K : ℕ} (hK : K ≤ 48) (hc : T.card ≤ K) (hz : ∃ z : ℤ, recipSum T = z) :
+    core 73 T ∈ searchCores K
+
+def Search46' : Prop :=
+  ∀ C ∈ searchCores 46, CoreSet C → Admissible 46 C →
+    (Uset 73 C).Nonempty ∧
+      ∀ (d : ℕ → ℕ) (b : ℕ), ShapeOK 46 C d b → b = 0 ∧ ∀ P A, ¬ StarCand 10 C d P A
+
 def Search46 : Prop :=
   ∀ C : Finset ℕ, CoreSet C → Admissible 46 C →
     (Uset 73 C).Nonempty ∧

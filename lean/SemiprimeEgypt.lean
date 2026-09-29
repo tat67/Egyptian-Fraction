@@ -15,3 +15,4 @@ import SemiprimeEgypt.SearchTables
 import SemiprimeEgypt.SearchTablesProof
 import SemiprimeEgypt.SearchReal
 import SemiprimeEgypt.MainSearch
+import SemiprimeEgypt.SearchSplit

@@ -45,3 +45,5 @@ open SemiprimeEgypt
 #print axioms solutions47_iff'
 #print axioms solutions47_integral_iff'
 #print axioms solutions47_ncard'
+#print axioms Srch.Inst.search_eq_rounds
+#print axioms Srch.Inst.search_eq_evalDeep

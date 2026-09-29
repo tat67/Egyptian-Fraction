@@ -183,6 +183,16 @@ The run is recorded in `run48_output.txt`: 4 threads, 29 min 30 s for search and
 
 ---
 
+## Lean verification of Step 1
+
+The search of section 3 is formalized in Lean ([`lean/`](lean/README.md)).
+
+* `lean/SemiprimeEgypt/Search.lean` writes it as a Lean function: tests (P1)–(P4), the table-driven step for the 8 smallest primes, the final test, and integer arithmetic throughout.
+* Lean proves that the function is exhaustive for every budget `K ≤ 48`. Its output contains every core that passes the exact Step-1 condition (`core_mem_search`), hence the core of every `T` with `|T| ≤ K` and integral reciprocal sum (`core_mem_searchCores`).
+* This proof covers the soundness of the loss bound (`loss_bound`) and of the knapsack tables (`mkTables_ok`).
+* Compiled to native code, the Lean function reproduces the core lists of `semiprime48.cpp` on 12 reduced instances and on the real instance for budgets 40–46 ([`validation48/lean_vs_cpp_output.txt`](validation48/lean_vs_cpp_output.txt)). It is about a thousand times slower, so budgets 47 and 48 were run only in C++.
+* Step 2, including the new case `b = 2`, is not formalized.
+
 ## Running
 
     g++ -O3 -march=native -pthread -o semiprime48 semiprime48.cpp
@@ -208,4 +218,4 @@ Independent checks:
 | `cores48.txt.gz` | the 1,491,334 cores kept by Step 1 (format of `cores47.txt.gz`; SHA-256 of the sorted, uncompressed file: `00ff081ebdedd8a98652c6dedbaa30b44b225661f18f7260d567391299c66cde`) |
 | `verify48.py`, `verify48_output.txt` | independent exact verification of the listed solutions |
 | `complete48.py`, `run48_python_crosscheck.txt` | independent Python Step 2 on all dumped cores |
-| `validation48/` | old-vs-new Step 1 equivalence and brute force (`step1_equivalence.sh`, output in `step1_equivalence_output.txt`), Step 2 on a dump (`step2_from_dump.cpp`), runs of the final program at budgets 46 and 47 (`run46_output.txt`, `run47_output.txt`) |
+| `validation48/` | old-vs-new Step 1 equivalence and brute force (`step1_equivalence.sh`, output in `step1_equivalence_output.txt`), Step 2 on a dump (`step2_from_dump.cpp`), runs of the final program at budgets 46 and 47 (`run46_output.txt`, `run47_output.txt`), and the comparison of the compiled Lean search with Step 1 (`lean_vs_cpp.sh`, `lean_vs_cpp_output.txt`, `lean_runner/`) |

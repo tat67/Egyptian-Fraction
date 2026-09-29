@@ -2,6 +2,46 @@
 
 This report records the audit carried out before and during the writing of `main.tex`. It covers `README.md`, `README47.md`, both C++ programs, `complete47.py`, all recorded outputs, `cores47.txt.gz` and the complete `lean/` directory. Every numerical claim in the paper was re-derived from the data or re-executed. The READMEs were not taken at face value.
 
+## 0. Revision: the new method, the verified search, and 48 terms
+
+This section covers the current version of the paper. Sections 1–10 below are the audit of the first version, which is preserved as `paper_oldmethod.pdf`. They remain valid, but their section, lemma and claim numbers refer to that version.
+
+**What changed.**
+
+* **Main results.** They are unchanged: Theorem A (at least 47 terms, attained) and Theorem B (exactly 23 sets with 47 terms). New is **Theorem C**: exactly 620 sets `T ⊂ P` with `|T| = 48` and `Σ 1/n = 1`, all listed in `../solutions48.txt`. The paper states Theorem C as a further result obtained with the same method, with its own verification status (Section 8).
+* **Method.** Step 1 now uses the loss bound (P4) of `semiprime48.cpp` (Section 6.2), and all three budgets were run with `semiprime48.cpp`. The earlier programs remain as a second execution for budgets 46 and 47.
+* **Lean.**
+  * Step 1 is written as a Lean function (`Search.lean`), and its exhaustiveness is proved (`mem_search`, `loss_bound`, `mkTables_ok`, `intAdm_of_admissible`, `core_mem_search`).
+  * The hypotheses of the main theorems are weakened to `Search46'` and `Search47'`, which quantify only over the output of the verified search.
+  * `search_eq_rounds` (`SearchSplit.lean`) justifies running the search in several processes.
+  * "Integral ⇒ sum 1" is extended to 48 terms.
+
+**Checks performed for the revision.**
+
+| item | how it was checked | result |
+|---|---|---|
+| soundness of (P4) | paper proof (Proposition 6.1); Lean `loss_bound`, used in `mem_search` | proved |
+| (P4) does not change the output of Step 1 | paper Lemma 6.3; `validation48/step1_equivalence_output.txt`: 38 dump comparisons (old vs new program, 1 vs 3 threads, archived dumps for budgets 46 and 47) and 12 brute-force checks | all identical / pass |
+| exhaustiveness of the search | Lean, 18 files, no `sorry`/`admit`/`axiom`/`native_decide`; `#print axioms` for 43 theorems gives only `propext`, `Classical.choice`, `Quot.sound` (`verification/lean_axioms_output.txt`); full rebuild in dependency order | proved |
+| the Lean function computes what the C++ program computes | compiled Lean vs `semiprime48.cpp` Step 1 (`../validation48/lean_vs_cpp_output.txt`): 12 reduced instances (up to 478,084 cores), real instance budgets 40–46 | identical in every case (budget 46: 178 cores) |
+| numbers in Table 3 (budgets 46, 47, 48) | read off `validation48/run46_output.txt`, `validation48/run47_output.txt`, `run48_output.txt`; the budget-48 count "|C|+|U| = 48, U ≠ ∅" is 702,715, and the dump `cores48.txt.gz` has 703,112 such cores, of which 397 have `U = ∅` | consistent |
+| facts about the 620 sets (Theorem C, Table 5, Section 8) | `verification/verify48_facts.py` (trial division, `Fraction`, (*) at every vertex): 620 distinct sets of 48 distinct squarefree semiprimes with sum exactly 1; categories 397/187/18/18; largest prime 1,210,883; largest element 14,662,582,247 = 12109·1210883; 12 common elements; `a_48 = 159`, `H_48 < 1.0704` | all confirmed (`verification/verify48_facts_output.txt`) |
+| Step 2 for budget 48 | C++ and the independent Python `complete48.py` on all 1,491,334 cores: the same 620 + 23 sets, 0 unresolved; two implementations of the `b = 2` routine agree on planted examples and on the 73 cores with `b = 2` | agree |
+| old paper preserved | `paper_oldmethod.pdf` is a byte copy of the previous `paper.pdf` | done |
+
+**What is still not verified.**
+
+* That the C++ Step 1 computes the Lean function for budgets 47 and 48. The compiled Lean function is roughly a thousand times slower than the C++ program, and was run only up to budget 46.
+* Step 2 in Lean. The hypotheses `Search46'` and `Search47'` remain; for 48 terms, Step 2 is not stated in Lean at all.
+* The `b = 2` routine (Section 8.1). It is argued on paper and implemented twice (C++ and Python), but not formalized.
+* The 620 sets in Lean (they are verified exactly by C++ and twice in Python).
+* Compilers and hardware (C++, and the Lean compiler for the comparison runs).
+
+**Discrepancies found during the revision.** None affecting any result.
+
+* The earlier statement that Step 1 "has a single implementation" has been replaced. Step 1 now exists as a verified Lean function, whose compiled form reproduces the C++ output where it is fast enough to run.
+* The README48 claim that the new Step 1 outputs exactly the same cores as the old one is now proved in the paper (Lemma 6.3), in addition to the direct comparisons.
+
 ## 1. Final main theorems
 
 * **Theorem A.** If `T ⊂ P = {pq : p < q primes}` is nonempty and finite and `Σ_{n∈T} 1/n ∈ ℤ`, then `|T| ≥ 47`. The bound is attained.

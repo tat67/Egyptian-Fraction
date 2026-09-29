@@ -1,13 +1,21 @@
-# Lean 4 formalization of the two semiprime results
+# Lean 4 formalization of the semiprime results
 
 This directory formalizes, in Lean 4 with Mathlib, the mathematics behind
 
 * [`../README.md`](../README.md): no nonempty set of at most 46 squarefree semiprimes has an integral reciprocal sum;
-* [`../README47.md`](../README47.md): there are exactly 23 sets of 47 squarefree semiprimes with reciprocal sum 1.
+* [`../README47.md`](../README47.md): there are exactly 23 sets of 47 squarefree semiprimes with reciprocal sum 1;
+* [`../README48.md`](../README48.md): the core search (Step 1) of `semiprime48.cpp`, with the loss bound (P4), for every budget `K ≤ 48`.
 
-The exhaustive searches are **not** redone in Lean. Each search result is stated as an explicit hypothesis (`Search46`, `Search47`), and the theorems are proved *from* those hypotheses. There are no `axiom` declarations and no `sorry`, `admit` or `native_decide`. Every theorem depends only on Lean's three standard axioms (`propext`, `Classical.choice`, `Quot.sound`); `AxiomsCheck.lean` prints this.
+**The core search is formalized as a Lean function, and Lean proves that it is exhaustive.** `Search.lean` writes Step 1 of `semiprime48.cpp` as the function `Inst.search`: depth-first search over the primes ≤ 73, tests (P1)–(P4), the table-driven leaf step, and the final test, all in exact integer arithmetic. `SearchReal.lean` proves `core_mem_search`: for every `K ≤ 48` the output of `(inst73 K).search (inst73 K).mkTables` contains every admissible core (as its edge set), and in particular the core of every set of at most `K` squarefree semiprimes with an integral reciprocal sum (`core_mem_searchCores` in `MainSearch.lean`).
 
-> **Status in one sentence.** Everything *except the exhaustive computer searches* is fully proved in Lean. The two headline results are proved **conditionally** on `Search46` and `Search47`, which state exactly what the C++ programs checked; those two hypotheses are **not** verified in Lean. So these are not complete formal proofs of the original theorems.
+Step 2 (shapes, stars and components) is **not** redone in Lean. Its outcome is stated as explicit hypotheses, and the theorems are proved *from* those hypotheses:
+
+* `Search46` and `Search47` quantify over all admissible cores.
+* The weaker `Search46'` and `Search47'` quantify only over the cores in `searchCores K`, the output of the verified search.
+
+There are no `axiom` declarations and no `sorry`, `admit` or `native_decide`. Every theorem depends only on Lean's three standard axioms (`propext`, `Classical.choice`, `Quot.sound`); `AxiomsCheck.lean` prints this.
+
+> **Status in one sentence.** Everything *except Step 2 of the computation* is fully proved in Lean. That includes the reduction, the 23 solutions, and the exhaustiveness of the core search as a Lean function. The headline results are proved **conditionally** on `Search46'` and `Search47'`, which state what the C++ Step 2 checked for the cores output by the search; those hypotheses are **not** verified in Lean. So these are not complete formal proofs of the original theorems.
 
 ## Building
 
@@ -20,7 +28,7 @@ lake build              # builds SemiprimeEgypt (all files)
 lake env lean AxiomsCheck.lean   # lists the axioms used by the main theorems
 ```
 
-Mathlib's binary cache was unreachable in the environment used here, so Mathlib was built from source at the pinned commit. Building this package then takes about a minute, most of it in `Solutions.lean`. The build is warning-free apart from deprecation notices from this Mathlib snapshot and a few unused-variable lints. The options `autoImplicit` and `relaxedAutoImplicit` are off.
+Mathlib's binary cache was unreachable in the environment used here, so Mathlib was built from source at the pinned commit. Building this package then takes about two minutes, most of it in `Solutions.lean`. The build is warning-free apart from deprecation notices from this Mathlib snapshot and a few unused-variable lints. The options `autoImplicit` and `relaxedAutoImplicit` are off.
 
 ## Files
 
@@ -35,6 +43,15 @@ Mathlib's binary cache was unreachable in the environment used here, so Mathlib 
 | `Reduction.lean` | the data checked by the search (`CoreSet`, `Admissible`, `ShapeOK`, `StarCand`) and the proof that every solution produces such data |
 | `Solutions.lean` | the 23 sets (`Sol23`), verified unconditionally |
 | `Main.lean` | the hypotheses `Search46`, `Search47` and the conditional main theorems |
+| `TopSum.lean` | `topSum k L`, the sum of the `k` largest entries of a list, and `le_topSum`; ceiling division `cdiv` |
+| `Search.lean` | **the search as a Lean function**: instances (`Inst`), the tests (P1)–(P4) (`nodeOK`, `leafStep`), `Inst.go`, `Inst.search`; the table interface `Tables`, its soundness properties `TablesOK`, and the rounded acceptance condition `IntAdm` |
+| `LossBound.lean` | `loss_bound`: the soundness of the loss bound (P4), i.e. the final value is at most the (P4) quantity for every completion |
+| `SearchCorrect.lean` | **`mem_search`**: for any tables with `TablesOK`, every edge set with `IntAdm` is in the output of the search |
+| `SearchTables.lean` | the concrete tables `mkTables` (residue knapsack `dpRun`, `VB`, `MX`, `BT`, `LOC`, `TOPT`) and test instances `mkInst` |
+| `SearchTablesProof.lean` | `mkTables_ok`: the concrete tables satisfy `TablesOK` |
+| `SearchReal.lean` | the instance `inst73 K` (primes ≤ 73); cores as edge sets (`edgesOf`, `coreOf`); residues of the search = `resid`; rounding; the 49 smallest big semiprimes (`bigSP_mem_bs73`, `V_le_bs`); **`intAdm_of_admissible`**, **`core_mem_search`** |
+| `MainSearch.lean` | `searchCores K`; `core_mem_searchCores`; "integral ⇒ sum = 1" for `|T| ≤ 48`; `Search46'`, `Search47'` and the main theorems under them |
+| `SearchSplit.lean` | splitting the search into work items (`items`, `expandItem`, `expandRounds`) with `search_eq_rounds`, used to run the compiled search in several processes |
 
 ## What is fully proved (no computational hypothesis)
 
@@ -67,20 +84,48 @@ The notation follows the READMEs: `S` is the set of primes ≤ 73, `C` the core,
 
 `Sol23_valid` also proves, unconditionally, that 47 terms are attainable.
 
+## The search, proved exhaustive (no computational hypothesis)
+
+| statement | Lean |
+|---|---|
+| For any instance and tables with the soundness properties `TablesOK`, every core satisfying the rounded Step-1 condition `IntAdm` (budget, rounded `Σ_C ≤ 1`, rounded Lemma 3 for every upper segment of `U`) is in the output of `Inst.search` | `mem_search` |
+| The loss bound (P4) is sound: for every completion below a node, the final rounded value is at most the (P4) quantity (Lagrange multiplier `θ`, shares rounded up, local knapsack bounds) | `loss_bound`, `cdiv_add_cdiv_ge` |
+| The computed tables (`VB`, `MX`, `BT`, `V_θ`, `LOC`, `TOPT`) satisfy `TablesOK` | `mkTables_ok`, `dpRun_ge`, `le_topSum` |
+| For `S` = primes ≤ 73 and `K ≤ 48`: `Admissible K C` (exact rationals) ⇒ `IntAdm` for the edge set of `C` | `intAdm_of_admissible` |
+| **Every admissible core is found:** `edgesOf C ∈ (inst73 K).search (inst73 K).mkTables` | `core_mem_search`, `mem_searchCores` |
+| The core of every nonempty `T` with `|T| ≤ K ≤ 48` and `Σ 1/n ∈ ℤ` is in `searchCores K` | `core_mem_searchCores` |
+| `|T| ≤ 48` and `Σ ∈ ℤ` ⇒ `Σ = 1` | `recipSum_eq_one_of_integral_48` |
+| The search equals the concatenation of the results of its refined work items (for running it in several processes) | `search_eq_rounds`, `search_eq_evalDeep` |
+
+The search is executable. Compiled to native code, it reproduces the core lists of `semiprime48.cpp` on reduced instances and on the real instance for the budgets that are feasible for it; see `../validation48/lean_vs_cpp_output.txt` and `../validation48/lean_runner/`.
+
 ## What is proved conditionally
 
 | statement | Lean | hypothesis |
 |---|---|---|
-| No nonempty `T`, `|T| ≤ 46`, of squarefree semiprimes has `Σ 1/n ∈ ℤ` | `no_integral_sum_le_46` | `Search46` |
-| Every `T` with `Σ 1/n ∈ ℤ` has `|T| ≥ 47` | `card_ge_47_of_integral` | `Search46` |
-| `T` is a 47-element set of squarefree semiprimes with sum 1 ⇔ `T ∈ Sol23` | `solutions47_iff` (and `solutions47_integral_iff` for "sum ∈ ℤ") | `Search47` |
-| The set of all such `T` equals `Sol23` and has exactly 23 elements | `solutions47_eq`, `solutions47_ncard` | `Search47` |
+| No nonempty `T`, `|T| ≤ 46`, of squarefree semiprimes has `Σ 1/n ∈ ℤ` | `no_integral_sum_le_46`, `no_integral_sum_le_46'` | `Search46`, resp. `Search46'` |
+| Every `T` with `Σ 1/n ∈ ℤ` has `|T| ≥ 47` | `card_ge_47_of_integral`, `card_ge_47_of_integral'` | `Search46`, resp. `Search46'` |
+| `T` is a 47-element set of squarefree semiprimes with sum 1 ⇔ `T ∈ Sol23` | `solutions47_iff`, `solutions47_iff'` (and `solutions47_integral_iff`, `solutions47_integral_iff'` for "sum ∈ ℤ") | `Search47`, resp. `Search47'` |
+| The set of all such `T` equals `Sol23` and has exactly 23 elements | `solutions47_eq`, `solutions47_ncard`, `solutions47_eq'`, `solutions47_ncard'` | `Search47`, resp. `Search47'` |
+| `Search46' → Search46`, `Search47' → Search47` | `search46_of`, `search47_of` | none |
 
-These theorems do **not** prove the original statements. They prove that the original statements follow from `Search46` / `Search47`.
+These theorems do **not** prove the original statements. They prove that the original statements follow from `Search46'` / `Search47'`, which only concern the cores in the output of the verified search.
 
 ## The computational hypotheses
 
-Both hypotheses are ordinary `Prop`s (`def`s), passed as arguments. They are not asserted anywhere. Here they are verbatim (`Main.lean`):
+All hypotheses are ordinary `Prop`s (`def`s), passed as arguments. They are not asserted anywhere. `Search46'` and `Search47'` (`MainSearch.lean`) are `Search46` and `Search47` with every quantifier over cores `C` restricted to `C ∈ searchCores K`, for example
+
+```lean
+def searchCores (K : ℕ) : List (Finset ℕ) :=
+  ((inst73 K).search (inst73 K).mkTables).map coreOf
+
+def Search46' : Prop :=
+  ∀ C ∈ searchCores 46, CoreSet C → Admissible 46 C →
+    (Uset 73 C).Nonempty ∧
+      ∀ (d : ℕ → ℕ) (b : ℕ), ShapeOK 46 C d b → b = 0 ∧ ∀ P A, ¬ StarCand 10 C d P A
+```
+
+and `Search46`, `Search47` are, verbatim (`Main.lean`):
 
 ```lean
 def Search46 : Prop :=
@@ -131,9 +176,7 @@ The notions they use (all in `Reduction.lean`, with exact rational quantities):
 
 **How the hypotheses match the programs.**
 
-* **Step 1.** The depth-first search in `semiprime_reciprocals.cpp` and `semiprime47.cpp` reaches every core that satisfies `Admissible`.
-  * Its pruning tests are the tests of `Admissible` at the successive upper segments of `U`, computed with upward-rounded bounds.
-  * Upward rounding can only keep more cores, so every exactly admissible core survives.
+* **Step 1.** For the Lean function `Inst.search` this is a theorem (`core_mem_search`). `semiprime48.cpp` implements the same search; `semiprime_reciprocals.cpp` and `semiprime47.cpp` implement it without (P4), which does not change the output. That the C++ code computes the same function as `Inst.search` is not proved. It is supported by the comparison of the outputs (`../validation48/lean_vs_cpp_output.txt`): the primed hypotheses need the C++ Step 1 to output at least the cores of `searchCores K`.
 * **`Search46`.** The problem-1 run reports:
   * 0 cores with `U = ∅` and `C ≠ ∅` (these would be listed as solutions). `C = ∅` is not admissible, since `V(46) < 1`.
   * 0 surviving shapes with `b > 0` (these would be reported as unresolved).
@@ -148,16 +191,14 @@ The notions they use (all in `Reduction.lean`, with exact rational quantities):
 
 **What is not verified in Lean.** Lean does not check:
 
-* that the C++ programs implement this enumeration correctly, including:
-  * the search order and the subset tables;
-  * residue bookkeeping;
-  * the fixed-point directed rounding;
+* that the C++ Step 1 computes the same function as `Inst.search` (checked only by comparing outputs where the compiled Lean function is fast enough);
+* that the C++ Step 2 implements the claims correctly, including:
   * Pollard-rho factorization of `n(A)` and of `t + a₁a₂`;
   * deterministic Miller–Rabin below `2⁶⁴`;
   * the cover and divisor enumeration;
 * that the recorded runs produced the stated outputs.
 
-All of this is summarized by `Search46` and `Search47`. The run statistics in the READMEs (numbers of nodes, cores and shapes) are not formalized.
+All of this is summarized by `Search46'` and `Search47'`. The run statistics in the READMEs (numbers of nodes, cores and shapes) are not formalized. For 48 terms, Step 2 (including the new case of two big–big edges) and the 620 solutions are not formalized; Lean covers the reduction to the cores of `searchCores 48`.
 
 Each hypothesis quantifies over infinite types (`d : ℕ → ℕ`, `A : ℕ → Finset ℕ`), but only finitely many values matter:
 
@@ -204,4 +245,4 @@ The mathematics was re-checked independently rather than taken from the READMEs.
 
 * Lean's kernel and Mathlib at the pinned commit.
 * Numerical facts are checked in the kernel through `decide` (finite-set identities and cardinalities) and `norm_num` (rational sums, primality of the 122 numbers' factors, up to 3779).
-* `native_decide` is not used.
+* `native_decide` is not used. The search is never evaluated inside the kernel; its exhaustiveness is proved for the function itself.

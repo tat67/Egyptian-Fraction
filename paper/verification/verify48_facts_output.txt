@@ -1,0 +1,14 @@
+sets read: 620
+all sets: 48 distinct squarefree semiprimes, sum exactly 1, (*) at every prime: OK
+pairwise distinct sets: 620
+  small only: 397
+  one large prime: 187
+  two large primes, no large-large element: 18
+  two large primes joined by P1*P2: 18
+  other: 0
+largest prime: 1210883 in set #130
+  its elements with a prime > 73: 17*12109 11*1210883 29*1210883 37*1210883 12109*1210883
+largest element: 14662582247 = 12109*1210883
+elements common to all 620 sets (12): 6 10 14 15 21 22 26 33 34 38 39 46
+largest star (large prime with only small neighbours): 6 neighbours
+a_48 = 159 ; H_48 < 1.0704: True ; H_48 < 2: True ; H_47 < 3/2: True

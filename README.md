@@ -177,9 +177,11 @@ The count of search nodes depends slightly on the number of threads, because eac
 
 ## Lean formalization
 
-[`lean/`](lean/README.md) formalizes every step of this argument in Lean 4 with Mathlib, except the exhaustive search. That covers the local criterion, the size, value, parity and star-size lemmas, the stars, the component with one big–big edge, and the reduction of an arbitrary solution to the data checked by the search.
+[`lean/`](lean/README.md) formalizes every step of this argument in Lean 4 with Mathlib, except Step 2 of the computation. That covers the local criterion, the size, value, parity and star-size lemmas, the stars, the component with one big–big edge, and the reduction of an arbitrary solution to the data checked by the search.
 
-The search itself is stated as the explicit hypothesis `Search46`. The theorem `no_integral_sum_le_46` is proved **conditionally** on it, and `Search46` is not verified in Lean. See `lean/README.md` for what is fully proved and what is conditional.
+**Step 1 is verified in Lean.** The core search of `semiprime48.cpp` (the search of this README plus the loss bound of [`README48.md`](README48.md)) is written as a Lean function, and Lean proves that it is exhaustive: its output contains the core of every solution (`core_mem_search`, `core_mem_searchCores`).
+
+Step 2 is stated as an explicit hypothesis about the cores in that output, `Search46'`. The theorem `no_integral_sum_le_46'` is proved **conditionally** on it, and `Search46'` is not verified in Lean. See `lean/README.md` for what is fully proved and what is conditional.
 
 ## Files
 
@@ -191,4 +193,4 @@ The search itself is stated as the explicit hypothesis `Search46`. The theorem `
 
 * [`README47.md`](README47.md): all 23 subsets `T ⊆ P` with `|T| = 47` and `Σ 1/n = 1`, with a completeness proof (`semiprime47.cpp`).
 * [`README48.md`](README48.md): all subsets with `|T| = 48` and `Σ 1/n = 1`, with a completeness proof. `semiprime48.cpp` adds a much stronger pruning bound, which also re-proves the 46-term bound in seconds and the 47-term classification in about a minute.
-* [`paper/`](paper/README_PAPER.md): a manuscript that combines this result and the 47-term classification.
+* [`paper/`](paper/README_PAPER.md): a manuscript with this result as its main theorem, together with the 47-term classification (exactly 23 sets) and the 48-term list (exactly 620 sets, [`solutions48.txt`](solutions48.txt)). It uses the new search of `semiprime48.cpp` and its Lean verification. The previous version is `paper/paper_oldmethod.pdf`.
