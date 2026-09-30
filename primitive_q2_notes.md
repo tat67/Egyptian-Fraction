@@ -15,6 +15,8 @@ Nothing in this file is formally verified. Each item states its status.
   | `≤ 1500`, prime factors `≤ 73` except one prime `≤ 700` | 1225 | 46 | **INFEASIBLE** |
 
   | **all** non-prime-powers `≤ 4000` | 3410 | 46 | **feasible: the 46-term set `T46`**; OPTIMAL 46 (the solver proves no solution with `≤ 45` terms in this universe) |
-  | **all** non-prime-powers `≤ 8000` | – | 45 | see below |
+  | **all** non-prime-powers `≤ 8000` | 6943 | 45 | **INFEASIBLE** |
+  | **all** non-prime-powers `≤ 20000` | 17671 | 45 | **feasible: a 44-term set `T44`**; OPTIMAL 44 |
+  | **all** non-prime-powers `≤ 40000` | 35714 | 43 | **INFEASIBLE** |
 
-  So inside the first two universes no primitive representation of 1 has fewer than 47 terms. The first two universes exclude `2537 = 43·59`, which `T46` needs. In the full universe `≤ 4000`, the solver found `T46`, and it proved that 46 is the minimum there. So the evidence points to **46** as the answer to Q2. The universes are finite, though, and a proof would have to control arbitrarily large elements.
+  So inside the first two universes no primitive representation of 1 has fewer than 47 terms. The first two universes exclude `2537 = 43·59`, which `T46` needs. In the full universe `≤ 4000` the solver found `T46` and proved 46 minimal there; `≤ 8000` gives the same minimum. With elements up to 20000 the minimum drops to **44** (`T44`, which uses products of three primes such as `8729 = 7·29·43`). Up to 40000 no set with 43 or fewer terms exists. The minimum over all primitive sets is therefore at most 44. Whether still larger elements allow fewer terms is open; the rigorous lower bound is 39.

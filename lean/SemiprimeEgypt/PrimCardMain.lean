@@ -2,7 +2,7 @@
 # Primitive Egyptian fractions of 1: at least 39 terms
 
 `card_ge_39`: every primitive `T ⊆ {2, 3, …}` with `∑ 1/n = 1` has at least 39 elements;
-`card_bounds`: the least number of terms lies in `[39, 46]` (a 46-term example `T46`).
+`card_bounds`: the least number of terms lies in `[39, 44]` (examples with 47, 46 and 44 terms).
 
 * `|T| ≤ 37`: the Lagrangian bound (`lagrange_bound`, chain cover `lag129`) gives
   `∑ 1/n ≤ 37/129 + W/D < 1`.
@@ -106,11 +106,40 @@ theorem T46_sum : recipSum T46 = 1 := by
   rw [mul_one]
   exact h.symm
 
+/-! ### An example with 44 terms -/
+
+/-- A 44-term primitive representation of `1` (found with CP-SAT over all non-prime-powers
+`≤ 20000`): 39 squarefree semiprimes and five products of three primes,
+`8729 = 7·29·43`, `10105 = 5·43·47`, `11687 = 13·29·31`, `14467 = 17·23·37`,
+`16813 = 17·23·43`. -/
+def T44 : Finset ℕ :=
+  {6, 10, 14, 15, 21, 22, 26, 33, 34, 35, 38, 39, 46, 51, 55, 57, 58, 62, 65, 69, 74, 77, 82, 85,
+   86, 87, 91, 93, 94, 95, 111, 115, 119, 123, 133, 141, 143, 145, 287, 8729, 10105, 11687, 14467,
+   16813}
+
+theorem T44_card : T44.card = 44 := by decide +kernel
+
+theorem T44_two : ∀ n ∈ T44, 2 ≤ n := by decide +kernel
+
+theorem T44_primitive : Primitive T44 := by
+  unfold Primitive; decide +kernel
+
+theorem T44_sum : recipSum T44 = 1 := by
+  have hdvd : ∀ n ∈ T44, n ∣ 614889782588491410 := by decide +kernel
+  have hpos : ∀ n ∈ T44, 0 < n := by decide +kernel
+  have hs : ∑ n ∈ T44, 614889782588491410 / n = 614889782588491410 := by decide +kernel
+  have h := SemiprimeEgypt.MaxDen.sum_scaled_eq hpos hdvd
+  rw [hs] at h
+  have hD : ((614889782588491410 : ℕ) : ℚ) ≠ 0 := by norm_num
+  apply mul_left_cancel₀ hD
+  rw [mul_one]
+  exact h.symm
+
 /-- **Q2 bounds.**  The least number of terms of a primitive representation of `1` by distinct
-unit fractions with denominators `≥ 2` lies between `39` and `46`. -/
+unit fractions with denominators `≥ 2` lies between `39` and `44`. -/
 theorem card_bounds :
     (∀ T : Finset ℕ, (∀ n ∈ T, 2 ≤ n) → Primitive T → recipSum T = 1 → 39 ≤ T.card) ∧
-    (∃ T : Finset ℕ, (∀ n ∈ T, 2 ≤ n) ∧ Primitive T ∧ recipSum T = 1 ∧ T.card = 46) :=
-  ⟨card_ge_39, T46, T46_two, T46_primitive, T46_sum, T46_card⟩
+    (∃ T : Finset ℕ, (∀ n ∈ T, 2 ≤ n) ∧ Primitive T ∧ recipSum T = 1 ∧ T.card = 44) :=
+  ⟨card_ge_39, T44, T44_two, T44_primitive, T44_sum, T44_card⟩
 
 end SemiprimeEgypt.Prim

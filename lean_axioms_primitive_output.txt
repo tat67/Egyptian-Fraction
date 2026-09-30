@@ -17,4 +17,6 @@
 'SemiprimeEgypt.Prim.T47_sum' depends on axioms: [propext, Classical.choice, Quot.sound]
 'SemiprimeEgypt.Prim.T46_sum' depends on axioms: [propext, Classical.choice, Quot.sound]
 'SemiprimeEgypt.Prim.T46_primitive' depends on axioms: [propext, Classical.choice, Quot.sound]
+'SemiprimeEgypt.Prim.T44_sum' depends on axioms: [propext, Classical.choice, Quot.sound]
+'SemiprimeEgypt.Prim.T44_primitive' depends on axioms: [propext, Classical.choice, Quot.sound]
 'SemiprimeEgypt.Prim.card_bounds' depends on axioms: [propext, Classical.choice, Quot.sound]

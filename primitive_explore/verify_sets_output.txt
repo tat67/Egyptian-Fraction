@@ -1,4 +1,5 @@
 T413 (Q1): |T| = 53, max T = 413, distinct = True, all >= 2 = True, primitive = True, sum = 1
 T413b (Q1, 49 elements): |T| = 49, max T = 413, distinct = True, all >= 2 = True, primitive = True, sum = 1
-T46  (Q2 upper bound): |T| = 46, max T = 2537, distinct = True, all >= 2 = True, primitive = True, sum = 1
+T46  (46 terms): |T| = 46, max T = 2537, distinct = True, all >= 2 = True, primitive = True, sum = 1
+T44  (Q2 upper bound): |T| = 44, max T = 16813, distinct = True, all >= 2 = True, primitive = True, sum = 1
 T47  (semiprime example): |T| = 47, max T = 31609, distinct = True, all >= 2 = True, primitive = True, sum = 1

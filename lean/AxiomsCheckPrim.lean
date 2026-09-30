@@ -23,4 +23,6 @@ open SemiprimeEgypt SemiprimeEgypt.Prim
 #print axioms T47_sum
 #print axioms T46_sum
 #print axioms T46_primitive
+#print axioms T44_sum
+#print axioms T44_primitive
 #print axioms card_bounds
