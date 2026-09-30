@@ -232,7 +232,11 @@ def main():
     ap.add_argument("--out", default="sphenic_solution.txt")
     ap.add_argument("--seed", type=int, default=20260929, help="integer PRNG seed")
     ap.add_argument("--quiet", action="store_true")
+    ap.add_argument("--dump-all", default=None, metavar="FILE",
+                    help="also write EVERY set found with sum exactly 1 (regardless of --bound) to FILE, "
+                         "as pairs of lines '# attempt=A k=K size=S' and the space-separated numbers")
     args = ap.parse_args()
+    dump = open(args.dump_all, "w") if args.dump_all else None
     t0 = time.time_ns()
     primes, isprime = primes_upto(PMAX)
     S = sphenic_list(60000, primes)
@@ -254,11 +258,16 @@ def main():
         hist[j30] = hist.get(j30, 0) + 1
         if not args.quiet:
             print(f"attempt {attempts}: k={k} |T|={len(nums)} sum = {j30}/30", flush=True)
+        if one and dump is not None:
+            dump.write(f"# attempt={attempts} k={k} size={len(nums)}\n" + " ".join(map(str, nums)) + "\n")
+            dump.flush()
         if one and len(nums) <= args.bound and (best is None or len(nums) < len(best[0])):
             best = (nums, k, attempts)
             if not args.minimize:
                 break
     dt = (time.time_ns() - t0) // 1_000_000
+    if dump is not None:
+        dump.close()
     if best is None:
         print(f"no solution with |T| <= {args.bound} in {attempts} attempts")
     else:
