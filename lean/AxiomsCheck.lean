@@ -47,3 +47,6 @@ open SemiprimeEgypt
 #print axioms solutions47_ncard'
 #print axioms Srch.Inst.search_eq_rounds
 #print axioms Srch.Inst.search_eq_evalDeep
+-- the smallest possible largest element (589): MaxDenCheck / MaxDenMain
+#print axioms SemiprimeEgypt.MaxDen.no_solution
+#print axioms SemiprimeEgypt.MaxDen.isLeast_589

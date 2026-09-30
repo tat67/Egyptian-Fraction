@@ -1,0 +1,67 @@
+start: 2026-09-30 15:48:49 UTC
+
+=== Part 1: size bound ===
+sum of 1/n over all n in P with n <= m first reaches 1 at m = 129
+  => max T >= 129 for every solution T
+
+=== Part 2: exhaustive search for max T = m, m in P increasing ===
+m = 133 = 7*19: no solution with max T = m (7 search nodes)
+m = 143 = 11*13: no solution with max T = m (13 search nodes)
+m = 155 = 5*31: no solution with max T = m (15 search nodes)
+m = 187 = 11*17: no solution with max T = m (22 search nodes)
+m = 221 = 13*17: no solution with max T = m (32 search nodes)
+m = 247 = 13*19: no solution with max T = m (33 search nodes)
+m = 287 = 7*41: no solution with max T = m (46 search nodes)
+m = 299 = 13*23: no solution with max T = m (58 search nodes)
+m = 319 = 11*29: no solution with max T = m (73 search nodes)
+m = 323 = 17*19: no solution with max T = m (71 search nodes)
+m = 377 = 13*29: no solution with max T = m (92 search nodes)
+m = 391 = 17*23: no solution with max T = m (90 search nodes)
+m = 403 = 13*31: no solution with max T = m (103 search nodes)
+m = 413 = 7*59: no solution with max T = m (154 search nodes)
+m = 437 = 19*23: no solution with max T = m (148 search nodes)
+m = 493 = 17*29: no solution with max T = m (129 search nodes)
+m = 497 = 7*71: no solution with max T = m (280 search nodes)
+m = 527 = 17*31: no solution with max T = m (135 search nodes)
+m = 551 = 19*29: no solution with max T = m (379 search nodes)
+m = 559 = 13*43: no solution with max T = m (1104 search nodes)
+m = 583 = 11*53: no solution with max T = m (5642 search nodes)
+m = 589 = 19*31: solution found (1518 search nodes)
+(every other m in P below 589 is refuted at the root node by the tests alone)
+values of m refuted: 174 (all m in P below 589); total search nodes 10297
+
+=== Part 3: exact verification of the solution ===
+T (53 elements):
+  6 = 2*3  10 = 2*5  14 = 2*7  15 = 3*5  21 = 3*7  22 = 2*11
+  26 = 2*13  33 = 3*11  34 = 2*17  35 = 5*7  38 = 2*19  39 = 3*13
+  46 = 2*23  51 = 3*17  55 = 5*11  57 = 3*19  58 = 2*29  65 = 5*13
+  69 = 3*23  77 = 7*11  82 = 2*41  85 = 5*17  91 = 7*13  93 = 3*31
+  95 = 5*19  106 = 2*53  118 = 2*59  119 = 7*17  123 = 3*41  129 = 3*43
+  143 = 11*13  145 = 5*29  155 = 5*31  159 = 3*53  161 = 7*23  187 = 11*17
+  203 = 7*29  213 = 3*71  247 = 13*19  265 = 5*53  287 = 7*41  295 = 5*59
+  299 = 13*23  341 = 11*31  355 = 5*71  403 = 13*31  413 = 7*59  473 = 11*43
+  493 = 17*29  497 = 7*71  559 = 13*43  583 = 11*53  589 = 19*31
+common denominator L = product of the 16 primes used = 78502578988469866230
+sum_{n in T} L/n       = 78502578988469866230
+all elements distinct squarefree semiprimes: yes
+sum_{n in T} 1/n = 1 exactly: yes
+max T = 589
+
+=== Part 4: certificate: no solution inside E_588 = P ∩ [1, 588] (nothing forced) ===
+|E_588| = 174, primes <= 294: 62, D = product of those primes (416 bits)
+sum over E_588 of 1/n = 1.448755504285...
+search tree: 13201 nodes, 6601 closed leaves, 0 solution leaves
+independent re-check of the tree (semantics of the Lean `check`): accepted (13201 nodes)
+Lean certificate written to lean/SemiprimeEgypt/MaxDenCert588.lean
+
+=== Count of all T with sum 1 and max T = 589 ===
+solutions: 3 (search nodes 9078)
+  |T| = 53, sum = 1 exactly: yes: 6 10 14 15 21 22 26 33 34 35 38 39 46 51 55 57 58 65 69 77 82 85 91 93 95 106 118 119 123 129 143 145 155 159 161 187 203 213 247 265 287 295 299 341 355 403 413 473 493 497 559 583 589
+  |T| = 52, sum = 1 exactly: yes: 6 10 14 15 21 22 26 33 34 35 38 39 46 51 55 57 62 65 69 77 82 85 87 91 93 95 106 115 118 119 123 129 145 159 203 217 221 247 265 287 295 299 319 341 377 391 403 413 473 559 583 589
+  |T| = 51, sum = 1 exactly: yes: 6 10 14 15 21 22 26 33 34 35 38 39 46 51 55 57 58 62 65 69 77 82 85 91 93 95 106 119 123 129 143 145 159 161 187 203 213 217 247 265 287 299 341 355 403 473 493 497 559 583 589
+
+=== RESULT ===
+The minimum of max T over all nonempty T ⊆ P with sum_{n in T} 1/n = 1 is 589 = 19*31.
+
+end: 2026-09-30 15:48:49 UTC
+elapsed: 437 ms

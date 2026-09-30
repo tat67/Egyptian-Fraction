@@ -16,3 +16,6 @@ import SemiprimeEgypt.SearchTablesProof
 import SemiprimeEgypt.SearchReal
 import SemiprimeEgypt.MainSearch
 import SemiprimeEgypt.SearchSplit
+import SemiprimeEgypt.MaxDenCheck
+import SemiprimeEgypt.MaxDenCert588
+import SemiprimeEgypt.MaxDenMain
