@@ -42,6 +42,20 @@ This section covers the current version of the paper. Sections 1–10 below are 
 * The earlier statement that Step 1 "has a single implementation" has been replaced. Step 1 now exists as a verified Lean function, whose compiled form reproduces the C++ output where it is fast enough to run.
 * The README48 claim that the new Step 1 outputs exactly the same cores as the old one is now proved in the paper (Lemma 6.3), in addition to the direct comparisons.
 
+## 0a. Pre-submission fixes (2026-09-30)
+
+* **Placeholders removed.**
+  * The author is set to John Doe.
+  * The empty acknowledgements section was removed.
+  * `\repourl` points to the tag `v1.0`.
+  * The bracketed editing instruction in the AI disclosure was replaced by a factual sentence.
+  * Source comments containing editing instructions were removed.
+* **Bibliography.** It was re-checked entry by entry through web-search listings of the publishers, arXiv and library catalogues; direct access to arxiv.org, crossref.org and smc.math.ca was blocked in the environment.
+  * All 13 remaining entries exist and match what they are cited for.
+  * Fields that could not be confirmed were removed: the page range of Graham (2013), the issue numbers and DOIs of Pollard (1975) and Rabin (1980), and the DOI of de Moura–Ullrich (2021).
+  * The Johnson (1978) entry was removed. It is known only from secondary sources, which give it as a letter to the editor in *Crux Mathematicorum* 4 (1978), p. 190. The paper now attributes the 48-term example to Johnson as recorded in the abstract of Watanabe (2020).
+  * The footnote on the size of Watanabe's search space was removed, because only a circular source (this repository's README) could be found for it.
+
 ## 1. Final main theorems
 
 * **Theorem A.** If `T ⊂ P = {pq : p < q primes}` is nonempty and finite and `Σ_{n∈T} 1/n ∈ ℤ`, then `|T| ≥ 47`. The bound is attained.

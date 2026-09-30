@@ -51,7 +51,7 @@ cd paper
 latexmk -pdf main.tex        # runs pdflatex and bibtex as often as needed
 ```
 
-The final build has no errors, no undefined references or citations, and no overfull or underfull boxes. The only BibTeX warning is the intentionally empty title of `Johnson1978` (the title could not be verified and is not invented). `latexmk` produces `main.pdf`; the committed copy is `paper.pdf`.
+The final build has no errors, no undefined references or citations, no overfull or underfull boxes, and no BibTeX warnings. `latexmk` produces `main.pdf`; the committed copy is `paper.pdf`.
 
 ## Re-running the verification
 
@@ -69,13 +69,15 @@ The runs of `semiprime48.cpp` behind Table 3 take 2 s, 65 s and 30 min on 4 core
 
 The budget-46 re-execution takes about 20–25 minutes on 4 cores, and the budget-47 re-execution about 5.4 hours. The reproduction commands are listed in `verification/rerun/README.md` and `verification/rerun47/README.md`.
 
-## Items the authors must complete or check before submission
+## Pre-submission state (arXiv)
 
-1. **Authors** (`\author{}` in `main.tex`) and **Acknowledgements** are intentionally blank.
-2. **Repository URL**: the macro `\repourl` in `main.tex` is a placeholder.
-3. **Generative-AI disclosure** (Section 13): adapt it to the target journal's policy, and fill in the bracketed sentence on any human checking performed.
-4. **Bibliography, manual verification needed.** Direct access to arXiv, Crossref and publisher sites was blocked in the environment used to prepare the manuscript, so references were checked only through search-engine listings. In particular:
-   * `Johnson1978`: venue, volume and page (*Crux Mathematicorum* 4 (1978), 190) come only from secondary sources, and the title is unknown. **Verify.**
-   * `Watanabe2020`: title, author and dates were checked against the arXiv listing. The description of his search space ("325-dimensional", i.e. primes up to 101) in footnote 1 and the claim that he "conjectured" minimality come from the abstract and snippets. **Check against the full text.** Also compare his 17 examples with our 17 solutions of type (i) term by term; this was not done.
-   * `Li2026`, `Czenky2025`: preprints; check for published versions.
-   * `Guy2004`: cited only as general background for Section D11.
+The placeholders of earlier drafts have been resolved.
+
+* **Author:** John Doe. There are no acknowledgements.
+* **Repository link:** `\repourl` points to the tag `v1.0` of the repository (https://github.com/tat67/Egyptian-Fraction/tree/v1.0), not to a branch.
+* **AI disclosure (Section 13):** the bracketed editing instruction was replaced by a factual sentence ("No independent review of the code by other people has been carried out"). Change it if other people have reviewed the code.
+* **Bibliography:** checked on 2026-09-30 through web-search listings of the publishers, arXiv and library catalogues. Only confirmed fields are kept.
+  * The separate entry for Johnson (1978) was removed. The only available data (*Crux Mathematicorum* 4 (1978), p. 190, "Letter to the editor") come from secondary sources, and the item could not be opened. The paper now attributes the 48-term example to Johnson *as recorded in the abstract of* Watanabe's preprint.
+  * The unverifiable footnote on the size of Watanabe's search space was removed.
+
+To submit, see [`../ARXIV_SUBMISSION.md`](../ARXIV_SUBMISSION.md). The source package is built by `make_arxiv.sh`.

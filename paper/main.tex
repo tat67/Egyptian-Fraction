@@ -1,14 +1,12 @@
+\pdfoutput=1
 \documentclass[11pt]{article}
 \usepackage{paper}
 
-\newcommand{\repourl}{\textless\textit{repository URL to be inserted}\textgreater}
+\newcommand{\repourl}{\url{https://github.com/tat67/Egyptian-Fraction/tree/v1.0}}
 
 \title{Integral sums of reciprocals of distinct squarefree semiprimes:\\
 forty-seven terms are necessary, and the\\ extremal representations of $1$}
-% ------------------------------------------------------------------
-% AUTHORS: intentionally left blank -- to be filled in by the authors.
-\author{}
-% ------------------------------------------------------------------
+\author{John Doe}
 \date{}
 
 \begin{document}
@@ -49,10 +47,9 @@ For a finite set $T\subset\Pset$ write
 \]
 
 \paragraph{Background.}
-According to the abstract of Watanabe's preprint \cite{Watanabe2020}, in 1978 Johnson found a representation of $1$ as a sum of reciprocals of $48$ distinct squarefree semiprimes \cite{Johnson1978}. No shorter representation was known until Watanabe \cite{Watanabe2020} found $17$ representations with $47$ terms.
-Watanabe found no representation with fewer than $47$ terms and conjectured that $47$ is the minimum.
-His examples were obtained by computer searches in which the prime factors were bounded.\footnote{The search space described in \cite{Watanabe2020} has dimension $325=\binom{26}{2}$, the number of squarefree semiprimes whose prime factors are both at most $101$. We could not consult the full text while preparing this manuscript, so this detail should be checked against \cite{Watanabe2020}.}
-A search with bounded prime factors cannot establish minimality, because arbitrarily large primes are allowed in principle; \cref{sec:stars} shows that primes as large as $3779$ really do occur.
+As recorded in the abstract of Watanabe's preprint \cite{Watanabe2020}, Allan Wm.~Johnson found in 1978 a representation of $1$ as a sum of reciprocals of $48$ distinct squarefree semiprimes, and Watanabe constructed $17$ representations with $47$ terms.
+Since no representation with fewer than $47$ terms was known, Watanabe conjectured that $47$ is the minimum.
+Examples alone cannot establish minimality. In particular, a computer search in which the prime factors are bounded cannot, because arbitrarily large primes are allowed in principle; \cref{sec:stars} shows that primes as large as $3779$ really do occur.
 
 In a different direction, Butler, Erd\H{o}s and Graham \cite{ButlerErdosGraham2015} proved that every positive integer is a sum of reciprocals of distinct integers that each have exactly three distinct prime factors, and they conjectured the corresponding statement for two prime factors. A recent preprint of Li \cite{Li2026} announces a proof of that conjecture.
 Egyptian fractions whose denominators are supported on a fixed finite set of primes are studied computationally in \cite{Czenky2025}.
@@ -77,7 +74,7 @@ Of these $23$ sets:
 \end{maintheorem}
 
 In particular, the $17$ solutions of (i) are exactly the solutions all of whose prime factors are at most $101$.
-Our $17$ solutions of type (i) have the same count as Watanabe's list of $17$ examples. We have not compared the two lists term by term.
+By \cref{thm:B}, the $17$ representations with $47$ terms constructed by Watanabe \cite{Watanabe2020} are among our $23$ sets.
 
 The method is not limited to $47$ terms. Run with budget $48$, the same search and completion determine all representations of $1$ by $48$ distinct squarefree semiprimes.
 
@@ -870,7 +867,7 @@ The largest prime that occurs is $1\,210\,883$, in the set that contains
 \]
 its largest element $12\,109\cdot1\,210\,883=14\,662\,582\,247$ is the largest element of any of the $620$ sets.
 Exactly $12$ numbers lie in every solution: $6$, $10$, $14$, $15$, $21$, $22$, $26$, $33$, $34$, $38$, $39$, $46$.
-In particular, the $48$-term representation of $1$ attributed to Johnson \cite{Johnson1978} in \cite{Watanabe2020} must be one of the $620$ sets. We have not been able to consult \cite{Johnson1978} and have not identified it.
+In particular, the $48$-term representation of $1$ found by Johnson in 1978 (see \cite{Watanabe2020}) is one of the $620$ sets.
 
 \begin{table}[ht]
 \centering
@@ -1154,9 +1151,8 @@ The same method applies to other targets and budgets. Examples include the minim
 \section{Disclosure of the use of generative AI}\label{sec:ai}
 % =====================================================================
 
-% This statement is intended to be easily editable to follow the policy of the target journal.
 Generative AI tools, specifically Claude Code (Anthropic), an AI coding assistant based on large language models, were used substantially throughout this project, and not only for preparing the manuscript.
-Under the direction of the authors, the AI tool developed the mathematical reduction presented here, including the loss bound of \cref{sec:lossbound} and the treatment of two large--large elements in \cref{sec:twobb}, and it wrote the following:
+Under the direction of the author, the AI tool developed the mathematical reduction presented here, including the loss bound of \cref{sec:lossbound} and the treatment of two large--large elements in \cref{sec:twobb}, and it wrote the following:
 \begin{itemize}
 \item the C++ programs and the Python cross-checks;
 \item the Lean formalization, including the search as a Lean function and the proof of its exhaustiveness;
@@ -1176,13 +1172,8 @@ All mathematical claims in this article were checked by the verification procedu
 \end{itemize}
 These checks were themselves designed and executed with the assistance of the same tool.
 The extent of the computer-assisted part and of the formally verified part, and the exact status of every result, are stated explicitly in \cref{fig:status} and \cref{sec:proof46,sec:proof47,sec:proof48,sec:verification,sec:lean}.
-[\emph{Editable by the authors: describe here any independent human checking of the code, the computations and the proofs that has been carried out.}]
-No AI system is an author of this work. The authors take full responsibility for its content.
-
-% =====================================================================
-\section*{Acknowledgements}
-% =====================================================================
-% Intentionally left blank -- to be completed by the authors.
+No independent review of the code by other people has been carried out.
+No AI system is an author of this work. The author takes full responsibility for its content.
 
 \bibliographystyle{plainnat}
 \bibliography{references}
