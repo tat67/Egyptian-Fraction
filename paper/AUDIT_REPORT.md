@@ -47,7 +47,7 @@ This section covers the current version of the paper. Sections 1–10 below are 
 * **Placeholders removed.**
   * The author is set to John Doe.
   * The empty acknowledgements section was removed.
-  * `\repourl` points to the tag `v1.0`.
+  * `\repourl` points to the tag `v1.0`, which the repository owner creates as a GitHub release; the preparing session could not push tags.
   * The bracketed editing instruction in the AI disclosure was replaced by a factual sentence.
   * Source comments containing editing instructions were removed.
 * **Bibliography.** It was re-checked entry by entry through web-search listings of the publishers, arXiv and library catalogues; direct access to arxiv.org, crossref.org and smc.math.ca was blocked in the environment.

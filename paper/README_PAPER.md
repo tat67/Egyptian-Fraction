@@ -74,7 +74,7 @@ The budget-46 re-execution takes about 20–25 minutes on 4 cores, and the budge
 The placeholders of earlier drafts have been resolved.
 
 * **Author:** John Doe. There are no acknowledgements.
-* **Repository link:** `\repourl` points to the tag `v1.0` of the repository (https://github.com/tat67/Egyptian-Fraction/tree/v1.0), not to a branch.
+* **Repository link:** `\repourl` points to the tag `v1.0` of the repository (https://github.com/tat67/Egyptian-Fraction/tree/v1.0), not to a branch. The tag still has to be created by the repository owner; see `../ARXIV_SUBMISSION.md`, section 2.
 * **AI disclosure (Section 13):** the bracketed editing instruction was replaced by a factual sentence ("No independent review of the code by other people has been carried out"). Change it if other people have reviewed the code.
 * **Bibliography:** checked on 2026-09-30 through web-search listings of the publishers, arXiv and library catalogues. Only confirmed fields are kept.
   * The separate entry for Johnson (1978) was removed. The only available data (*Crux Mathematicorum* 4 (1978), p. 190, "Letter to the editor") come from secondary sources, and the item could not be opened. The paper now attributes the 48-term example to Johnson *as recorded in the abstract of* Watanabe's preprint.

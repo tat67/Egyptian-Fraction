@@ -16,18 +16,26 @@ The manuscript was drafted with Claude Code, so the author should do the followi
   * Johnson (1978) is now mentioned only as recorded in Watanabe's abstract. Secondary sources give it as a letter to the editor in *Crux Mathematicorum* 4 (1978), p. 190, and the Crux back issues are online at the Canadian Mathematical Society. If you check that page, you can cite the letter directly again.
   * You can also compare Watanabe's 17 examples with the 17 solutions of type (i) in Appendix A. By Theorem B they must be among the 23.
 
-## 2. Code and data link
+## 2. Code and data link (do this first)
 
-The paper points to the tag **`v1.0`**: <https://github.com/tat67/Egyptian-Fraction/tree/v1.0>. This is a fixed snapshot, not the working branch.
+The paper points to the tag **`v1.0`**: <https://github.com/tat67/Egyptian-Fraction/tree/v1.0>. This is a fixed snapshot, not the working branch. The session that prepared the paper could not push tags, so **you must create the tag** before submitting. Until then the link in the paper does not resolve.
 
-* The repository must be **public**.
-* On GitHub, you can turn the tag into a Release: *Releases → Draft a new release → choose tag v1.0*.
-* **Zenodo DOI (recommended for long-term archiving).**
-  1. Sign in at zenodo.org with GitHub.
-  2. Under *GitHub*, switch the repository on.
-  3. Publish a GitHub Release. Zenodo archives only releases published *after* the switch is on, so publish the release after enabling it.
-  4. Zenodo mints a DOI.
-  5. Put the DOI in the arXiv *Comments* field. A later arXiv version can also cite it in the paper.
+1. Make sure the repository is **public**.
+2. Optional, for a DOI: sign in at zenodo.org with GitHub and, under *GitHub*, switch this repository on. Do this *before* step 3, because Zenodo archives only releases published after the switch is on.
+3. On GitHub: *Releases → Draft a new release → Choose a tag*.
+   * Type `v1.0` and pick *Create new tag on publish*.
+   * As **target**, choose the branch `claude/squarefree-semiprimes-reciprocal-l715dy`. Its head commit contains the final paper.
+   * Title "v1.0 (arXiv submission)". Publish.
+
+   From a local clone the equivalent is:
+
+   ```
+   git fetch origin claude/squarefree-semiprimes-reciprocal-l715dy
+   git tag -a v1.0 -m "v1.0 (arXiv submission)" FETCH_HEAD
+   git push origin v1.0
+   ```
+4. Open <https://github.com/tat67/Egyptian-Fraction/tree/v1.0> and check that it shows the files.
+5. If Zenodo minted a DOI, add it to the arXiv *Comments* field. A later arXiv version can also cite it in the paper.
 
 ## 3. arXiv account and endorsement
 
