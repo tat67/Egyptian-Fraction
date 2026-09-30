@@ -1,0 +1,31 @@
+#!/usr/bin/env python3
+"""Independent exact check (Python fractions) of the explicit primitive sets used for Q1 and Q2."""
+from fractions import Fraction
+
+T413 = [6, 10, 14, 15, 21, 22, 26, 33, 34, 35, 38, 39, 46, 57, 58, 62, 65, 69, 77, 82, 85, 87, 91,
+        95, 111, 115, 118, 119, 123, 133, 141, 143, 148, 155, 185, 187, 188, 203, 209, 217, 221, 235,
+        247, 259, 287, 295, 299, 319, 323, 391, 403, 407, 413]
+T413b = [6, 10, 14, 15, 21, 22, 26, 33, 34, 35, 38, 39, 46, 51, 55, 57, 58, 62, 65, 69, 77, 82, 85, 95,
+         111, 115, 118, 119, 123, 133, 141, 143, 145, 148, 155, 185, 188, 217, 221, 235, 259, 287, 295,
+         299, 319, 391, 403, 407, 413]
+T46 = [6, 10, 14, 15, 21, 22, 26, 33, 34, 35, 38, 39, 46, 51, 55, 57, 58, 62, 65, 69, 74, 77, 82, 85,
+       86, 91, 93, 95, 111, 118, 119, 123, 129, 133, 145, 155, 187, 203, 253, 287, 407, 493, 575, 925,
+       1357, 2537]
+T47 = [6, 10, 14, 15, 21, 22, 26, 33, 34, 35, 38, 39, 46, 51, 55, 57, 58, 62, 65, 69, 74, 77, 82, 85,
+       87, 91, 93, 95, 111, 115, 119, 123, 133, 143, 145, 155, 203, 219, 221, 287, 299, 391, 481,
+       1299, 2117, 16021, 31609]
+
+def check(name, T):
+    s = sorted(T)
+    distinct = len(set(s)) == len(s)
+    ge2 = all(n >= 2 for n in s)
+    primitive = all(b % a for i, a in enumerate(s) for b in s[i + 1:])
+    total = sum(Fraction(1, n) for n in s)
+    print(f"{name}: |T| = {len(s)}, max T = {s[-1]}, distinct = {distinct}, all >= 2 = {ge2}, "
+          f"primitive = {primitive}, sum = {total}")
+    assert distinct and ge2 and primitive and total == 1
+
+check("T413 (Q1)", T413)
+check("T413b (Q1, 49 elements)", T413b)
+check("T46  (Q2 upper bound)", T46)
+check("T47  (semiprime example)", T47)

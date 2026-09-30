@@ -6,12 +6,12 @@ A finite set `T` of positive integers is *primitive* if no element divides anoth
 
 **The set `{1}`.** `T = {1}` satisfies both conditions: its sum is 1, and the divisibility condition is empty for one element. Since `1` divides every integer, `{1}` is also the *only* valid set that contains `1`. Lean proves this as `one_primitive` and `eq_one_of_one_mem`. Taken literally, both minima below would therefore be `1`. The questions are meaningful for `T ⊆ {2, 3, 4, …}`, and that is what is answered here.
 
-The squarefree semiprimes form a primitive set. So the earlier results of this repository already give valid sets with `max T = 589` ([`README_MAXDEN.md`](README_MAXDEN.md)) and with `|T| = 47` ([`README47.md`](README47.md)).
+The squarefree semiprimes form a primitive set. So the earlier results of this repository already give valid sets with `max T = 589` ([`README_MAXDEN.md`](README_MAXDEN.md)) and with `|T| = 47` ([`README47.md`](README47.md)). Both bounds improve for primitive sets: to `max T = 413` (optimal) and to `|T| = 46`.
 
 | question | result | status |
 |---|---|---|
 | **Q1** least possible `max T` | **413 = 7·59** | solved; formally verified in Lean (`isLeast_413`) |
-| **Q2** least possible `abs(T)` | **39 ≤ min abs(T) ≤ 47** | bounds proved in Lean (`card_bounds`); exact value **not determined** |
+| **Q2** least possible `abs(T)` | **39 ≤ min abs(T) ≤ 46** | bounds proved in Lean (`card_bounds`); exact value **not determined** (46 conjectured) |
 
 The C++ program is `primitive_egypt.cpp`. It uses only integer and big-integer arithmetic, with no `float`, `double` or `long double`. The Lean files are `lean/SemiprimeEgypt/Prim*.lean`. No `sorry` and no `native_decide` are used, and only the standard axioms appear ([`lean_axioms_primitive_output.txt`](lean_axioms_primitive_output.txt)).
 
@@ -31,6 +31,13 @@ The C++ program is `primitive_egypt.cpp`. It uses only integer and big-integer a
   * `L = lcm(T) = 1687371961521906660` and `Σ_{n∈T} L/n = L`, so the sum is exactly 1.
   * No element divides another (all 53·52 ordered pairs are checked).
   * Lean proves these facts as `T413_sum`, `T413_primitive` and `T413_max`.
+
+**A smaller witness.** Q1 is also attained by a 49-element set. CP-SAT reports 49 as the fewest elements of any primitive solution with `max T ≤ 413`; this optimality claim rests on the solver and is not verified.
+
+    6 10 14 15 21 22 26 33 34 35 38 39 46 51 55 57 58 62 65 69 77 82 85 95 111 115 118 119 123
+    133 141 143 145 148 155 185 188 217 221 235 259 287 295 299 319 391 403 407 413
+
+`primitive_explore/verify_sets.py` checks both sets with Python `Fraction`s.
 
 ### No valid set has `max T ≤ 412`
 
@@ -66,6 +73,8 @@ The cover comes from a maximum flow (weighted Dilworth theorem). At the start it
 * an independent checker inside the C++ program, with exactly the semantics of the Lean function `check`;
 * the **Lean kernel**, using `decide +kernel`.
 
+As a further independent cross-check, CP-SAT (OR-Tools, `primitive_explore/cpsat_q2.py 412 206 1000 …`) also reports the model over `U_412` as INFEASIBLE.
+
 For the kernel check, the tree is split into 357 subtree theorems (≤ 3000 nodes each, spread over 16 files, so that `lake` checks them in parallel), assembled by `check_br_of`. This takes about 20 minutes on 4 cores and peaks at about 2.5 GB per process.
 
 ### Lean
@@ -88,16 +97,21 @@ The C++ program is not trusted. It only produces the certificate, which the kern
 
 ---
 
-## Q2: the least possible number of terms, between 39 and 47
+## Q2: the least possible number of terms, between 39 and 46
 
-### Upper bound 47
+### Upper bound 46: fewer terms than any semiprime representation
 
-A 47-term representation by squarefree semiprimes (Watanabe; `solutions47.txt` #1) is primitive:
+    T46 = { 6, 10, 14, 15, 21, 22, 26, 33, 34, 35, 38, 39, 46, 51, 55, 57, 58, 62, 65, 69, 74, 77,
+            82, 85, 86, 91, 93, 95, 111, 118, 119, 123, 129, 133, 145, 155, 187, 203, 253, 287,
+            407, 493, 575, 925, 1357, 2537 }
 
-    6 10 14 15 21 22 26 33 34 35 38 39 46 51 55 57 58 62 65 69 74 77 82 85 87 91 93 95 111 115
-    119 123 133 143 145 155 203 219 221 287 299 391 481 1299 2117 16021 31609
-
-Its lcm is `L = 9617046579831580890`, and `Σ L/n = L`. Lean proves the needed facts as `T47_sum`, `T47_primitive` and `T47_card`.
+* **Size.** `T46` has 46 elements, one fewer than the minimum of 47 for squarefree semiprimes. All elements are squarefree semiprimes except `575 = 5²·23` and `925 = 5²·37`.
+* **Structure.** These two are the only elements at 5-adic level 2, and they satisfy the 5-adic condition together, because `1/23 + 1/37 ≡ 2 + 3 ≡ 0 (mod 5)`.
+* **Origin.** The set was found by the CP-SAT solver (`primitive_explore/cpsat_q2.py 4000 2000 46 …`).
+* **Exact check.**
+  * `L = lcm(T46) = 3859414592842658850` and `Σ L/n = L`.
+  * No element divides another.
+  * The C++ program (`./primitive_egypt q2`), Python (`primitive_explore/verify_sets.py`) and Lean (`T46_sum`, `T46_primitive`, `T46_card`) all confirm this.
 
 ### Lower bound 39 (Lean: `card_ge_39`)
 
@@ -110,28 +124,22 @@ This is a Lagrangian version of the chain bound. Fix a threshold `A` and write `
 * **`|T| ≤ 37`.** Then `Σ ≤ 37/129 + W/D = 0.99369… < 1`.
 * **`|T| = 38`.** An element `m ≥ 159` would give `Σ ≤ 38/129 + W/D − (1/129 − 1/159) < 1`. So `T ⊆ [2, 158]`, which Q1 excludes.
 
-Both inequalities are exact rational comparisons, done in C++ (`./primitive_egypt q2`) and in Lean (`norm_num`).
+Both inequalities are exact rational comparisons, done in C++ (`./primitive_egypt q2`) and in Lean (`norm_num`). Lean: `card_bounds` states `39 ≤ min |T|` together with the 46-term example.
 
-### Why the exact value is open here
+### What is and is not known about the exact value
 
-For `|T| = k ≥ 39`, the slack `H_k − 1` exceeds the cost `1/a_k − 1/n` of one element, and for larger `k` of several elements. Elements can then be arbitrarily large, so no finite search over `[2, B]` settles the question.
+For `|T| = k ≥ 39`, the Lagrangian slack `H_k − 1` exceeds the cost `1/a_k − 1/n` of one element, and for larger `k` of several elements. Those elements can be arbitrarily large, so no finite search over `[2, B]` settles the question.
 
-For semiprimes, the repository needed an elaborate argument (cores, stars at primes `> 73`, big–big components) to exclude 46 terms. For primitive sets, a large element can be divisible by several small primes, or by a large power of a small prime. That makes the case analysis considerably larger. It has not been carried out here, so **the exact minimum of `|T|` is not determined**. It lies in `[39, 47]`.
+For semiprimes, the repository needed an elaborate argument (cores, stars at primes `> 73`, big–big components) to exclude 46 terms. For primitive sets, large elements can carry several small primes, or high powers such as `5²` above. A proof that 45 terms are impossible would need a considerably larger case analysis. It has not been carried out, so **the exact minimum is not determined here**. It lies in `[39, 46]`.
 
-Computational evidence gathered here, none of it formally verified:
-
-* **`|T| = 39`.** The slack allows at most one element `N ≥ 330`, and Q1 forces some element `≥ 413`. So `T = C ∪ {N}` with `C ⊆ [2, 329]`, `|C| = 38`, and `N = 1/(1 − Σ_C)`. An exhaustive C++ search of all such cores (value window, chain bound) is running or ran; see [`primitive_q2_notes.md`](primitive_q2_notes.md) for its outcome.
-* **Compressions.** No known 47- or 48-term semiprime solution can be shortened. No 3 elements can be replaced by 2, and no 2 elements of a 47-term set by 1, while staying primitive.
-* **CP-SAT searches** for primitive sets with at most 46 terms are also reported in [`primitive_q2_notes.md`](primitive_q2_notes.md).
-
----
+Evidence that the minimum is 46 (CP-SAT, see [`primitive_q2_notes.md`](primitive_q2_notes.md)): among all primitive sets of non-prime-powers `≤ 4000`, CP-SAT reports **46 as optimal**, so no solution there has 45 or fewer terms. This rests on the solver and is not formally verified.
 
 ## Running
 
 ```
 g++ -O2 -std=c++17 -o primitive_egypt primitive_egypt.cpp
 ./primitive_egypt q1 --cert lean/SemiprimeEgypt   # Q1: scan (≈6 min), solution, certificate + Lean files
-./primitive_egypt q2                              # Q2: the bounds 39 and 47
+./primitive_egypt q2                              # Q2: the bounds 39 and 46
 ./primitive_egypt all                             # both
 ./primitive_egypt cert B --cert DIR               # a certificate for any bound B without solutions
 ./primitive_egypt lag A --cert DIR                # the Lagrangian chain cover for a threshold A

@@ -7,7 +7,7 @@
 //   because 1 divides everything.)
 //
 //   Q1: the least possible  max T.        Answer computed here: 413 = 7 * 59.
-//   Q2: the least possible  |T|.          (see README_PRIMITIVE.md)
+//   Q2: the least possible  |T|.          Proved here: 39 <= min |T| <= 46 (README_PRIMITIVE.md).
 //
 // Everything is exact: machine integers and a small big-natural type.  The program contains
 // no floating-point type.
@@ -810,13 +810,14 @@ static void runQ2() {
   printf("(ii) 38/A + W/D - (1/A - 1/159) < 1 exactly: %s   => |T| = 38 forces max T <= 158,\n", c2 ? "yes" : "NO");
   printf("     and no primitive solution lies in [2, 412] (Q1)\n");
   printf("=> every primitive T ⊆ {2,3,...} with sum 1 has |T| >= 39\n\n");
-  // upper bound: a 47-term set of squarefree semiprimes (automatically primitive)
-  vector<int> T47 = {6, 10, 14, 15, 21, 22, 26, 33, 34, 35, 38, 39, 46, 51, 55, 57, 58, 62, 65, 69, 74, 77, 82, 85,
-                     87, 91, 93, 95, 111, 115, 119, 123, 133, 143, 145, 155, 203, 219, 221, 287, 299, 391, 481,
-                     1299, 2117, 16021, 31609};
-  printf("--- upper bound: a 47-term example ---\n");
-  bool ok = verifySolution(T47, true);
-  printf("\nRESULT Q2: 39 <= min |T| <= 47 %s\n\n", (ok && c1 && c2) ? "(both bounds verified)" : "(VERIFICATION FAILED)");
+  // upper bound: a 46-term primitive set (575 = 5^2*23 and 925 = 5^2*37 form a pair at 5-adic level 2)
+  vector<int> T46 = {6, 10, 14, 15, 21, 22, 26, 33, 34, 35, 38, 39, 46, 51, 55, 57, 58, 62, 65, 69, 74, 77, 82, 85,
+                     86, 91, 93, 95, 111, 118, 119, 123, 129, 133, 145, 155, 187, 203, 253, 287, 407, 493, 575, 925,
+                     1357, 2537};
+  printf("--- upper bound: a 46-term example (better than the 47 of squarefree semiprimes) ---\n");
+  bool ok = verifySolution(T46, true);
+  printf("\nRESULT Q2: 39 <= min |T| <= 46 %s\n", (ok && c1 && c2) ? "(both bounds verified)" : "(VERIFICATION FAILED)");
+  printf("(the exact value is not determined by this program; see README_PRIMITIVE.md)\n\n");
 }
 
 static void runQ1(const string& certDir, int nFiles) {
