@@ -19,3 +19,7 @@ import SemiprimeEgypt.SearchSplit
 import SemiprimeEgypt.MaxDenCheck
 import SemiprimeEgypt.MaxDenCert588
 import SemiprimeEgypt.MaxDenMain
+import SemiprimeEgypt.PrimCheck
+import SemiprimeEgypt.PrimMain
+import SemiprimeEgypt.PrimCard
+import SemiprimeEgypt.PrimCardMain

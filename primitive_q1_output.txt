@@ -1,0 +1,46 @@
+start: 2026-09-30 18:25:39 UTC
+
+=== Q1: the least possible max T ===
+
+Scan: for each m in U (non-prime-powers >= 6), search U_m with m forced into T.
+m = 377 = 13*29: no solution with max T = m (2093 nodes)
+m = 387 = 3^2*43: no solution with max T = m (9465 nodes)
+m = 391 = 17*23: no solution with max T = m (22289 nodes)
+m = 399 = 3*7*19: no solution with max T = m (5015 nodes)
+m = 403 = 13*31: no solution with max T = m (27122 nodes)
+m = 406 = 2*7*29: no solution with max T = m (3595 nodes)
+m = 407 = 11*37: no solution with max T = m (274235 nodes)
+m = 410 = 2*5*41: no solution with max T = m (70655 nodes)
+m = 413 = 7*59: SOLUTION (1663245 nodes)
+(the other values of m are refuted with fewer than 1000 nodes each)
+refuted m: 312, total search nodes 2092438, scan time 338889 ms
+
+--- exact verification of the solution ---
+T (53 elements):
+  6 = 2*3  10 = 2*5  14 = 2*7  15 = 3*5  21 = 3*7  22 = 2*11
+  26 = 2*13  33 = 3*11  34 = 2*17  35 = 5*7  38 = 2*19  39 = 3*13
+  46 = 2*23  57 = 3*19  58 = 2*29  62 = 2*31  65 = 5*13  69 = 3*23
+  77 = 7*11  82 = 2*41  85 = 5*17  87 = 3*29  91 = 7*13  95 = 5*19
+  111 = 3*37  115 = 5*23  118 = 2*59  119 = 7*17  123 = 3*41  133 = 7*19
+  141 = 3*47  143 = 11*13  148 = 2^2*37  155 = 5*31  185 = 5*37  187 = 11*17
+  188 = 2^2*47  203 = 7*29  209 = 11*19  217 = 7*31  221 = 13*17  235 = 5*47
+  247 = 13*19  259 = 7*37  287 = 7*41  295 = 5*59  299 = 13*23  319 = 11*29
+  323 = 17*19  391 = 17*23  403 = 13*31  407 = 11*37  413 = 7*59
+L = lcm(T) = 1687371961521906660
+sum_{n in T} L/n = 1687371961521906660
+distinct, all >= 2, no element divides another: yes
+sum_{n in T} 1/n = 1 exactly: yes
+max T = 413
+
+--- certificate: no solution inside U_412 (nothing forced) ---
+|U_412| = 312, D = lcm(U_412) has 320 bits, chains: 317
+search tree: 673645 nodes, 336823 leaves, 0 solution leaves (66690 ms)
+independent re-check with the semantics of the Lean checker: accepted (673645 nodes)
+Lean files: 2 certificate parts, 1000 skeleton nodes, 357 subtree theorems in 16 files
+Lean data and certificate written to lean/SemiprimeEgypt
+
+RESULT Q1: min max T = 413 = 7*59
+
+end: 2026-09-30 18:32:26 UTC
+elapsed: 406476 ms
+CERT FILES IDENTICAL

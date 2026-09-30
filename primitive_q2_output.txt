@@ -1,0 +1,30 @@
+start: 2026-09-30 18:32:35 UTC
+
+=== Q2: the least possible |T| ===
+
+threshold A = a_38 = 129 (the 38th squarefree semiprime)
+chain cover of the weights 1/n - 1/A on the 83 candidates below A: 83 chains, W/D = 0.706870992227...
+(i)  37/A + W/D < 1 exactly: yes   => |T| <= 37 is impossible
+(ii) 38/A + W/D - (1/A - 1/159) < 1 exactly: yes   => |T| = 38 forces max T <= 158,
+     and no primitive solution lies in [2, 412] (Q1)
+=> every primitive T ⊆ {2,3,...} with sum 1 has |T| >= 39
+
+--- upper bound: a 47-term example ---
+T (47 elements):
+  6 = 2*3  10 = 2*5  14 = 2*7  15 = 3*5  21 = 3*7  22 = 2*11
+  26 = 2*13  33 = 3*11  34 = 2*17  35 = 5*7  38 = 2*19  39 = 3*13
+  46 = 2*23  51 = 3*17  55 = 5*11  57 = 3*19  58 = 2*29  62 = 2*31
+  65 = 5*13  69 = 3*23  74 = 2*37  77 = 7*11  82 = 2*41  85 = 5*17
+  87 = 3*29  91 = 7*13  93 = 3*31  95 = 5*19  111 = 3*37  115 = 5*23
+  119 = 7*17  123 = 3*41  133 = 7*19  143 = 11*13  145 = 5*29  155 = 5*31
+  203 = 7*29  219 = 3*73  221 = 13*17  287 = 7*41  299 = 13*23  391 = 17*23
+  481 = 13*37  1299 = 3*433  2117 = 29*73  16021 = 37*433  31609 = 73*433
+L = lcm(T) = 9617046579831580890
+sum_{n in T} L/n = 9617046579831580890
+distinct, all >= 2, no element divides another: yes
+sum_{n in T} 1/n = 1 exactly: yes
+
+RESULT Q2: 39 <= min |T| <= 47 (both bounds verified)
+
+end: 2026-09-30 18:32:35 UTC
+elapsed: 0 ms

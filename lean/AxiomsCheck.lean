@@ -50,3 +50,6 @@ open SemiprimeEgypt
 -- the smallest possible largest element (589): MaxDenCheck / MaxDenMain
 #print axioms SemiprimeEgypt.MaxDen.no_solution
 #print axioms SemiprimeEgypt.MaxDen.isLeast_589
+-- primitive sets: min max T = 413, 39 <= min |T| <= 47 (PrimMain / PrimCardMain)
+#print axioms SemiprimeEgypt.Prim.isLeast_413
+#print axioms SemiprimeEgypt.Prim.card_bounds
