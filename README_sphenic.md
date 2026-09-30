@@ -10,6 +10,11 @@ Is there a nonempty `T ⊆ P` with `|T| ≤ B` such that `Σ_{n∈T} 1/n` is an 
 
 (The 6097-element set is one element too large for `B = 6096`, so the second bound needed a new set.)
 
+In total **11 examples** have been found and verified so far, with 5414 – 6097 terms; all of them are
+listed with their term counts, generating commands and full contents in
+[`sphenic_examples.txt`](sphenic_examples.txt) (see [All examples found so far](#all-examples-found-so-far)).
+Ten of the eleven (all except the 6097-element one) satisfy `|T| ≤ 6096`; the smallest has 5414 terms.
+
 **`B = 6096`: YES.** [`sphenic_solution_6096.txt`](sphenic_solution_6096.txt) is one line of 5752
 space-separated sphenic numbers (smallest 30, largest 36563441041; SHA-256
 `dbe2bd87f89a3ed7108d9fe885018f40a884ab8fc7996f58b11c023f484883d8`). Their reciprocals sum to **exactly 1**.
@@ -77,7 +82,7 @@ Results (same machine; all outputs independently verified):
 
 | configuration | passes needed | wall time |
 |---|---|---|
-| earlier wide window `k ∈ [4390, 6190)`, seed 20260929 | 9 | 1.7 s |
+| earlier wide window `k ∈ [4390, 6190)`, seed 20260929 (this is example E02, 5442 terms) | 9 | 1.7 s |
 | **tuned default `k ∈ [4900, 5300)`**, seed 20260929 | **4** | **0.65 s** |
 | tuned window, 8 other seeds (1–8) | 4, 2, 3, 1, 1, 1, 3, 1 (mean 2.0) | 0.20 – 0.66 s |
 
@@ -86,7 +91,46 @@ Not claimed: that any of these sets has the minimum possible size.
 
 Reproduce: `python3 sphenic_search.py` (defaults: `--bound 6096 --kmin 4900 --kmax 5300 --seed 20260929`,
 writes `sphenic_solution_6096.txt`). The earlier `B = 73081` set is reproduced bit-for-bit by
-`python3 sphenic_search.py --bound 73081 --kmin 4390 --kmax 6190 --out sphenic_solution.txt`.
+`python3 sphenic_search.py --bound 73081 --kmin 4390 --kmax 6190 --out sphenic_solution.txt`, and the
+5442-term set (E02) by `python3 sphenic_search.py --bound 6096 --kmin 4390 --kmax 6190 --out FILE`.
+The search is deterministic: the same options always give the same file.
+
+## All examples found so far
+
+Each row is a set `T` of sphenic numbers with `Σ_{n∈T} 1/n = 1` exactly. All 11 were regenerated from
+the commands below, checked byte-for-byte against the earlier results where those exist, and verified
+with `verify_sphenic.py` (Fraction sum `= 1`, every element a product of exactly 3 distinct primes,
+`p`-adic criterion at every prime). The complete sets, SHA-256 checksums and commands are in
+[`sphenic_examples.txt`](sphenic_examples.txt).
+
+| id | terms | seed `k` | pass # | `≤ 6096`? | options for `python3 sphenic_search.py` (`--out FILE` omitted) |
+|---|---|---|---|---|---|
+| E01 | 6097 | 5596 | 2 | no | `--bound 73081 --kmin 4390 --kmax 6190` (also `sphenic_solution.txt`) |
+| E02 | 5442 | 4942 | 9 | yes | `--bound 6096 --kmin 4390 --kmax 6190` |
+| E03 | 5752 | 5245 | 4 | yes | *(defaults)* (also `sphenic_solution_6096.txt`) |
+| E04 | 5573 | 5070 | 4 | yes | `--seed 1` |
+| E05 | **5414** | 4914 | 2 | yes | `--seed 2` |
+| E06 | 5683 | 5178 | 3 | yes | `--seed 3` |
+| E07 | 5785 | 5278 | 1 | yes | `--seed 4` |
+| E08 | 5610 | 5118 | 1 | yes | `--seed 5` |
+| E09 | 5590 | 5092 | 1 | yes | `--seed 6` |
+| E10 | 5774 | 5270 | 3 | yes | `--seed 7` |
+| E11 | 5423 | 4922 | 1 | yes | `--seed 8` |
+
+Rows E04 – E11 use the default options (`--bound 6096`, window `[4900, 5300)`) with the given `--seed`.
+The number of primes occurring in a set ranges from 541 to 549.
+
+**Solutions whose sets were not saved.** The 400-attempt scan used for the table above (`--seed 99`,
+window `[4390, 6190)`) also produced 137 further repair passes that landed on exactly `30/30`, i.e. 137
+more sets with reciprocal sum 1, with sizes from 5151 to 6668 (only the sizes were recorded; they are
+listed in Appendix A of `sphenic_examples.txt`). Because those sets were never written to disk they were
+not re-verified with `verify_sphenic.py`; the smallest size seen anywhere is therefore 5151, but the
+smallest *independently verified* set has 5414 terms (E05).
+
+**What is and is not established.** Existence for `B = 73081` and for `B = 6096` is settled by the
+explicit, exactly verified certificates above. Minimality is *not* claimed: the only proven lower bound is
+`|T| ≥ 4402` (because `H_4401 < 1`), so the true minimum lies somewhere between 4402 and 5414 (or 5151 if
+the unsaved scan result is counted).
 
 ## Verification (`verify_sphenic.py`, independent of the search)
 
@@ -112,4 +156,5 @@ and the per-prime criterion at all 549 primes.
 | `sphenic_search.py` | seed + top-down repair search (integer arithmetic only; options `--bound --kmin --kmax --tries --seed --minimize --out`) |
 | `sphenic_solution_6096.txt` | the 5752-element set for `B = 6096` |
 | `sphenic_solution.txt` | the 6097-element set for `B = 73081` |
+| `sphenic_examples.txt` | all 11 verified examples (E01 – E11): summary of term counts, generating commands, SHA-256 checksums, full listings, plus sizes of 137 unsaved scan solutions |
 | `verify_sphenic.py` | independent exact verifier (`python3 verify_sphenic.py FILE [BOUND]`) |
