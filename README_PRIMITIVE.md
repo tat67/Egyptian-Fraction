@@ -150,8 +150,9 @@ For `|T| = k ≥ 39`, the Lagrangian slack `H_k − 1` exceeds the cost `1/a_k �
 | 8 000 | 6 943 | 46 | no solution with `≤ 45` terms |
 | 20 000 | 17 671 | 44 | optimal |
 | 40 000 | 35 714 | 44 | no solution with `≤ 43` terms |
+| 100 000 | 90 299 | 44 | no solution with `≤ 43` terms |
 
-So the minimum decreases as larger elements are allowed, and it is at most 44. Whether elements beyond these bounds allow 43 or fewer terms is open.
+So the minimum decreases as larger elements are allowed, reaches 44, and stays at 44 at least up to 100 000. This supports the conjecture that **the answer to Q2 is 44**. It is not a proof: elements beyond `10^5` are not covered, and the solver's infeasibility claims are not certified.
 
 ## Running
 
