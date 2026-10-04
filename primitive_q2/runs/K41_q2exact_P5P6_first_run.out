@@ -1,0 +1,4 @@
+q2exact K=41 A=141  chains=92  sigma*1e12 <= 23518317779  hmax=3  Y=824  |core universe|=657  threads=4 splitDepth=34 tickets=[0,18446744073709551615)
+start 2026-10-04T19:36:20+09:00
+DONE K=41 A=141 Y=824 hmax=3 nodes=944398439 qualifyingSets=134506411 rejectedByUnsatisfiedPrimes=110741572 cores[h=0]=0 cores[h=1]=22083508 cores[h=2]=1674415 cores[h=3]=6916 cliquePruned=685323641 loopBreaks=230970166 cliqueSkips=1688951033 completionCalls=22083508 twoTermCandidates=0 smallestElementCandidates=0 solutions=0 wall=236.8s
+end 2026-10-04T19:40:17+09:00

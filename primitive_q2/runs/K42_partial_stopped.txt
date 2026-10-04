@@ -1,0 +1,14 @@
+# K = 42 partial run -- STOPPED after 20 minutes; no claim is made from it (measurements only)
+# command: Q2_H2=ind Q2_H2SAMPLE=c42_h2sample.txt ./q2exact 42 142 4 34 c42_h3.txt.gz defer3
+q2exact K=42 A=142  chains=93  sigma*1e12 <= 30560571300  hmax=4  Y=1075  |core universe|=868  threads=4 splitDepth=34 tickets=[0,18446744073709551615)
+start 2026-10-04T19:46:54+09:00
+stopped 2026-10-04T20:07:23+09:00 (by kill)
+# last progress lines (per thread: cores=h1,h2,h3,h4,h5; doneBelow=0: no depth-34 subtree finished)
+[2026-10-04T20:01:45+09:00] doneBelow=0 thread-nodes=33554432 tickets=8 qual=22113526 cores=0,4830489,146642,426,0 comp=4830489 n1=0
+[2026-10-04T20:02:59+09:00] doneBelow=0 thread-nodes=33554432 tickets=8 qual=25268394 cores=0,5239463,181152,704,0 comp=5239463 n1=0
+[2026-10-04T20:04:46+09:00] doneBelow=0 thread-nodes=67108864 tickets=8 qual=37408318 cores=0,6594161,146007,265,0 comp=6594161 n1=0
+[2026-10-04T20:07:10+09:00] doneBelow=0 thread-nodes=33554432 tickets=8 qual=24795621 cores=0,6125883,250078,1161,0 comp=6125883 n1=0
+# dumped h>=3 cores (decompressed): 811705 lines, of which h=3: 808968, h=4: 2737
+# h=2 hash sample (1/64): 424872 cores -> about 27191808 h=2 cores completed inline (ind2.h), 0 solutions reported
+# complete_ind on the first six dumped h=4 cores (timeout 120 s each, 4 other processes running):
+#   b/a=2213 >120 s (stopped); b/a=1216 >120 s (stopped); b/a=1146 93.4 s, 0 solutions; b/a=1085 >120 s (stopped); b/a=982 1.8 s, 0 solutions; b/a=938 6.3 s, 0 solutions

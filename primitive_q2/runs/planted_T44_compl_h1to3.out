@@ -1,0 +1,10 @@
+two-term vs brute force: 0 mismatches in 2000 random fractions
+planted h=1: completions found = 1  n1=0 pairs=0 time=0.00s
+  SOLUTION |T|=44 exact_sum_1_and_primitiv
+  ...115 119 123 133 141 143 145 287 8729 10105 11687 14467 16813
+planted h=2: completions found = 1  n1=0 pairs=2 time=0.00s
+  SOLUTION |T|=44 exact_sum_1_and_primitiv
+  ...115 119 123 133 141 143 145 287 8729 10105 11687 14467 16813
+planted h=3: completions found = 1  n1=3902 pairs=2 time=0.08s
+  SOLUTION |T|=44 exact_sum_1_and_primitiv
+  ...115 119 123 133 141 143 145 287 8729 10105 11687 14467 16813

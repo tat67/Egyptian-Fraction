@@ -1,0 +1,13 @@
+# P5/P6 equivalence: dumps with and without the rules (sorted md5)
+== K=39 without P5 (Q2_NOBREAK=1, also without P6):
+DONE K=39 A=133 Y=329 hmax=1 nodes=672483 qualifyingSets=1164 rejectedByUnsatisfiedPrimes=1051 cores[h=0]=0 cores[h=1]=113 cliquePruned=388166 loopBreaks=0 completionCalls=113 twoTermCandidates=0 smallestElementCandidates=0 solutions=0 wall=0.2s
+f7f5402dc93f216bc8474e627c2d4f84  -
+== K=39 with P5+P6 (final):
+DONE K=39 A=133 Y=329 hmax=1 nodes=11985 qualifyingSets=114 rejectedByUnsatisfiedPrimes=1 cores[h=0]=0 cores[h=1]=113 cliquePruned=144 loopBreaks=11645 cliqueSkips=26343 completionCalls=113 twoTermCandidates=0 smallestElementCandidates=0 solutions=0 wall=0.0s
+f7f5402dc93f216bc8474e627c2d4f84  -
+== K=40 without P5 (Q2_NOBREAK=1, also without P6):
+DONE K=40 A=134 Y=503 hmax=2 nodes=160900759 qualifyingSets=1119762 rejectedByUnsatisfiedPrimes=1051847 cores[h=0]=0 cores[h=1]=65272 cores[h=2]=2643 cliquePruned=117326096 loopBreaks=0 completionCalls=67915 twoTermCandidates=0 smallestElementCandidates=0 solu
+de466a30270f32fce60b05cbfdc33fd9  -
+== K=40 with P5+P6 (final):
+DONE K=40 A=134 Y=503 hmax=2 nodes=1867018 qualifyingSets=77347 rejectedByUnsatisfiedPrimes=9432 cores[h=0]=0 cores[h=1]=65272 cores[h=2]=2643 cliquePruned=59338 loopBreaks=1732361 cliqueSkips=8931874 completionCalls=67915 twoTermCandidates=0 smallestElementCandidates=0 solutions=0 wall=4.5s
+de466a30270f32fce60b05cbfdc33fd9  -

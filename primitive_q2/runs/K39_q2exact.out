@@ -1,0 +1,4 @@
+q2exact K=39 A=133  chains=86  sigma*1e12 <= 8963432630  hmax=1  Y=329  |core universe|=245  threads=4 splitDepth=28 tickets=[0,18446744073709551615)
+start 2026-10-04T20:09:42+09:00
+DONE K=39 A=133 Y=329 hmax=1 nodes=11985 qualifyingSets=114 rejectedByUnsatisfiedPrimes=1 cores[h=0]=0 cores[h=1]=0 cliquePruned=144 loopBreaks=11645 cliqueSkips=26343 h1RefutedByDeltaTest=113 completionCalls=0 twoTermCandidates=0 smallestElementCandidates=0 solutions=0 wall=0.0s
+end 2026-10-04T20:09:42+09:00

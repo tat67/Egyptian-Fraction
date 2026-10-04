@@ -1,0 +1,12 @@
+q2exact
+complete_dump
+complete_ind
+test_compl
+brute_core
+q2k
+q2b
+*.part*
+*.o
+tc3.txt
+tc4.txt
+tc5.txt

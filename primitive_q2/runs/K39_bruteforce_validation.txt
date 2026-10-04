@@ -1,0 +1,3 @@
+brute: K=39 Y=329 hmax=1 nodes=8360749 candidates=6768
+brute-force cores satisfying the leaf conditions: 113  solver cores: 113  equal: True
+only brute: 0  only solver: 0
