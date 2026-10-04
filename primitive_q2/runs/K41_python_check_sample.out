@@ -1,0 +1,5 @@
+# check_completion.py (independent Python implementation) on deterministic samples of the K = 41 dump
+# h=2: every 100th h=2 line (awk NR%100==1 over the h=2 lines)
+cores checked: 16745  by h: {2: 16745}  skipped (range too large): 0  solutions: 0
+# h=3: every 10th of the 5,366 h=3 cores whose x1 range above Y has at most 400 values
+cores checked: 537  by h: {3: 537}  skipped (range too large): 0  solutions: 0

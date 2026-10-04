@@ -334,7 +334,7 @@ Logs are in [`runs/`](runs/). The `K = 41` dump (1,681,331 lines, 294 MB) is not
    * Both were run on every `h = 2` and `h = 3` core of `K = 40` and `K = 41`, and both report 0 solutions.
    * `check_completion.py` is a third, Python implementation (divisors of `b²`).
      * It checked all 67,915 `K = 40` cores.
-     * For `K = 41` it checked K41_PY.
+     * For `K = 41` it checked a deterministic sample: every 100th `h = 2` core (16,745 cores), and 537 `h = 3` cores (every 10th of the 5,366 whose `x₁` range above `Y` has at most 400 values). It found 0 solutions (`runs/K41_python_check_sample.out`).
 4. **Planted solutions.**
    * Remove the last `h` elements of `T44` and complete the remaining core.
    * `compl.h` re-finds `T44` for `h = 1, 2, 3, 4` (`h = 4` takes 70 s).
@@ -343,7 +343,7 @@ Logs are in [`runs/`](runs/). The `K = 41` dump (1,681,331 lines, 294 MB) is not
    * `ind2.h`, against brute force over all `x`:
      * 1,305 random fractions `1/x + 1/y` with 1,434 solutions;
      * 120 random fractions `1/x₁ + 1/x₂ + 1/x₃` with 3,519 solutions, colourability prefilter active;
-     * K41_IND4.
+     * 20 random fractions `1/x₁ + 1/x₂ + 1/x₃ + 1/x₄` with 1,705 solutions (`h = 4` path; the last two terms of the brute force come from all divisors of `b₂²`).
    * Each test was run in pure AP mode and in pure DIV mode, with no mismatch.
    * `compl.h`'s two-term solver was compared against brute force on 2,000 random fractions, with no mismatch.
 6. **Consistency checks inside every run.**
@@ -407,6 +407,6 @@ The arguments of `q2exact` are `K A [threads] [splitDepth] [dumpfile|-] [nocompl
 ## Time and tokens
 
 * Task start: 2026-10-04 13:30:27 JST (UTC+09:00).
-* Task end: END_TIME JST.
-* Elapsed wall-clock time: ELAPSED.
+* Task end: 2026-10-04 21:15:49 JST (UTC+09:00).
+* Elapsed wall-clock time: 7 h 45 min 22 s. This includes a period during which the session was interrupted and resumed.
 * Token usage: **unavailable**. No authoritative usage data is exposed to this session, so no figure is given.
