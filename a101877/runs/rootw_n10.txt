@@ -1,0 +1,1 @@
+2026-09-29T07:48:53+0000 n=10 K=22790 mode=witness UNDECIDED (node budget exceeded) nodes=1 root_LB-Delta_hi=-6062645272 time_ms=231536

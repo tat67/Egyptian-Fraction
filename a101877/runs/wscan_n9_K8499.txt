@@ -1,0 +1,1 @@
+n=9 K=8499 mode=witness NONE: 8499 is not a candidate (cannot occur in any set with integral sum)

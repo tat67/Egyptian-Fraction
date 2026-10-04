@@ -1,0 +1,19 @@
+[2026-10-04 09:12:49 JST] ./a101877_v2 prove 8 3227 quiet=1
+n=8 K=3227 mode=prove NONE (all nodes closed) nodes=1 passes=188 root_LB-Dhi=41100432246 time_ms=209
+[2026-10-04 09:12:49 JST] ./a101877_v2 prove 9 8496 quiet=1
+n=9 K=8496 mode=prove NONE (all nodes closed) nodes=1 passes=319 root_LB-Dhi=19327643490 time_ms=1427
+[2026-10-04 09:12:51 JST] ./a101877_v2 witness 9 8497 quiet=1
+n=9 K=8497 mode=witness NONE (all nodes closed) nodes=1 passes=411 root_LB-Dhi=4008227003 time_ms=1749
+[2026-10-04 09:12:53 JST] ./a101877_v2 witness 7 1243 quiet=1
+n=7 K=1243 mode=witness FOUND |S|=807 nodes=14 passes=6027 time_ms=724 S=<omitted>
+[2026-10-04 09:12:53 JST] ./a101877_v2 witness 6 469 quiet=1
+n=6 K=469 mode=witness FOUND |S|=291 nodes=8 passes=3584 time_ms=61 S=<omitted>
+[2026-10-04 09:12:53 JST] ./a101877_v2 witness 10 22789 quiet=1
+n=10 K=22789 mode=witness NONE (all nodes closed) nodes=1 passes=281 root_LB-Dhi=12003194023 time_ms=6598
+[2026-10-04 09:13:00 JST] ./a101877_v2 witness 8 3228 quiet=1
+n=8 K=3228 mode=witness FOUND |S|=2189 nodes=22 passes=7275 time_ms=4067 S=<omitted>
+[2026-10-04 09:13:04 JST] ./a101877_v2 witness 9 8498 quiet=1
+n=9 K=8498 mode=witness FOUND |S|=5966 nodes=67 passes=15847 time_ms=37445 S=<omitted>
+[2026-10-04 09:13:41 JST] ./a101877_v2 witness 9 8500 quiet=1
+n=9 K=8500 mode=witness FOUND |S|=5960 nodes=144 passes=29647 time_ms=60366 S=<omitted>
+[2026-10-04 09:14:42 JST] done

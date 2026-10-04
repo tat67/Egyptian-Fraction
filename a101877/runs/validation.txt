@@ -1,0 +1,48 @@
+n=1 claimed a(n)=1   start 2026-09-29T06:46:33+0000  end 2026-09-29T06:46:33+0000  elapsed 76 ms
+  n=1 K=0 mode=prove NONE: sum of all candidates is below n
+  (no certificate needed: all candidates sum below n)
+  n=1 K=1 mode=witness FOUND |S|=1 nodes=1 time_ms=6 S=1
+  n=1 K=1 |S|=1 max=1 sum==n exactly: True
+  n=1 K=1 mode=count solutions=1 nodes=1 time_ms=6
+n=2 claimed a(n)=6   start 2026-09-29T06:46:33+0000  end 2026-09-29T06:46:33+0000  elapsed 83 ms
+  n=2 K=5 mode=prove NONE: sum of all candidates is below n
+  (no certificate needed: all candidates sum below n)
+  n=2 K=6 mode=witness FOUND |S|=4 nodes=2 time_ms=14 S=1,2,3,6
+  n=2 K=6 |S|=4 max=6 sum==n exactly: True
+  n=2 K=6 mode=count solutions=1 nodes=2 time_ms=14
+n=3 claimed a(n)=24   start 2026-09-29T06:46:33+0000  end 2026-09-29T06:46:33+0000  elapsed 76 ms
+  n=3 K=23 mode=prove NONE: sum of all candidates is below n
+  (no certificate needed: all candidates sum below n)
+  n=3 K=24 mode=witness FOUND |S|=13 nodes=2 time_ms=14 S=1,2,3,4,5,6,8,9,10,15,18,20,24
+  n=3 K=24 |S|=13 max=24 sum==n exactly: True
+  n=3 K=24 mode=count solutions=1 nodes=2 time_ms=14
+n=4 claimed a(n)=65   start 2026-09-29T06:46:33+0000  end 2026-09-29T06:46:34+0000  elapsed 480 ms
+  n=4 K=64 mode=prove NONE (all branch-and-bound nodes closed) nodes=1 root_LB-Delta_hi=10606082726323 time_ms=2
+  certificate n=4 K=64: |U|=39 primes=6 LB-Dhi=10606082726323  -> VALID: no S in [1..K] has sum n
+  n=4 K=65 mode=witness FOUND |S|=37 nodes=2 time_ms=78 S=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,18,20,22,24,26,
+  n=4 K=65 |S|=37 max=65 sum==n exactly: True
+  n=4 K=65 mode=count solutions=1 nodes=2 time_ms=82
+n=5 claimed a(n)=184   start 2026-09-29T06:46:34+0000  end 2026-09-29T06:46:39+0000  elapsed 4661 ms
+  n=5 K=183 mode=prove NONE (all branch-and-bound nodes closed) nodes=1 root_LB-Delta_hi=31661944671 time_ms=79
+  certificate n=5 K=183: |U|=119 primes=11 LB-Dhi=31661944671  -> VALID: no S in [1..K] has sum n
+  n=5 K=184 mode=witness FOUND |S|=106 nodes=12 time_ms=522 S=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20
+  n=5 K=184 |S|=106 max=184 sum==n exactly: True
+  n=5 K=184 mode=count solutions=16 nodes=65 time_ms=3799
+n=6 claimed a(n)=469   start 2026-09-29T06:46:39+0000  end 2026-09-29T06:49:46+0000  elapsed 187817 ms
+  n=6 K=468 mode=prove NONE (all branch-and-bound nodes closed) nodes=1 root_LB-Delta_hi=22669267517 time_ms=4
+  certificate n=6 K=468: |U|=316 primes=19 LB-Dhi=22669267517  -> VALID: no S in [1..K] has sum n
+  n=6 K=469 mode=witness FOUND |S|=291 nodes=19 time_ms=873 S=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20
+  n=6 K=469 |S|=291 max=469 sum==n exactly: True
+  n=6 K=469 mode=count solutions=224 nodes=1336 time_ms=186690
+n=7 claimed a(n)=1243   start 2026-09-29T06:49:46+0000  end 2026-09-29T06:49:50+0000  elapsed 3082 ms
+  n=7 K=1242 mode=prove NONE (all branch-and-bound nodes closed) nodes=1 root_LB-Delta_hi=1011169701 time_ms=462
+  certificate n=7 K=1242: |U|=867 primes=36 LB-Dhi=1011169701  -> VALID: no S in [1..K] has sum n
+  n=7 K=1243 mode=witness FOUND |S|=805 nodes=30 time_ms=2259 S=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,
+  n=7 K=1243 |S|=805 max=1243 sum==n exactly: True
+  (count for n>=7 run separately)
+n=8 claimed a(n)=3228   start 2026-09-29T06:49:50+0000  end 2026-09-29T06:53:34+0000  elapsed 224076 ms
+  n=8 K=3227 mode=prove NONE (all branch-and-bound nodes closed) nodes=1 root_LB-Delta_hi=1554800363 time_ms=220
+  certificate n=8 K=3227: |U|=2350 primes=72 LB-Dhi=1554800363  -> VALID: no S in [1..K] has sum n
+  n=8 K=3228 mode=witness FOUND |S|=2190 nodes=2722 time_ms=223523 S=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,1
+  n=8 K=3228 |S|=2190 max=3228 sum==n exactly: True
+  (count for n>=7 run separately)

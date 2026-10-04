@@ -1,0 +1,1 @@
+[2026-10-04 09:12:49 JST] ./a101877 witness 9 8498 threads=1 maxnodes=3000

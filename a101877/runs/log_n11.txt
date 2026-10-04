@@ -1,0 +1,9 @@
+START n=11 2026-09-29T06:23:42+0000
+rootscan start 2026-09-29T06:24:32+0000
+rootscan stopped at K=60583 (root gaps negative from 60579 on) 2026-09-29T06:35:19+0000
+witness 11 60639 start 2026-09-29T06:35:19+0000
+witness 11 60639 end 2026-09-29T06:35:52+0000
+witness 11 60639 restart (original child order) 2026-09-29T06:35:55+0000
+witness 11 60639 stopped at ~200 nodes, no witness found (time budget) 2026-09-29T07:22:43+0000
+witness 11 60639 end 2026-09-29T07:22:43+0000
+RESULT n=11: a(11) >= 60580, no witness found 2026-09-29T07:57:48+0000

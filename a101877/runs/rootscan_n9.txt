@@ -1,0 +1,38 @@
+n=9 K=8470 mode=prove NONE (all branch-and-bound nodes closed) nodes=1 root_LB-Delta_hi=7990216212 time_ms=896
+n=9 K=8471 mode=prove NONE (all branch-and-bound nodes closed) nodes=1 root_LB-Delta_hi=2630484170 time_ms=716
+n=9 K=8472 mode=prove NONE (all branch-and-bound nodes closed) nodes=1 root_LB-Delta_hi=9299055878 time_ms=957
+n=9 K=8473 mode=prove NONE (all branch-and-bound nodes closed) nodes=1 root_LB-Delta_hi=4438216526 time_ms=732
+n=9 K=8474 mode=prove NONE (all branch-and-bound nodes closed) nodes=1 root_LB-Delta_hi=229736764 time_ms=1087
+n=9 K=8475 mode=prove NONE (all branch-and-bound nodes closed) nodes=1 root_LB-Delta_hi=2920534988 time_ms=928
+n=9 K=8476 mode=prove NONE (all branch-and-bound nodes closed) nodes=1 root_LB-Delta_hi=6388578868 time_ms=961
+n=9 K=8477 mode=prove NONE (all branch-and-bound nodes closed) nodes=1 root_LB-Delta_hi=4259961094 time_ms=825
+n=9 K=8478 mode=prove NONE (all branch-and-bound nodes closed) nodes=1 root_LB-Delta_hi=708361851 time_ms=1189
+n=9 K=8479 mode=prove NONE (all branch-and-bound nodes closed) nodes=1 root_LB-Delta_hi=1072374355 time_ms=763
+n=9 K=8480 mode=prove NONE (all branch-and-bound nodes closed) nodes=1 root_LB-Delta_hi=1886111114 time_ms=1301
+n=9 K=8481 mode=prove NONE (all branch-and-bound nodes closed) nodes=1 root_LB-Delta_hi=594632917 time_ms=876
+n=9 K=8482 mode=prove NONE (all branch-and-bound nodes closed) nodes=1 root_LB-Delta_hi=594632917 time_ms=1117
+n=9 K=8483 mode=prove NONE (all branch-and-bound nodes closed) nodes=1 root_LB-Delta_hi=4637816641 time_ms=1062
+n=9 K=8484 mode=prove NONE (all branch-and-bound nodes closed) nodes=1 root_LB-Delta_hi=7660690383 time_ms=1253
+n=9 K=8485 mode=prove NONE (all branch-and-bound nodes closed) nodes=1 root_LB-Delta_hi=7660690383 time_ms=1114
+n=9 K=8486 mode=prove NONE (all branch-and-bound nodes closed) nodes=1 root_LB-Delta_hi=7660690383 time_ms=913
+n=9 K=8487 mode=prove NONE (all branch-and-bound nodes closed) nodes=1 root_LB-Delta_hi=1654508882 time_ms=943
+n=9 K=8488 mode=prove NONE (all branch-and-bound nodes closed) nodes=1 root_LB-Delta_hi=1654508882 time_ms=1152
+n=9 K=8489 mode=prove NONE (all branch-and-bound nodes closed) nodes=1 root_LB-Delta_hi=5254757409 time_ms=1539
+n=9 K=8490 mode=prove NONE (all branch-and-bound nodes closed) nodes=1 root_LB-Delta_hi=626444597 time_ms=1398
+n=9 K=8491 mode=prove NONE (all branch-and-bound nodes closed) nodes=1 root_LB-Delta_hi=626444597 time_ms=1275
+n=9 K=8492 mode=prove NONE (all branch-and-bound nodes closed) nodes=1 root_LB-Delta_hi=4259364827 time_ms=1628
+n=9 K=8493 mode=prove NONE (all branch-and-bound nodes closed) nodes=1 root_LB-Delta_hi=3018805705 time_ms=1531
+n=9 K=8494 mode=prove NONE (all branch-and-bound nodes closed) nodes=1 root_LB-Delta_hi=1606734949 time_ms=1599
+n=9 K=8495 mode=prove NONE (all branch-and-bound nodes closed) nodes=1 root_LB-Delta_hi=1606734949 time_ms=2351
+n=9 K=8496 mode=prove NONE (all branch-and-bound nodes closed) nodes=1 root_LB-Delta_hi=191468360 time_ms=2034
+n=9 K=8497 mode=prove UNDECIDED (node budget exceeded) nodes=1 time_ms=4274
+n=9 K=8498 mode=prove UNDECIDED (node budget exceeded) nodes=1 time_ms=2921
+n=9 K=8499 mode=prove UNDECIDED (node budget exceeded) nodes=1 time_ms=2499
+n=9 K=8500 mode=prove UNDECIDED (node budget exceeded) nodes=1 time_ms=3345
+n=9 K=8501 mode=prove UNDECIDED (node budget exceeded) nodes=1 time_ms=3261
+n=9 K=8502 mode=prove UNDECIDED (node budget exceeded) nodes=1 time_ms=2863
+n=9 K=8503 mode=prove UNDECIDED (node budget exceeded) nodes=1 time_ms=3374
+n=9 K=8504 mode=prove UNDECIDED (node budget exceeded) nodes=1 time_ms=3115
+n=9 K=8505 mode=prove UNDECIDED (node budget exceeded) nodes=1 time_ms=2747
+n=9 K=8506 mode=prove UNDECIDED (node budget exceeded) nodes=1 time_ms=3009
+n=9 K=8507 mode=prove UNDECIDED (node budget exceeded) nodes=1 time_ms=1733

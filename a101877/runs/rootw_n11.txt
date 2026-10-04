@@ -1,0 +1,2 @@
+2026-09-29T07:25:27+0000 n=11 K=60579 mode=witness NONE (all branch-and-bound nodes closed) nodes=1 root_LB-Delta_hi=13992222 time_ms=164211
+2026-09-29T07:45:02+0000 n=11 K=60580 mode=witness UNDECIDED (node budget exceeded) nodes=1 root_LB-Delta_hi=-695501196 time_ms=1174367

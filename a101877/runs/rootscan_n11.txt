@@ -1,0 +1,5 @@
+n=11 K=60578 mode=prove NONE (all branch-and-bound nodes closed) nodes=1 root_LB-Delta_hi=269979649 time_ms=120215
+n=11 K=60579 mode=prove UNDECIDED (node budget exceeded) nodes=1 root_LB-Delta_hi=-8486073691 time_ms=99708
+n=11 K=60580 mode=prove UNDECIDED (node budget exceeded) nodes=1 root_LB-Delta_hi=-10226823796 time_ms=122921
+n=11 K=60581 mode=prove UNDECIDED (node budget exceeded) nodes=1 root_LB-Delta_hi=-15998990772 time_ms=124126
+n=11 K=60582 mode=prove UNDECIDED (node budget exceeded) nodes=1 root_LB-Delta_hi=-20229867619 time_ms=132349

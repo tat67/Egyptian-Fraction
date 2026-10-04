@@ -1,0 +1,15 @@
+[2026-10-04 09:12:49 JST] ./a101877 prove 8 3227 threads=1
+n=8 K=3227 mode=prove NONE (all branch-and-bound nodes closed) nodes=1 root_LB-Delta_hi=1554800363 time_ms=201
+[2026-10-04 09:12:49 JST] ./a101877 prove 9 8496 threads=1
+n=9 K=8496 mode=prove NONE (all branch-and-bound nodes closed) nodes=1 root_LB-Delta_hi=191468360 time_ms=1489
+[2026-10-04 09:12:51 JST] ./a101877 witness 9 8497 threads=1
+n=9 K=8497 mode=witness NONE (all branch-and-bound nodes closed) nodes=239 root_LB-Delta_hi=-29677051138 time_ms=45282
+[2026-10-04 09:13:36 JST] ./a101877 witness 7 1243 threads=1
+n=7 K=1243 mode=witness FOUND |S|=805 nodes=30 time_ms=829 S=<omitted>
+[2026-10-04 09:13:37 JST] ./a101877 witness 6 469 threads=1
+n=6 K=469 mode=witness FOUND |S|=291 nodes=19 time_ms=112 S=<omitted>
+[2026-10-04 09:13:37 JST] ./a101877 witness 10 22789 threads=1
+n=10 K=22789 mode=witness NONE (all branch-and-bound nodes closed) nodes=2 root_LB-Delta_hi=-3471075943 time_ms=22571
+[2026-10-04 09:14:00 JST] ./a101877 witness 8 3228 threads=1
+n=8 K=3228 mode=witness FOUND |S|=2190 nodes=2722 time_ms=170411 S=<omitted>
+[2026-10-04 09:16:50 JST] done
