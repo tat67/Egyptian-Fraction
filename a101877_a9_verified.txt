@@ -570,11 +570,11 @@ Rule 4 (Lagrangian lower bound).  The certificate argument of Section 6, at ever
   valuation v adds a multiple of p^(E-v), so it changes only the top v base-p digits.  Once all
   elements of valuation >= v+1 are processed, digit E-v-1 is final; it must equal R_p's digit and
   is dropped.  The state at level v therefore has p^v values, not p^E, so one pass over all 150
-  primes costs about 2-4 ms at K = 8498.  Costs are fixed-point integers: floor(2^48/x) in the
+  primes takes about 3.5 ms on one core at K = 8498.  Costs are fixed-point integers: floor(2^48/x) in the
   bound, and ceil(2^48/x) in Dhi.
   NEW in v2: the multipliers are optimized by a Polyak subgradient with an adaptive target, namely
   the best bound so far plus delta, with delta halved after 30 non-improving steps.  The previous
-  solver aimed at a fixed target above Dhi, which made it oscillate.  Root bound, minus Dhi:
+  solver aimed at a fixed target above Dhi, which stalls at a weaker bound.  Root bound, minus Dhi:
     K = 8497 (witness):  -29,677,051,138 (v1, open)  ->  +4,008,227,003 (v2, closed at the root)
     K = 8498 (witness): -491,330,541,200 (v1)        ->  -372,349,182,797 (v2)
 
@@ -645,8 +645,9 @@ the node.
   witness 6 469   (find)           19 / 0.11 s                   8 / 0.06 s
   witness 7 1243  (find)           30 / 0.83 s                   14 / 0.72 s
   witness 8 3228  (find)           2722 / 170.4 s                22 / 4.1 s
-  witness 9 8500  (find)           (running)                   144 / 60.4 s
-  witness 9 8498  (find)           (running)                   67 / 37.4 s
+  witness 9 8500  (find)           3568 / 593.3 s                144 / 60.4 s
+  witness 9 8498  (find)           3000 / 424.3 s, not found     67 / 37.4 s
+                                   (node cap reached)
   (Earlier logs of v1 with 4 threads: witness 9 8500 found after 3568 nodes, about 30 min;
    witness 9 8498 stopped after about 38,300 nodes and 82 min without a decision.)
 
@@ -689,7 +690,7 @@ third sum check.
 --------------------------
 
   Task start:  2026-10-04 08:21:54 JST (UTC+09:00)
-  Task end:    (pending)
-  Elapsed:     (pending) (wall clock)
+  Task end:    2026-10-04 09:23:13 JST (UTC+09:00)
+  Elapsed:     1 h 01 min 19 s (wall clock)
   Token usage: unavailable.  No authoritative token-usage data is exposed in this session, so no
                figure is given.

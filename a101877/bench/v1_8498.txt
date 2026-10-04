@@ -1,1 +1,3 @@
 [2026-10-04 09:12:49 JST] ./a101877 witness 9 8498 threads=1 maxnodes=3000
+n=9 K=8498 mode=witness UNDECIDED (node budget exceeded) nodes=3000 root_LB-Delta_hi=-491330541200 time_ms=424316
+[2026-10-04 09:19:53 JST] done

@@ -12,7 +12,9 @@ the C++ solvers.  It checks:
 
  2 and 3 give a(9) >= 8498, and 1 gives a(9) <= 8498.
 """
-import sys
+import os, sys
+os.chdir(os.path.dirname(os.path.abspath(__file__)))   # paths below are relative to a101877/
+sys.path.insert(0, ".")
 from fractions import Fraction
 from math import lcm
 import verify_cert
