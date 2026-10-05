@@ -24,10 +24,33 @@ This directory contains exact solvers and independent checkers for this problem.
 | 7 | 1243 | exact | witness ([example](witnesses/witness_n7_max1243.txt)) + certificate | not completed (count stopped) |
 | 8 | **3228** (the published 3231 is wrong) | exact | witness + certificate | not completed (count stopped) |
 | 9 | **8498** | exact | witness + one certificate (`prove 9 8497`); the report uses two | not counted |
-| 10 | **22792 ≤ a(10) ≤ 22820** | bounds (both certified) | one certificate (`prove 10 22791`) + witness at 22820 | — |
+| 10 | **22792 ≤ a(10) ≤ 22820** | bounds only; a(10) undetermined | one certificate (`prove 10 22791`) + witness at 22820 (upper bound only) | — |
 | 11 | **a(11) ≥ 60590** (certified); no upper bound verified | lower bound only | one certificate (`prove 11 60589`) | — |
 
 For n = 4..8 each value is exact: a root certificate for K = a(n) − 1 (`certificates/cert_n*_K*.txt`) together with a witness at a(n) (`witnesses/`). For n = 1..3 no certificate is needed: the candidates in [1..a(n) − 1] already sum to less than n (`runs/validation.txt`). The counts for n ≤ 6 come from complete enumeration and agree with the earlier `a101877_dfs.cpp`.
+
+### Example witness files (n = 1..10)
+
+Each file below lists **every** element of one set S of distinct positive integers with Σ_{x∈S} 1/x = n, comma separated and in increasing order.
+* `python3 verify_witnesses.py` re-checks all of them exactly: distinct positive integers, the stated maximum, a `fractions.Fraction` sum equal to n, and the integer identity Σ L/x = nL with L = lcm(S). The output is in `runs/verify_witnesses.txt`.
+* A witness only shows a(n) ≤ max(S). It gives the exact value only together with a proof that no set with a smaller maximum exists; that proof is in the last column.
+
+| n | example witness | \|S\| | max(S) | what the example shows | proof that nothing smaller exists |
+|---|---|---|---|---|---|
+| 1 | [`witness_n1_max1.txt`](witnesses/witness_n1_max1.txt) | 1 | 1 | a(1) = 1 | trivial (S = {1}) |
+| 2 | [`witness_n2_max6.txt`](witnesses/witness_n2_max6.txt) | 4 | 6 | a(2) = 6 | candidates in [1..5] sum to less than 2 |
+| 3 | [`witness_n3_max24.txt`](witnesses/witness_n3_max24.txt) | 13 | 24 | a(3) = 24 | candidates in [1..23] sum to less than 3 |
+| 4 | [`witness_n4_max65.txt`](witnesses/witness_n4_max65.txt) | 37 | 65 | a(4) = 65 | `certificates/cert_n4_K64.txt` |
+| 5 | [`witness_n5_max184.txt`](witnesses/witness_n5_max184.txt) | 106 | 184 | a(5) = 184 | `certificates/cert_n5_K183.txt` |
+| 6 | [`witness_n6_max469.txt`](witnesses/witness_n6_max469.txt) | 291 | 469 | a(6) = 469 | `certificates/cert_n6_K468.txt` |
+| 7 | [`witness_n7_max1243.txt`](witnesses/witness_n7_max1243.txt) | 805 | 1243 | a(7) = 1243 | `certificates/cert_n7_K1242.txt` |
+| 8 | [`witness_n8_max3228.txt`](witnesses/witness_n8_max3228.txt) | 2190 | 3228 | a(8) = 3228 (OEIS lists 3231) | `certificates/cert_n8_K3227.txt` |
+| 9 | [`witness_n9_max8498.txt`](witnesses/witness_n9_max8498.txt) | 5966 | 8498 | a(9) = 8498 | `certificates/cert_n9_K8497.txt` (also `cert_n9_K8496_v2.txt` + `cert_n9_K8497w.txt`) |
+| 10 | [`witness_n10_max22820.txt`](witnesses/witness_n10_max22820.txt) | 16343 | 22820 | **only the upper bound a(10) ≤ 22820** | none: `certificates/cert_n10_K22791.txt` proves only a(10) ≥ 22792 |
+
+**n = 10 is not settled.** The example for n = 10 establishes only the upper bound a(10) ≤ 22820. The exact value of a(10) remains undetermined: it is known only that 22792 ≤ a(10) ≤ 22820. A set with a smaller maximum may exist. No candidate maximum from 22792 to 22819 has been certified impossible; 22792 is ruled out only by an uncertified branch and bound, and the others are undecided. See [n = 10](#n--10) below.
+
+For n = 9 there are two further, non-minimal examples, [`witness_n9_max8500.txt`](witnesses/witness_n9_max8500.txt) and [`witness_n9_max8502.txt`](witnesses/witness_n9_max8502.txt). Both are valid, but neither attains a(9).
 
 ### a(9) = 8498
 
@@ -208,6 +231,7 @@ The mathematics above is unchanged; v2 differs only in how the search is run.
 | `a101877_dfs.cpp` | an earlier exact enumerator (depth-first over primes); cross-checks counts for n ≤ 6 |
 | `verify_cert.py`, `verify_witness.py` | independent exact checkers |
 | `verify_a9.py` | one-shot check of a(9) = 8498 (witness + the three certificates of the report) |
+| `verify_witnesses.py` | exact check of every witness file in `witnesses/` (Fraction sum and lcm identity) |
 | `verify_bounds.py` | one-shot check of the new bounds: a(9) = 8498 (one certificate), 22792 ≤ a(10) ≤ 22820, a(11) ≥ 60590 (about 20 s) |
 | `noncandidates.py` | independent check that a given K cannot be the maximum (K ∉ U, step 2 of the Method) |
 | `validate_v2.sh` | v2 end to end for n = 1..9 (certificate at a(n) − 1, witness at a(n)) |
@@ -234,6 +258,7 @@ The mathematics above is unchanged; v2 differs only in how the search is run.
     ./a101877_v2 prove 8 3227 cert=c8.txt  && python3 verify_cert.py c8.txt   # a(8) > 3227
     ./a101877_v2 witness 8 3228                            # a(8) <= 3228 (22 nodes, about 4 s)
     ./validate_v2.sh                                       # v2, n = 1..9 end to end (about 1 min)
+    python3 verify_witnesses.py                            # every example witness, n = 1..10 (about 1 s)
     python3 verify_bounds.py                               # all new bounds for n = 9, 10, 11 (about 20 s)
     python3 verify_cert.py certificates/cert_n10_K22791.txt              # a(10) >= 22792
     ./a101877_v2 witness 10 22820                          # a(10) <= 22820 (860 nodes, about 22 min)

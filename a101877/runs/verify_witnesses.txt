@@ -1,0 +1,13 @@
+n= 1 K=     1 witness_n1_max1.txt          |S|=     1 max=     1 sum 1/x = 1  -> VALID
+n= 2 K=     6 witness_n2_max6.txt          |S|=     4 max=     6 sum 1/x = 2  -> VALID
+n= 3 K=    24 witness_n3_max24.txt         |S|=    13 max=    24 sum 1/x = 3  -> VALID
+n= 4 K=    65 witness_n4_max65.txt         |S|=    37 max=    65 sum 1/x = 4  -> VALID
+n= 5 K=   184 witness_n5_max184.txt        |S|=   106 max=   184 sum 1/x = 5  -> VALID
+n= 6 K=   469 witness_n6_max469.txt        |S|=   291 max=   469 sum 1/x = 6  -> VALID
+n= 7 K=  1243 witness_n7_max1243.txt       |S|=   805 max=  1243 sum 1/x = 7  -> VALID
+n= 8 K=  3228 witness_n8_max3228.txt       |S|=  2190 max=  3228 sum 1/x = 8  -> VALID
+n= 9 K=  8498 witness_n9_max8498.txt       |S|=  5966 max=  8498 sum 1/x = 9  -> VALID
+n= 9 K=  8500 witness_n9_max8500.txt       |S|=  5960 max=  8500 sum 1/x = 9  -> VALID
+n= 9 K=  8502 witness_n9_max8502.txt       |S|=  5961 max=  8502 sum 1/x = 9  -> VALID
+n=10 K= 22820 witness_n10_max22820.txt     |S|= 16343 max= 22820 sum 1/x = 10  -> VALID
+RESULT: all witness files valid
