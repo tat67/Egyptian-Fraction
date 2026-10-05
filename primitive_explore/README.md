@@ -24,6 +24,7 @@ The CP-SAT results, including universes up to `10^5` with no primitive solution 
 | `X` | candidates after the filter | 44-term solutions with all elements `≤ X` | time |
 |---:|---:|---|---|
 | 20 000 | 14 636 | exactly 1: `T44` | 9 min (4 workers) |
+| 30 000 | 22 211 | exactly 1: `T44` | 29 min (2 workers, with the cuts) |
 
 Run from the repository root:
 

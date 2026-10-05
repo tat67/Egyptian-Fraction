@@ -7,6 +7,12 @@ Usage (from the repository root):
                           "q2exact K A" as "sigma*1e12 <= N", Y and H = its "Y" and "hmax"
             known=FILE    lines of known solutions: verified exactly, recorded, and excluded first
             mem=MB        CP-SAT memory limit (the solver then stops with UNKNOWN instead of OOM)
+            above=Z,j     only sets with exactly j elements > Z (to split the work into disjoint cases)
+            levels=1      add the implied congruences modulo p^j (j < E) on the elements of high
+                          p-valuation (see 3c)
+            chains=1      add "at most one" constraints on the divisibility chains
+                          {m, 2m, 4m, ...} and {m, 3m, 9m, ...} (implied by primitivity; a stronger
+                          linear relaxation than the pairwise clauses)
   e.g.  python3 primitive_explore/enum_q2.py 100000 44 2 0 out.txt cut=145,44450130017,1829,6 known=t44.txt mem=10000
 
 A set T of integers >= 2 is primitive if no element divides another.  We want every primitive T
@@ -32,6 +38,10 @@ Method.
     sum ceil(S/n) x_n >= S >= sum floor(S/n) x_n (S = 2^40);  and sum x_n = K.
     The congruences make sum 1/n an integer and the value constraint puts it within 44/S of 1,
     so the model's solutions are exactly the solutions of the problem in the universe.
+ 3c. Optional implied congruences: if sum c x == 0 (mod p^E), then also mod p^j for j < E, and
+    modulo p^j every term with v_p(n) <= E - j vanishes (its coefficient (D/n) mod p^E is divisible
+    by p^(E - v_p(n))).  So  sum_{v_p(n) > E - j} ((D/n) mod p^j) x_n == 0 (mod p^j): a congruence
+    on the few elements of high valuation, which the solver propagates much better.
  3b. Optional valid cuts (Lemmas 2 and 3 of primitive_q2/README.md, constants from q2exact):
     sum_{n in T, n >= A} (1/A - 1/n) <= sigma < (N+1)/10^12, used with integer coefficients
     floor(S (1/A - 1/n)) <= S (1/A - 1/n) and right-hand side floor(S (N+1) / 10^12); and at most
@@ -109,7 +119,18 @@ npairs = 0
 for a in U:
     for b in range(2 * a, X + 1, a):
         if b in Us: mdl.AddBoolOr([x[a].Not(), x[b].Not()]); npairs += 1
-PS = sorted(set(p for n in U for p in fac[n]))
+PS = sorted(set(p for n in U for p in fac[n])); nlev = 0
+if opts.get("chains") == "1":
+    nch = 0
+    for q in (2, 3):
+        for m0 in U:
+            if m0 % q == 0: continue
+            ch = []; v = m0
+            while v <= X:
+                if v in Us: ch.append(v)
+                v *= q
+            if len(ch) >= 3: mdl.AddAtMostOne([x[v] for v in ch]); nch += 1
+    log("chain constraints: %d" % nch)
 for p in PS:
     M = 1
     while D % (M * p) == 0: M *= p
@@ -118,6 +139,17 @@ for p in PS:
     if not idx: continue
     k = mdl.NewIntVar(0, sum(c for c, _ in idx) // M + 1, "k%d" % p)
     mdl.Add(sum(c * x[n] for c, n in idx) == M * k)
+    if opts.get("levels") == "1":
+        E = 0; t = M
+        while t > 1: t //= p; E += 1
+        for j in range(1, E):
+            pj = p ** j
+            sub = [((D // n) % pj, n) for n in U if n % (p ** (E - j + 1)) == 0]
+            sub = [(c, n) for c, n in sub if c]
+            if not sub: continue
+            kj = mdl.NewIntVar(0, sum(c for c, _ in sub) // pj + 1, "k%d_%d" % (p, j))
+            mdl.Add(sum(c * x[n] for c, n in sub) == pj * kj)
+            nlev += 1
 S = 1 << 40
 mdl.Add(sum(((S + n - 1) // n) * x[n] for n in U) >= S)
 mdl.Add(sum((S // n) * x[n] for n in U) <= S)
@@ -128,7 +160,11 @@ if "cut" in opts:
     mdl.Add(sum((S * (n - A) // (A * n)) * x[n] for n in big) <= S * (N + 1) // 10 ** 12)
     mdl.Add(sum(x[n] for n in U if n > Ycut) <= H)
     log("cuts: Lagrangian (A=%d, sigma < %d e-12) on %d elements; at most %d elements > %d" % (A, N + 1, len(big), H, Ycut))
-log("model: %d variables, %d primitivity clauses, %d prime congruences  [%s]" % (len(U), npairs, len(PS), el()))
+if "above" in opts:
+    Z, j = map(int, opts["above"].split(","))
+    mdl.Add(sum(x[n] for n in U if n > Z) == j)
+    log("case: exactly %d element(s) > %d" % (j, Z))
+log("model: %d variables, %d primitivity clauses, %d prime congruences (+%d level congruences)  [%s]" % (len(U), npairs, len(PS), nlev, el()))
 
 def verify(T):
     T = sorted(T)
