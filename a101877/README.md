@@ -24,7 +24,7 @@ This directory contains exact solvers and independent checkers for this problem.
 | 7 | 1243 | exact | | not completed (count stopped) |
 | 8 | **3228** (the published 3231 is wrong) | exact | witness + certificate | not completed (count stopped) |
 | 9 | **8498** | exact | witness + two certificates | not counted |
-| 10 | **a(10) ≥ 22792** (certified); no upper bound verified | lower bound only | one certificate (`prove 10 22791`) | — |
+| 10 | **22792 ≤ a(10) ≤ 22820** | bounds (both certified) | one certificate (`prove 10 22791`) + witness at 22820 | — |
 | 11 | **a(11) ≥ 60590** (certified); no upper bound verified | lower bound only | one certificate (`prove 11 60589`) | — |
 
 For n = 4..8 each value is exact: a root certificate for K = a(n) − 1 (`certificates/cert_n*_K*.txt`) together with a witness at a(n) (`witnesses/`). For n = 1..3 no certificate is needed: the candidates in [1..a(n) − 1] already sum to less than n (`runs/validation.txt`). The counts for n ≤ 6 come from complete enumeration and agree with the earlier `a101877_dfs.cpp`.
@@ -71,7 +71,10 @@ The single-threaded search is deterministic, so identical output is expected.
   * This single certificate covers the earlier `cert_n10_K22788.txt` and `cert_n10_K22789w.txt`. It also covers the new per-K root closures for K = 22790 and K = 22791, with margins 2,087,026,847 and 967,621,845. Those were checked too; see `runs/v2_n10/`.
   * Before v2, K = 22790 was undecided: v1's root bound was −6,062,645,272, and it stopped after 1500 nodes.
 * **Branch and bound, without an independent certificate.** v2 `witness 10 22792` ends with NONE after 643 nodes (10.2 min, one core). So no S with max(S) = 22792 exists, if one accepts this complete but uncertified search. Its root bound is −2,741,356,479.
-* **Upper bound.** No witness for n = 10 has been found. The claimed a(10) ≤ 22820 (given with the task) is therefore still not verified here.
+* **Upper bound: a(10) ≤ 22820** (new). This confirms the value given with the task.
+  * `witnesses/witness_n10_max22820.txt` lists 16,343 distinct integers with maximum 22820 whose reciprocals sum to exactly 10.
+  * It is checked with `fractions.Fraction` and with the lcm identity Σ L/x = 10L, where L has 864 digits. It also passes sympy, `verify_witness.py`, and the check modes of both C++ solvers (`runs/v2_n10/verify_witness_n10_max22820.txt`).
+  * v2 found it with `witness 10 22820` after 860 nodes (maximum depth 182) in 21.5 min on one core. The root bound was −244,833,989,013. v1 had found no witness at 22820 within its time budget (`runs/log_n10.txt`).
 * **Candidate filter.** Of K = 22790..22830, the 16 values 22798, 22799, 22801, 22804, 22805, 22807–22813, 22817, 22818, 22821 and 22822 are excluded by the C++ filter (`runs/v2_n10/candidate_scan_K22790_22830.txt`). None of them is used in the certified bound.
 
 ### n = 11
@@ -173,7 +176,8 @@ The mathematics above is unchanged; v2 differs only in how the search is run.
 | `a101877.cpp` | the earlier solver (v1): `prove`, `witness`, `count`, `check`; still used for counting |
 | `a101877_dfs.cpp` | an earlier exact enumerator (depth-first over primes); cross-checks counts for n ≤ 6 |
 | `verify_cert.py`, `verify_witness.py` | independent exact checkers |
-| `verify_a9.py` | one-shot check of a(9) = 8498 (witness + three certificates) |
+| `verify_a9.py` | one-shot check of a(9) = 8498 (witness + the three certificates of the report) |
+| `verify_bounds.py` | one-shot check of the new bounds: a(9) = 8498 (one certificate), 22792 ≤ a(10) ≤ 22820, a(11) ≥ 60590 (about 20 s) |
 | `noncandidates.py` | independent check that a given K cannot be the maximum (K ∉ U, Rule 2) |
 | `validate_v2.sh` | v2 end to end for n = 1..9 (certificate at a(n) − 1, witness at a(n)) |
 | `rootsweep_v2.sh` | v2 root sweep: `witness n K` for K = K0, K0+1, …, until a root does not close |
@@ -199,7 +203,9 @@ The mathematics above is unchanged; v2 differs only in how the search is run.
     ./a101877_v2 prove 8 3227 cert=c8.txt  && python3 verify_cert.py c8.txt   # a(8) > 3227
     ./a101877_v2 witness 8 3228                            # a(8) <= 3228 (22 nodes, about 4 s)
     ./validate_v2.sh                                       # v2, n = 1..9 end to end (about 1 min)
+    python3 verify_bounds.py                               # all new bounds for n = 9, 10, 11 (about 20 s)
     python3 verify_cert.py certificates/cert_n10_K22791.txt              # a(10) >= 22792
+    ./a101877_v2 witness 10 22820                          # a(10) <= 22820 (860 nodes, about 22 min)
     ./a101877_v2 witness 10 22792                          # NONE after 643 nodes (about 10 min)
     ./rootsweep_v2.sh 11 60580 out11                       # n = 11 root closures up to K = 60589
     python3 noncandidates.py 60584 60586 60589             # these K cannot be the maximum

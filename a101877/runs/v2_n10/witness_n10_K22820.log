@@ -1,0 +1,45 @@
+n=10 K=22820 mode=witness |U|=17231 primes=299 slots=48311 threads=1 Dhi=18293571592817
+  branch node 1 depth 0 LB-Dhi=-244833989013 passes=4360 t=88430ms
+  progress nodes=2 passes=4360 maxdepth=1 depth=1 t=88431ms
+  branch node 2 depth 1 LB-Dhi=-244833989011 passes=4503 t=91138ms
+  branch node 3 depth 2 LB-Dhi=-244833989008 passes=4604 t=93249ms
+  progress nodes=15 passes=5925 maxdepth=14 depth=14 t=118665ms
+  progress nodes=29 passes=7591 maxdepth=28 depth=28 t=149400ms
+  progress nodes=41 passes=9269 maxdepth=40 depth=40 t=180691ms
+  progress nodes=52 passes=10850 maxdepth=51 depth=51 t=211390ms
+  progress nodes=63 passes=12384 maxdepth=62 depth=62 t=244346ms
+  progress nodes=73 passes=13818 maxdepth=72 depth=72 t=278083ms
+  progress nodes=82 passes=15109 maxdepth=81 depth=81 t=308092ms
+  progress nodes=92 passes=16543 maxdepth=91 depth=91 t=340260ms
+  progress nodes=104 passes=18260 maxdepth=103 depth=103 t=370584ms
+  progress nodes=117 passes=20120 maxdepth=116 depth=116 t=402703ms
+  progress nodes=129 passes=21969 maxdepth=128 depth=128 t=433805ms
+  progress nodes=141 passes=23947 maxdepth=140 depth=140 t=466183ms
+  progress nodes=151 passes=25951 maxdepth=150 depth=150 t=497268ms
+  progress nodes=163 passes=28209 maxdepth=162 depth=162 t=528546ms
+  progress nodes=188 passes=33108 maxdepth=172 depth=169 t=559163ms
+  progress nodes=215 passes=38538 maxdepth=174 depth=168 t=589472ms
+  progress nodes=243 passes=43763 maxdepth=174 depth=167 t=619780ms
+  progress nodes=267 passes=48592 maxdepth=174 depth=170 t=650951ms
+  progress nodes=294 passes=53821 maxdepth=176 depth=176 t=681438ms
+  progress nodes=325 passes=59304 maxdepth=182 depth=173 t=711463ms
+  progress nodes=355 passes=64858 maxdepth=182 depth=174 t=742344ms
+  progress nodes=382 passes=69983 maxdepth=182 depth=171 t=772644ms
+  branch node 400 depth 177 LB-Dhi=-2141890926 passes=73607 t=792579ms
+  progress nodes=414 passes=75715 maxdepth=182 depth=170 t=803789ms
+  progress nodes=442 passes=80785 maxdepth=182 depth=170 t=833848ms
+  progress nodes=474 passes=86473 maxdepth=182 depth=167 t=864230ms
+  progress nodes=495 passes=90779 maxdepth=182 depth=171 t=894716ms
+  progress nodes=520 passes=95672 maxdepth=182 depth=173 t=925811ms
+  progress nodes=551 passes=101376 maxdepth=182 depth=177 t=956777ms
+  progress nodes=587 passes=107626 maxdepth=182 depth=173 t=988129ms
+  progress nodes=613 passes=112914 maxdepth=182 depth=169 t=1018523ms
+  progress nodes=643 passes=118446 maxdepth=182 depth=172 t=1048848ms
+  progress nodes=670 passes=123400 maxdepth=182 depth=172 t=1079217ms
+  progress nodes=700 passes=129050 maxdepth=182 depth=168 t=1110940ms
+  progress nodes=727 passes=134191 maxdepth=182 depth=177 t=1141141ms
+  progress nodes=754 passes=139186 maxdepth=182 depth=173 t=1172053ms
+  progress nodes=783 passes=144464 maxdepth=182 depth=171 t=1202392ms
+  branch node 800 depth 169 LB-Dhi=-5915032034 passes=147795 t=1221359ms
+  progress nodes=810 passes=149486 maxdepth=182 depth=166 t=1233974ms
+  progress nodes=832 passes=153721 maxdepth=182 depth=169 t=1264409ms

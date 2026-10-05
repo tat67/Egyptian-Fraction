@@ -1,0 +1,2 @@
+check n=10 K=22820 |S|=16343 max=22820: VALID witness (ok)
+n=10 K=22820 |S|=16343 max=22820 sum==n exactly: True
