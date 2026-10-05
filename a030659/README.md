@@ -11,7 +11,7 @@
 * The last one is `a(473) = 999`.
 * No representation of 1 by 474 distinct unit fractions has all denominators `≤ 1000`, so `a(474) > 1000`.
 
-The terms, in OEIS b-file format, are in [`b030659.txt`](b030659.txt).
+The terms, in OEIS b-file format, are in [`b030659.txt`](b030659.txt): the header line `# A030659 (b-file synthesized from sequence entry)`, as in the OEIS b-file, followed by one line `n a(n)` for each `n = 3..473`.
 
 All 145 previously known terms (`n = 3..147`, up to `a(147) = 322`) are reproduced exactly. They are compared against the original OEIS b-file in [`oeis_b030659_original.txt`](oeis_b030659_original.txt), and `make_outputs.py` repeats the comparison. The new terms are `n = 148..473`.
 
@@ -183,7 +183,7 @@ The recorded run is stored compressed as `f_values.jsonl.gz`. The scripts other 
 
 | file | contents |
 |---|---|
-| `b030659.txt` | `n a(n)` for `n = 3..473` |
+| `b030659.txt` | b-file: header line, then `n a(n)` for `n = 3..473` |
 | `witnesses.txt` | for each `n`, the `n` denominators of a representation of 1 with largest denominator `a(n)` |
 | `f_table.txt` | `f(M)` for `M = 1..1000` |
 | `oeis_b030659_original.txt` | the existing OEIS b-file (`n = 3..147`), for comparison |

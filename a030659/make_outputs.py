@@ -1,5 +1,5 @@
-"""From f_values.jsonl: derive a(n), write b030659.txt (OEIS b-file format,
-n = 3..473) and f_table.txt (M, f(M)), and compare with the existing OEIS terms (oeis_b030659_original.txt)."""
+"""From f_values.jsonl: derive a(n), write b030659.txt (OEIS b-file format with the
+header line of the OEIS b-file, n = 3..473) and f_table.txt (M, f(M)), and compare with the existing OEIS terms (oeis_b030659_original.txt)."""
 import json
 from records import load_records
 recs=load_records()
@@ -10,6 +10,7 @@ for M in range(1,1001):
     for n in range(3,f[M]+1): a.setdefault(n,M)
 N=max(a); assert sorted(a)==list(range(3,N+1))
 with open("b030659.txt","w") as fo:
+    fo.write("# A030659 (b-file synthesized from sequence entry)\n")   # same header line as the OEIS b-file
     for n in range(3,N+1): fo.write(f"{n} {a[n]}\n")
 with open("f_table.txt","w") as fo:
     fo.write("# M f(M): max number of distinct unit fractions 1/k, k <= M, summing to 1\n")
