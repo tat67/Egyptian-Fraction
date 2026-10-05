@@ -21,7 +21,7 @@ This directory contains exact solvers and independent checkers for this problem.
 | 4 | 65 | exact | | 1 |
 | 5 | 184 | exact | | 16 |
 | 6 | 469 | exact | | 224 |
-| 7 | 1243 | exact | | not completed (count stopped) |
+| 7 | 1243 | exact | witness ([example](witnesses/witness_n7_max1243.txt)) + certificate | not completed (count stopped) |
 | 8 | **3228** (the published 3231 is wrong) | exact | witness + certificate | not completed (count stopped) |
 | 9 | **8498** | exact | witness + one certificate (`prove 9 8497`); the report uses two | not counted |
 | 10 | **22792 ≤ a(10) ≤ 22820** | bounds (both certified) | one certificate (`prove 10 22791`) + witness at 22820 | — |
@@ -63,6 +63,28 @@ The single-threaded search is deterministic, so identical output is expected.
 * **Witness.** `witnesses/witness_n8_max3228.txt` lists 2190 distinct integers with maximum 3228 whose reciprocals sum to exactly 8. It is checked with `fractions.Fraction`, with an lcm integer computation, with sympy, and by the C++ residue check.
 * **Lower bound.** Nothing with maximum ≤ 3227 exists. The certificate is `certificates/cert_n8_K3227.txt`, checked by `verify_cert.py`.
 * **Consequence.** The published a(8) = 3231 (OEIS) is an overestimate.
+
+### a(7) = 1243: an explicit example
+
+[`witnesses/witness_n7_max1243.txt`](witnesses/witness_n7_max1243.txt) lists, comma separated and in increasing order, **every** element of one set S with max(S) = 1243 = 11·113 and Σ_{x∈S} 1/x = 7. Nothing is omitted.
+
+* **Size.** S has 805 distinct elements. The smallest is 1, the largest 1243.
+* **Structure.** S contains every integer from 1 to 138, and no element of S has a prime factor larger than 173. Of the integers in [1..1243], 438 are not in S:
+  * **375 non-candidates.** These cannot belong to any set in [1..1243] with an integral reciprocal sum (step 2 of the Method below). They begin with the primes 139, 149, 151, … whose multiples cannot balance their p-adic residue.
+  * **63 excluded candidates.** These are the following candidates, whose reciprocals sum to Δ = Σ_U 1/x − 7 ≈ 0.07448 (the exclusion form, step 3 of the Method):
+    327, 507, 508, 515, 524, 602, 606, 610, 611, 623, 635, 678, 682, 730, 737, 749, 779, 786, 790, 805, 822, 830, 833, 872, 876, 885, 890, 896, 904, 912, 927, 944, 948, 959, 963, 986, 1017, 1027, 1048, 1062, 1065, 1072, 1073, 1079, 1090, 1095, 1096, 1098, 1111, 1128, 1131, 1134, 1143, 1162, 1164, 1170, 1177, 1184, 1207, 1218, 1219, 1233, 1236.
+* **Exact verification** (`runs/verify_witness_n7_max1243.txt`):
+  * The 805 entries are distinct positive integers with maximum 1243.
+  * `fractions.Fraction` gives Σ 1/x = 7 exactly.
+  * The integer identity Σ_{x∈S} L/x = 7L holds for L = lcm(S), a 68-digit integer.
+  * `sympy.Rational`, `verify_witness.py`, and the check modes of both C++ solvers agree.
+* **Optimality.** No set with maximum ≤ 1242 has sum 7: the certificate `certificates/cert_n7_K1242.txt` is checked by `verify_cert.py`. Hence a(7) = 1243.
+* **Origin.** The set was found by v1 (`./a101877 witness 7 1243`, 30 nodes; `runs/validation.txt`). v2 finds a different 807-element set in 14 nodes. Many sets with maximum 1243 exist; the file records one of them.
+
+Re-check it with:
+
+    python3 verify_witness.py 7 1243 --S "$(cat witnesses/witness_n7_max1243.txt)"   # exact Fraction sum
+    python3 verify_cert.py certificates/cert_n7_K1242.txt                          # nothing below 1243
 
 ### n = 10
 
@@ -109,7 +131,7 @@ The task gave lower bounds 8492, 22788 and 60577 for n = 9, 10, 11. All three ar
   * When the Lagrangian bound closes a case at the root, the weights are written as a certificate in `certificates/`.
   * `verify_cert.py` re-checks every certificate. It shares no code with the C++ programs: it recomputes the candidate set, the residues, Δ and every per-prime minimum with a plain residue DP in integer numpy.
   * Files `cert_n*_K*w.txt` have K forced into S, i.e. they prove "no S with max(S) = K". Check them with `--forced-in K`.
-* **Candidate filter.** Some K cannot be the maximum of any set with an integral sum (Rule 2 below), e.g. 8499 and 8501 for n = 9. `verify_witness.py` recomputes the candidate set independently, which confirms this.
+* **Candidate filter.** Some K cannot be the maximum of any set with an integral sum (step 2 of the Method), e.g. 8499 and 8501 for n = 9. `verify_witness.py` recomputes the candidate set independently, which confirms this.
 * **Multi-node closures.** Branch and bound over several nodes gives NONE results without an independent certificate. Every lower bound stated above rests on root certificates and the candidate filter only. Earlier multi-node results (v1: n = 9 with max 8497, n = 10 with max 22789) have since been re-proved by root certificates.
 * **Validation.**
   * v1 (`validate.sh`) was validated on n = 1..8. It reproduces every known value except a(8), where it finds the smaller correct value, and the known witness counts 1, 1, 16 and 224 for n = 3..6.
@@ -187,7 +209,7 @@ The mathematics above is unchanged; v2 differs only in how the search is run.
 | `verify_cert.py`, `verify_witness.py` | independent exact checkers |
 | `verify_a9.py` | one-shot check of a(9) = 8498 (witness + the three certificates of the report) |
 | `verify_bounds.py` | one-shot check of the new bounds: a(9) = 8498 (one certificate), 22792 ≤ a(10) ≤ 22820, a(11) ≥ 60590 (about 20 s) |
-| `noncandidates.py` | independent check that a given K cannot be the maximum (K ∉ U, Rule 2) |
+| `noncandidates.py` | independent check that a given K cannot be the maximum (K ∉ U, step 2 of the Method) |
 | `validate_v2.sh` | v2 end to end for n = 1..9 (certificate at a(n) − 1, witness at a(n)) |
 | `rootsweep_v2.sh` | v2 root sweep: `witness n K` for K = K0, K0+1, …, until a root does not close |
 | `a101877_a9_verified.txt` | the full report on a(9) = 8498, including the complete witness and the soundness argument for every rule |

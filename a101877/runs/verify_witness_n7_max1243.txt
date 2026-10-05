@@ -1,0 +1,9 @@
+# Verification of witnesses/witness_n7_max1243.txt (2026-10-05 19:47:22 JST)
+elements=805 distinct=True min=1 max=1243
+Fraction: sum_(x in S) 1/x = 7  (== 7: True)
+integer identity: L = lcm(S) = 66978755951986666345910434313263931758242719902323686455359889056000 (68 digits); sum L/x == 7*L: True
+sympy.Rational sum: 7
+n=7 K=1243 |S|=805 max=1243 sum==n exactly: True
+check n=7 K=1243 |S|=805 max=1243: VALID witness (ok)
+check n=7 K=1243 |S|=805 max=1243: VALID witness (ok)
+certificate n=7 K=1242: |U|=867 primes=36 LB-Dhi=1011169701  -> VALID: no S in [1..K] has sum n
