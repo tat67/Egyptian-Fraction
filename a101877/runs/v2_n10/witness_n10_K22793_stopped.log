@@ -1,0 +1,8 @@
+# ./a101877_v2 witness 10 22793  (single thread) -- STOPPED at 2026-10-05 16:42:17 JST without a decision (time limit of this session)
+n=10 K=22793 mode=witness |U|=17218 primes=299 slots=48268 threads=1 Dhi=18133123129956
+# root:
+  branch node 1 depth 0 LB-Dhi=-6764866082 passes=4388 t=85240ms
+  branch node 2 depth 1 LB-Dhi=-6764866079 passes=4531 t=86099ms
+  branch node 3 depth 2 LB-Dhi=-6764866076 passes=4676 t=86984ms
+# last progress line:
+  progress nodes=2955 passes=538601 maxdepth=30 depth=22 t=2959572ms

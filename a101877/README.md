@@ -23,7 +23,7 @@ This directory contains exact solvers and independent checkers for this problem.
 | 6 | 469 | exact | | 224 |
 | 7 | 1243 | exact | | not completed (count stopped) |
 | 8 | **3228** (the published 3231 is wrong) | exact | witness + certificate | not completed (count stopped) |
-| 9 | **8498** | exact | witness + two certificates | not counted |
+| 9 | **8498** | exact | witness + one certificate (`prove 9 8497`); the report uses two | not counted |
 | 10 | **22792 ≤ a(10) ≤ 22820** | bounds (both certified) | one certificate (`prove 10 22791`) + witness at 22820 | — |
 | 11 | **a(11) ≥ 60590** (certified); no upper bound verified | lower bound only | one certificate (`prove 11 60589`) | — |
 
@@ -70,11 +70,20 @@ The single-threaded search is deterministic, so identical output is expected.
   * `certificates/cert_n10_K22791.txt` comes from v2 `prove 10 22791`, a root closure with margin 65,908,006. It shows that no S ⊆ [1..22791] has sum 10, and `verify_cert.py` checks it in about 4 s.
   * This single certificate covers the earlier `cert_n10_K22788.txt` and `cert_n10_K22789w.txt`. It also covers the new per-K root closures for K = 22790 and K = 22791, with margins 2,087,026,847 and 967,621,845. Those were checked too; see `runs/v2_n10/`.
   * Before v2, K = 22790 was undecided: v1's root bound was −6,062,645,272, and it stopped after 1500 nodes.
-* **Branch and bound, without an independent certificate.** v2 `witness 10 22792` ends with NONE after 643 nodes (10.2 min, one core). So no S with max(S) = 22792 exists, if one accepts this complete but uncertified search. Its root bound is −2,741,356,479.
 * **Upper bound: a(10) ≤ 22820** (new). This confirms the value given with the task.
   * `witnesses/witness_n10_max22820.txt` lists 16,343 distinct integers with maximum 22820 whose reciprocals sum to exactly 10.
   * It is checked with `fractions.Fraction` and with the lcm identity Σ L/x = 10L, where L has 864 digits. It also passes sympy, `verify_witness.py`, and the check modes of both C++ solvers (`runs/v2_n10/verify_witness_n10_max22820.txt`).
   * v2 found it with `witness 10 22820` after 860 nodes (maximum depth 182) in 21.5 min on one core. The root bound was −244,833,989,013. v1 had found no witness at 22820 within its time budget (`runs/log_n10.txt`).
+* **Branch and bound, without an independent certificate.** v2 `witness 10 22792` ends with NONE after 643 nodes (10.2 min, one core). So no S with max(S) = 22792 exists, if one accepts this complete but uncertified search. Its root bound is −2,741,356,479.
+* **Open.** The exact value is open: a(10) ∈ [22792, 22820], or [22793, 22820] if one accepts the branch-and-bound result for 22792. Single-core v2 runs were stopped without a decision (`runs/v2_n10/*_stopped.log`):
+
+  | run | root bound | stopped after |
+  |---|---|---|
+  | `witness 10 22793` | −6,764,866,082 | 2955 nodes, 49 min |
+  | `witness 10 22794` | −23,998,625,761 | 1980 nodes, 40 min |
+  | `witness 10 22806` | −141,806,677,316 | 923 nodes, 21 min |
+
+  To settle a(10), every candidate K between 22793 and 22819 must be decided: either a branch and bound ending in NONE, or a witness.
 * **Candidate filter.** Of K = 22790..22830, the 16 values 22798, 22799, 22801, 22804, 22805, 22807–22813, 22817, 22818, 22821 and 22822 are excluded by the C++ filter (`runs/v2_n10/candidate_scan_K22790_22830.txt`). None of them is used in the certified bound.
 
 ### n = 11
