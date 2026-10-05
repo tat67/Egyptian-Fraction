@@ -1,0 +1,28 @@
+n=10 K=22792 mode=witness |U|=17217 primes=299 slots=48266 threads=1 Dhi=18120773944824
+  branch node 1 depth 0 LB-Dhi=-2741356479 passes=4238 t=81814ms
+  progress nodes=2 passes=4238 maxdepth=1 depth=1 t=81814ms
+  branch node 2 depth 1 LB-Dhi=-2741356476 passes=4381 t=82418ms
+  branch node 3 depth 2 LB-Dhi=-2725885702 passes=4526 t=83085ms
+  progress nodes=38 passes=10521 maxdepth=8 depth=7 t=112186ms
+  branch node 42 depth 2 LB-Dhi=-2741356471 passes=11350 t=115951ms
+  progress nodes=76 passes=16884 maxdepth=12 depth=9 t=142720ms
+  progress nodes=113 passes=23103 maxdepth=14 depth=11 t=173876ms
+  progress nodes=145 passes=28910 maxdepth=14 depth=12 t=204241ms
+  progress nodes=183 passes=35218 maxdepth=16 depth=16 t=234974ms
+  branch node 200 depth 11 LB-Dhi=-2357520405 passes=37955 t=247309ms
+  progress nodes=222 passes=41661 maxdepth=17 depth=16 t=265175ms
+  progress nodes=261 passes=48114 maxdepth=17 depth=13 t=295659ms
+  progress nodes=300 passes=54376 maxdepth=17 depth=17 t=326244ms
+  progress nodes=336 passes=60630 maxdepth=20 depth=12 t=356790ms
+  progress nodes=373 passes=66561 maxdepth=20 depth=7 t=386926ms
+  branch node 400 depth 10 LB-Dhi=-1809642682 passes=71244 t=411252ms
+  progress nodes=407 passes=72468 maxdepth=20 depth=9 t=417546ms
+  branch node 421 depth 1 LB-Dhi=-2741356473 passes=75108 t=430046ms
+  branch node 422 depth 2 LB-Dhi=-2725993326 passes=75253 t=430861ms
+  progress nodes=445 passes=78915 maxdepth=20 depth=4 t=447628ms
+  branch node 463 depth 2 LB-Dhi=-2741356468 passes=82041 t=463472ms
+  progress nodes=479 passes=84826 maxdepth=20 depth=10 t=477691ms
+  progress nodes=517 passes=91469 maxdepth=20 depth=9 t=508613ms
+  progress nodes=554 passes=97374 maxdepth=20 depth=11 t=538803ms
+  progress nodes=593 passes=103953 maxdepth=20 depth=11 t=568947ms
+  progress nodes=629 passes=110446 maxdepth=20 depth=11 t=599453ms

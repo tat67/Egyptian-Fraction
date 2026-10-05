@@ -1,0 +1,3 @@
+K=60584: |U|=46597  K in U: False  -> K cannot be the maximum (not a candidate)  (5 s)
+K=60586: |U|=46598  K in U: False  -> K cannot be the maximum (not a candidate)  (5 s)
+K=60589: |U|=46600  K in U: False  -> K cannot be the maximum (not a candidate)  (7 s)

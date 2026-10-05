@@ -1,0 +1,4 @@
+n=11 K=60590 mode=witness |U|=46601 primes=636 slots=135262 threads=1 Dhi=17724630037987
+  branch node 1 depth 0 LB-Dhi=-1678478076 passes=6049 t=631131ms
+  progress nodes=2 passes=6049 maxdepth=1 depth=1 t=631132ms
+n=11 K=60590 mode=witness UNDECIDED (node budget) nodes=2 passes=6049 root_LB-Dhi=-1678478077 time_ms=631132

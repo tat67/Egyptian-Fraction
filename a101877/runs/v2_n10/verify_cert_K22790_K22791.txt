@@ -1,0 +1,2 @@
+certificate n=10 K=22790: |U|=17215 primes=299 LB-Dhi=2087026847  -> VALID: no S in [1..K] with 22790 in S has sum n
+certificate n=10 K=22791: |U|=17216 primes=299 LB-Dhi=967621845  -> VALID: no S in [1..K] with 22791 in S has sum n

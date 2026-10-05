@@ -1,0 +1,7 @@
+certificate n=11 K=60580: |U|=46594 primes=636 LB-Dhi=6370103169  -> VALID: no S in [1..K] with 60580 in S has sum n
+certificate n=11 K=60581: |U|=46595 primes=636 LB-Dhi=3032713710  -> VALID: no S in [1..K] with 60581 in S has sum n
+certificate n=11 K=60582: |U|=46596 primes=636 LB-Dhi=12102771212  -> VALID: no S in [1..K] with 60582 in S has sum n
+certificate n=11 K=60583: |U|=46597 primes=636 LB-Dhi=6791033396  -> VALID: no S in [1..K] with 60583 in S has sum n
+certificate n=11 K=60585: |U|=46598 primes=636 LB-Dhi=3803426058  -> VALID: no S in [1..K] with 60585 in S has sum n
+certificate n=11 K=60587: |U|=46599 primes=636 LB-Dhi=2364039969  -> VALID: no S in [1..K] with 60587 in S has sum n
+certificate n=11 K=60588: |U|=46600 primes=636 LB-Dhi=46210319  -> VALID: no S in [1..K] with 60588 in S has sum n

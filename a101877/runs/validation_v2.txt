@@ -1,0 +1,55 @@
+n=1 a(n)=1   start 2026-10-05 15:56:19 JST
+  n=1 K=0 mode=prove NONE: sum of all candidates is below n nodes=0
+  (no certificate needed: sum of all candidates is below n nodes=0)
+  n=1 K=1 mode=witness FOUND |S|=1 nodes=1 passes=2 maxdepth=0 root_LB-Dhi=0 time_ms=1 S=<in OUTDIR>
+  check n=1 K=1 |S|=1 max=1: VALID witness (ok)
+  n=1 K=1 |S|=1 max=1 sum==n exactly: True
+n=2 a(n)=6   start 2026-10-05 15:56:19 JST
+  n=2 K=5 mode=prove NONE: sum of all candidates is below n nodes=0
+  (no certificate needed: sum of all candidates is below n nodes=0)
+  n=2 K=6 mode=witness FOUND |S|=4 nodes=1 passes=5 maxdepth=0 root_LB-Dhi=-1 time_ms=1 S=<in OUTDIR>
+  check n=2 K=6 |S|=4 max=6: VALID witness (ok)
+  n=2 K=6 |S|=4 max=6 sum==n exactly: True
+n=3 a(n)=24   start 2026-10-05 15:56:19 JST
+  n=3 K=23 mode=prove NONE: sum of all candidates is below n nodes=0
+  (no certificate needed: sum of all candidates is below n nodes=0)
+  n=3 K=24 mode=witness FOUND |S|=13 nodes=1 passes=5 maxdepth=0 root_LB-Dhi=-6 time_ms=2 S=<in OUTDIR>
+  check n=3 K=24 |S|=13 max=24: VALID witness (ok)
+  n=3 K=24 |S|=13 max=24 sum==n exactly: True
+n=4 a(n)=65   start 2026-10-05 15:56:19 JST
+  n=4 K=64 mode=prove NONE (all nodes closed) nodes=1 passes=1 maxdepth=0 root_LB-Dhi=10606082726323 time_ms=2
+  certificate n=4 K=64: |U|=39 primes=6 LB-Dhi=10606082726323  -> VALID: no S in [1..K] has sum n
+  n=4 K=65 mode=witness FOUND |S|=37 nodes=1 passes=17 maxdepth=0 root_LB-Dhi=-23 time_ms=1 S=<in OUTDIR>
+  check n=4 K=65 |S|=37 max=65: VALID witness (ok)
+  n=4 K=65 |S|=37 max=65 sum==n exactly: True
+n=5 a(n)=184   start 2026-10-05 15:56:20 JST
+  n=5 K=183 mode=prove NONE (all nodes closed) nodes=1 passes=14 maxdepth=0 root_LB-Dhi=512168393971 time_ms=0
+  certificate n=5 K=183: |U|=119 primes=11 LB-Dhi=512168393971  -> VALID: no S in [1..K] has sum n
+  n=5 K=184 mode=witness FOUND |S|=107 nodes=4 passes=1899 maxdepth=3 root_LB-Dhi=-209 time_ms=22 S=<in OUTDIR>
+  check n=5 K=184 |S|=107 max=184: VALID witness (ok)
+  n=5 K=184 |S|=107 max=184 sum==n exactly: True
+n=6 a(n)=469   start 2026-10-05 15:56:20 JST
+  n=6 K=468 mode=prove NONE (all nodes closed) nodes=1 passes=13 maxdepth=0 root_LB-Dhi=126439572362 time_ms=2
+  certificate n=6 K=468: |U|=316 primes=19 LB-Dhi=126439572362  -> VALID: no S in [1..K] has sum n
+  n=6 K=469 mode=witness FOUND |S|=291 nodes=8 passes=3584 maxdepth=5 root_LB-Dhi=-1207373638335 time_ms=137 S=<in OUTDIR>
+  check n=6 K=469 |S|=291 max=469: VALID witness (ok)
+  n=6 K=469 |S|=291 max=469 sum==n exactly: True
+n=7 a(n)=1243   start 2026-10-05 15:56:21 JST
+  n=7 K=1242 mode=prove NONE (all nodes closed) nodes=1 passes=89 maxdepth=0 root_LB-Dhi=69608637579 time_ms=32
+  certificate n=7 K=1242: |U|=867 primes=36 LB-Dhi=69608637579  -> VALID: no S in [1..K] has sum n
+  n=7 K=1243 mode=witness FOUND |S|=807 nodes=14 passes=6027 maxdepth=13 root_LB-Dhi=-857389227325 time_ms=1032 S=<in OUTDIR>
+  check n=7 K=1243 |S|=807 max=1243: VALID witness (ok)
+  n=7 K=1243 |S|=807 max=1243 sum==n exactly: True
+n=8 a(n)=3228   start 2026-10-05 15:56:22 JST
+  n=8 K=3227 mode=prove NONE (all nodes closed) nodes=1 passes=188 maxdepth=0 root_LB-Dhi=41100432246 time_ms=207
+  certificate n=8 K=3227: |U|=2350 primes=72 LB-Dhi=41100432246  -> VALID: no S in [1..K] has sum n
+  n=8 K=3228 mode=witness FOUND |S|=2189 nodes=22 passes=7275 maxdepth=19 root_LB-Dhi=-136965881777 time_ms=4516 S=<in OUTDIR>
+  check n=8 K=3228 |S|=2189 max=3228: VALID witness (ok)
+  n=8 K=3228 |S|=2189 max=3228 sum==n exactly: True
+n=9 a(n)=8498   start 2026-10-05 15:56:27 JST
+  n=9 K=8497 mode=prove NONE (all nodes closed) nodes=1 passes=418 maxdepth=0 root_LB-Dhi=2380067820 time_ms=1991
+  certificate n=9 K=8497: |U|=6327 primes=150 LB-Dhi=2380067820  -> VALID: no S in [1..K] has sum n
+  n=9 K=8498 mode=witness FOUND |S|=5966 nodes=67 passes=15847 maxdepth=60 root_LB-Dhi=-372349182797 time_ms=45896 S=<in OUTDIR>
+  check n=9 K=8498 |S|=5966 max=8498: VALID witness (ok)
+  n=9 K=8498 |S|=5966 max=8498 sum==n exactly: True
+done 2026-10-05 15:57:16 JST

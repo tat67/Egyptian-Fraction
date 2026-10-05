@@ -1,0 +1,3 @@
+K=8499: |U|=6328  K in U: False  -> K cannot be the maximum (not a candidate)  (0 s)
+K=8501: |U|=6329  K in U: False  -> K cannot be the maximum (not a candidate)  (0 s)
+K=8500: |U|=6329  K in U: True  -> K is a candidate  (0 s)

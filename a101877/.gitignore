@@ -1,6 +1,7 @@
-a101877
-a101877_*
-!a101877_dfs.cpp
+# compiled binaries (sources a101877.cpp, a101877_v2.cpp, a101877_dfs.cpp are tracked)
+/a101877
+/a101877_v2
+/a101877_dfs
 bb_test
 lagrange_test
 *.o

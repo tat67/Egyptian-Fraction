@@ -1,0 +1,11 @@
+[15:56:51] n=11 K=60581 mode=witness NONE (all nodes closed) nodes=1 passes=294 maxdepth=0 root_LB-Dhi=3032713710 time_ms=56444
+[15:57:42] n=11 K=60582 mode=witness NONE (all nodes closed) nodes=1 passes=308 maxdepth=0 root_LB-Dhi=12102771212 time_ms=51236
+[15:58:27] n=11 K=60583 mode=witness NONE (all nodes closed) nodes=1 passes=266 maxdepth=0 root_LB-Dhi=6791033396 time_ms=45240
+[15:58:44] n=11 K=60584 mode=witness NONE: 60584 is not a candidate (cannot occur in any set with integral sum) nodes=0
+[15:59:31] n=11 K=60585 mode=witness NONE (all nodes closed) nodes=1 passes=304 maxdepth=0 root_LB-Dhi=3803426058 time_ms=47472
+[15:59:49] n=11 K=60586 mode=witness NONE: 60586 is not a candidate (cannot occur in any set with integral sum) nodes=0
+[16:00:53] n=11 K=60587 mode=witness NONE (all nodes closed) nodes=1 passes=482 maxdepth=0 root_LB-Dhi=2364039969 time_ms=63673
+[16:02:03] n=11 K=60588 mode=witness NONE (all nodes closed) nodes=1 passes=530 maxdepth=0 root_LB-Dhi=46210319 time_ms=69877
+[16:02:24] n=11 K=60589 mode=witness NONE: 60589 is not a candidate (cannot occur in any set with integral sum) nodes=0
+[16:12:55] n=11 K=60590 mode=witness UNDECIDED (node budget) nodes=2 passes=6049 root_LB-Dhi=-1678478077 time_ms=631132
+STOP at K=60590
