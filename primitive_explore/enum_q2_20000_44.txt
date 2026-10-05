@@ -1,0 +1,7 @@
+X=20000 K=44 universe (non-prime-powers) = 17671
+after the exact residue filter (2 rounds, primes > sqrt(X)): universe = 14636  [0s]
+model: 14636 variables, 96230 primitivity clauses, 256 prime congruences  [1s]
+solution 1 (verified exactly: |T|=44, primitive, sum 1/n = 1, max 16813)  [132s]
+  T = 6 10 14 15 21 22 26 33 34 35 38 39 46 51 55 57 58 62 65 69 74 77 82 85 86 87 91 93 94 95 111 115 119 123 133 141 143 145 287 8729 10105 11687 14467 16813
+solver status INFEASIBLE after 1 solution(s)  [535s]
+RESULT: 1 primitive solution(s) with |T| = 44 and all elements <= 20000 (completeness: CP-SAT INFEASIBLE, uncertified)
