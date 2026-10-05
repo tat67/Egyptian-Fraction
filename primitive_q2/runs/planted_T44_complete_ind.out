@@ -1,0 +1,6 @@
+SOLUTION |T|=44  6 10 14 15 21 22 26 33 34 35 38 39 46 51 55 57 58 62 65 69 74 77 82 85 86 87 91 93 94 95 111 115 119 123 133 141 143 145 287 8729 10105 11687  14467 16813
+complete_ind: cores h2=1  x1Tried=0 x1Filtered=0  twoTermAP=1 twoTermDiv=0 apSteps=5447 divEntries=0 rejected=0 solutions=1 time=0.0s worst=0.00s (| h=2 80/622081)
+SOLUTION |T|=44  6 10 14 15 21 22 26 33 34 35 38 39 46 51 55 57 58 62 65 69 74 77 82 85 86 87 91 93 94 95 111 115 119 123 133 141 143 145 287 8729 10105  11687 14467 16813
+complete_ind: cores h3=1  x1Tried=3902 x1Filtered=2370  twoTermAP=1532 twoTermDiv=0 apSteps=5082168 divEntries=0 rejected=0 solutions=1 time=0.1s worst=0.06s (| h=3 1557041/7270260647)
+SOLUTION |T|=44  6 10 14 15 21 22 26 33 34 35 38 39 46 51 55 57 58 62 65 69 74 77 82 85 86 87 91 93 94 95 111 115 119 123 133 141 143 145 287 8729  10105 11687 14467 16813
+complete_ind: cores h4=1  x1Tried=4643804 x1Filtered=4295031  twoTermAP=347126 twoTermDiv=0 apSteps=1222834637 divEntries=0 rejected=0 solutions=1 time=19.3s worst=19.31s (| h=4 534980464/1708511252045)

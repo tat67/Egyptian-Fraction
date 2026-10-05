@@ -11,9 +11,9 @@ The squarefree semiprimes form a primitive set. So the earlier results of this r
 | question | result | status |
 |---|---|---|
 | **Q1** least possible `max T` | **413 = 7·59** | solved; formally verified in Lean (`isLeast_413`) |
-| **Q2** least possible `abs(T)` | **39 ≤ min abs(T) ≤ 44** | bounds proved in Lean (`card_bounds`); exact value **not determined** |
+| **Q2** least possible `abs(T)` | **42 ≤ min abs(T) ≤ 44** | `39 ≤` and the 44-term example proved in Lean (`card_bounds`); `abs(T) = 39, 40, 41` excluded by an exhaustive exact computer search ([`primitive_q2/`](primitive_q2/README.md), not formalized); exact value **not determined** |
 
-The C++ program is `primitive_egypt.cpp`. It uses only integer and big-integer arithmetic, with no `float`, `double` or `long double`. The Lean files are `lean/SemiprimeEgypt/Prim*.lean`. No `sorry` and no `native_decide` are used, and only the standard axioms appear ([`lean_axioms_primitive_output.txt`](lean_axioms_primitive_output.txt)).
+The C++ program is `primitive_egypt.cpp`. It uses only integer and big-integer arithmetic, with no `float`, `double` or `long double`. The exhaustive Q2 search is in [`primitive_q2/`](primitive_q2/README.md): C++ with 64/128-bit integers and GMP integers, also with no floating-point type. The Lean files are `lean/SemiprimeEgypt/Prim*.lean`. No `sorry` and no `native_decide` are used, and only the standard axioms appear ([`lean_axioms_primitive_output.txt`](lean_axioms_primitive_output.txt)).
 
 ---
 
@@ -97,7 +97,7 @@ The C++ program is not trusted. It only produces the certificate, which the kern
 
 ---
 
-## Q2: the least possible number of terms, between 39 and 44
+## Q2: the least possible number of terms, between 42 and 44
 
 ### Upper bound 44: fewer terms than any semiprime representation
 
@@ -136,11 +136,37 @@ This is a Lagrangian version of the chain bound. Fix a threshold `A` and write `
 
 Both inequalities are exact rational comparisons, done in C++ (`./primitive_egypt q2`) and in Lean (`norm_num`). Lean: `card_bounds` states `39 ≤ min |T|` together with the 44-term example.
 
+### Lower bound 42: `|T| = 39, 40, 41` are impossible (exact search, `primitive_q2/`)
+
+The bound 39 leaves some room: for `|T| = k ≥ 39` the Lagrangian slack allows a few elements of `T` to be arbitrarily large. The exhaustive search in [`primitive_q2/`](primitive_q2/README.md) handles them exactly and excludes `k = 39, 40, 41` for elements of **any** size. All details, proofs of every pruning rule, and logs are in [`primitive_q2/README.md`](primitive_q2/README.md); in brief:
+
+1. **Few large elements.** A Lagrangian chain bound at a threshold `A` shows that at most `hmax` elements of `T` exceed a computable `Y`. Write `T = C ∪ H` with the *core* `C = T ∩ [2, Y]` and the *huge part* `H`, `|H| = h ≤ hmax`.
+2. **All cores.** An exact depth-first search lists every possible core. It tracks the reciprocal sum in `2^96` fixed point with directed rounding and the exact `p`-adic residue at every prime. A core must leave a remainder `δ = 1 − Σ_C 1/n` in the window `0 ≤ δ ≤ h/(Y+1)`, with `δ = 0` exactly when `h = 0`. The primes left unsatisfied must be covered by the `h` huge elements, and two of them that "conflict" through a core element need different huge elements (`h ≥ χ(U)`), plus a clique rule.
+3. **All completions.** For every core, exact Egyptian-fraction algorithms find every `H` of any size with `Σ_H 1/x = δ`. For `h = 1`, `δ` must be `1/b` with `b` known from the residues. For `h = 2, 3`, two independent implementations are used (`compl.h` and `ind2.h`), each re-verifying every candidate with GMP.
+
+| `K = abs(T)` | `A` | `Y` | `hmax` | search nodes | cores `h = 1` / `h = 2` / `h = 3` | solutions | wall (4 cores) |
+|---|---|---|---|---|---|---|---|
+| 39 | 133 | 329 | 1 | 11,985 | 113 / – / – | **0** | < 0.1 s |
+| 40 | 134 | 503 | 2 | 1,867,018 | 65,272 / 2,643 / – | **0** | 0.6 s |
+| 41 | 141 | 824 | 3 | 278,925,916 | 22,083,508 / 1,674,415 / 6,916 | **0** | about 2 min, plus the completions |
+
+**Validation.**
+* The `K = 39` cores agree with a plain brute-force enumeration (`brute_core.cpp` + `cmp_cores.py`, with Python `Fraction`s).
+* Four search designs agree on `K = 39, 40`.
+* Two completion programs that share only the GMP binding both report 0 solutions on every `h = 2, 3` core of `K = 40, 41`. A third, Python implementation (`check_completion.py`) checked all `K = 40` cores and a sample of `K = 41`.
+* The completion solvers re-find the planted solution `T44` and agree with brute force on random tests.
+
+**Independent reproduction on this branch (2026-10-05).** Every number in the table was reproduced in a fresh container: identical node and core counts, and identical SHA-256 fingerprints of the sorted core dumps for `K = 40` and `K = 41`. Both completion programs again report 0 solutions on all 1,681,331 dumped `K = 41` cores. Turning off the `h = 1` shortcut (`Q2_NODELTATEST=1`) completed all 67,915 `K = 40` cores exactly with GMP, with 0 solutions. See [`primitive_q2/runs/`](primitive_q2/runs/) (`repro_2026-10-05_*`).
+
+**Status.** This is a computer-assisted proof: exact arithmetic, every claimed run completed and cross-checked, but **not formalized in Lean**. Lean proves `39 ≤ min abs(T)` (`card_ge_39`).
+
 ### What is and is not known about the exact value
 
-For `|T| = k ≥ 39`, the Lagrangian slack `H_k − 1` exceeds the cost `1/a_k − 1/n` of one element, and for larger `k` of several elements. Those elements can be arbitrarily large. For `k = 39` at most one element can exceed 329; for `k = 40, 41, 42, 43` at most 2, 3, 4, 5 elements can exceed 503, 824, 1075, 1363. So no finite search over `[2, B]` settles the question.
+**Known:** `42 ≤ min abs(T) ≤ 44`. **Open:** whether a primitive `T` with `abs(T) = 42` or `43` exists.
 
-`T44` shows the effect: its five large elements are not below `8729`. A proof that 43 or fewer terms are impossible would need an exhaustive treatment of a bounded "core" together with up to five arbitrarily large elements that obey the local congruences. That goes well beyond what the repository needed for semiprimes. It has not been carried out, so **the exact minimum is not determined here**. It lies in `[39, 44]`.
+For `abs(T) = 42` and `43` the same method needs up to `hmax = 4` and `5` huge elements above `Y = 1075` and `Y = 1568` (thresholds `A = 142` and `145`). The search for `K = 42` was started and stopped after 20 minutes as a measurement only (no claim is made from it): no subtree had finished, and some of its `h = 4` cores already took minutes each to complete. A full `K = 42` run is estimated at days to weeks on a 4-core machine; `K = 43` was not attempted. Details: [`primitive_q2/README.md`, "What remains open"](primitive_q2/README.md#what-remains-open).
+
+`T44` shows why large elements matter: its five largest elements are all at least `8729`. As a heuristic remark, not a proof: a solution with 42 or 43 terms, if one exists, would most likely also need several huge elements, and those are exactly the cores whose completions are most expensive.
 
 **Computational evidence** (CP-SAT, not formally verified; see [`primitive_q2_notes.md`](primitive_q2_notes.md)): the minimum over primitive sets of non-prime-powers `≤ X` is
 
@@ -152,7 +178,7 @@ For `|T| = k ≥ 39`, the Lagrangian slack `H_k − 1` exceeds the cost `1/a_k �
 | 40 000 | 35 714 | 44 | no solution with `≤ 43` terms |
 | 100 000 | 90 299 | 44 | no solution with `≤ 43` terms |
 
-So the minimum decreases as larger elements are allowed, reaches 44, and stays at 44 at least up to 100 000. This supports the conjecture that **the answer to Q2 is 44**. It is not a proof: elements beyond `10^5` are not covered, and the solver's infeasibility claims are not certified.
+So the minimum decreases as larger elements are allowed, reaches 44, and stays at 44 at least up to 100 000. Together with the exact exclusion of 39–41 terms, this supports the conjecture that **the answer to Q2 is 44**. It is not a proof: `abs(T) = 42, 43` with elements beyond `10^5` are not covered, and the solver's infeasibility claims are not certified.
 
 ## Running
 
@@ -163,6 +189,18 @@ g++ -O2 -std=c++17 -o primitive_egypt primitive_egypt.cpp
 ./primitive_egypt all                             # both
 ./primitive_egypt cert B --cert DIR               # a certificate for any bound B without solutions
 ./primitive_egypt lag A --cert DIR                # the Lagrangian chain cover for a threshold A
+```
+
+The exact Q2 search (see [`primitive_q2/README.md`](primitive_q2/README.md#reproducing) for all options and validations):
+
+```
+cd primitive_q2 && make                            # needs g++ and libgmp.so.10 only
+./q2exact 39 133 4 28 -                            # |T| = 39: 0 solutions
+./q2exact 40 134 4 30 c40.txt defer2               # |T| = 40; then complete the dumped h = 2 cores:
+./complete_ind c40.txt 503 && ./complete_dump c40.txt 503
+./q2exact 41 141 4 34 c41.txt defer2               # |T| = 41 (about 2 minutes on 4 cores; dump 294 MB)
+./complete_ind c41.txt 824                         # independent completion 1 (a few minutes)
+./run_completion.sh c41.txt 824 4                  # independent completion 2 (about 40 minutes on 4 cores)
 ```
 
 Lean (from `lean/`, with Mathlib built):

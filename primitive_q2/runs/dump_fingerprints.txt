@@ -1,0 +1,6 @@
+# sorted-dump fingerprints (sort | sha256sum) and line counts
+c41_def.txt  lines=1681331  h2=1674415 h3=6916  sha256(sorted)=f9158e453b53310a1ebd19f47688e72be0adf1f869b214e9c3bb30a545297248
+c41_v7.txt  lines=1681331  h2=1674415 h3=6916  sha256(sorted)=f9158e453b53310a1ebd19f47688e72be0adf1f869b214e9c3bb30a545297248
+K=40 h=2 dump (t40a.txt): lines=2643 sha256(sorted)=9fde99abbe5ac3f2c0a3d90cd5785d828de08442eb98644575a0aa87488ff7b2
+K=40 full dump (b40.txt, q2b): lines=67915 sha256(sorted cores)=1ac5bf503fc04104106857fdf35f7e8c2ebd696e483b531a1f1755748c11fb4f
+K=40 full dump (e40.txt, q2exact v1): lines=67915 sha256(sorted cores)=1ac5bf503fc04104106857fdf35f7e8c2ebd696e483b531a1f1755748c11fb4f

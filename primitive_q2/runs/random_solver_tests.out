@@ -1,0 +1,7 @@
+limit 100000000 cases 1305 expected 1434 got 1434 match True complete_ind: cores h2=1305  x1Tried=0 x1Filtered=0  twoTermAP=1274 twoTermDiv=0 apSteps=113894406 divEntries=0 rejected=93 solutions=1434 time=1.2s worst=0.02s (| h=2 8978/11872709849)
+limit 0 cases 1305 expected 1434 got 1434 match True complete_ind: cores h2=1305  x1Tried=0 x1Filtered=0  twoTermAP=0 twoTermDiv=1274 apSteps=0 divEntries=281308 rejected=93 solutions=1434 time=0.2s worst=0.00s (| h=2 322141/155155793562)
+apLimit 1000000000 cases 120 expected 3519 got 3519 match True
+apLimit 0 cases 120 expected 3519 got 3519 match True
+== test_ind4.py (h = 4, brute force over x1, x2 + all divisors of b2^2 for the last two terms)
+apLimit 1000000000 cases 20 expected 1705 got 1705 match True
+apLimit 0 cases 20 expected 1705 got 1705 match True

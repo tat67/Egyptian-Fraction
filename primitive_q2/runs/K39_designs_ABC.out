@@ -1,0 +1,9 @@
+K=39 A=133 Y=329 hmax=1 universe=245 chains=86 groups=38 sigmaUp*1e9/S=8963432
+DONE K=39 A=133 Y=329 nodes=6015831 leaves=158 cores[h=0]=0 cores[h=1]=113 completionCalls=113 twoTermPairs=0 n1=0 solutions=0 time=0.31s
+
+DONE K=39 A=133 Y=329 hmax=1 nodes=2060283 qualifyingSets=6768 rejectedByU=6655 cores[h=0]=0 cores[h=1]=113 completionCalls=113 twoTermPairs=0 n1=0 solutions=0 time=0.78s
+
+q2exact K=39 A=133  chains=86  sigma*1e12 <= 8963432630  hmax=1  Y=329  |core universe|=245  threads=1 splitDepth=28 tickets=[0,18446744073709551615)
+start 2026-10-04T19:26:21+09:00
+DONE K=39 A=133 Y=329 hmax=1 nodes=628074 qualifyingSets=1164 rejectedByUnsatisfiedPrimes=1051 cores[h=0]=0 cores[h=1]=113 cliquePruned=388166 completionCalls=113 twoTermCandidates=0 smallestElementCandidates=0 solutions=0 wall=0.2s
+end 2026-10-04T19:26:21+09:00

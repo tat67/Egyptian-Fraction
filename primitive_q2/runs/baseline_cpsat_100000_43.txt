@@ -1,0 +1,7 @@
+universe 90299
+hint [6]
+INFEASIBLE 0.0 0.0
+
+real	14m32.910s
+user	46m29.469s
+sys	0m59.446s

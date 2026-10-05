@@ -8,6 +8,8 @@
 //
 //   Q1: the least possible  max T.        Answer computed here: 413 = 7 * 59.
 //   Q2: the least possible  |T|.          Proved here: 39 <= min |T| <= 44 (README_PRIMITIVE.md).
+//       The stronger bound 42 <= min |T| comes from the separate exhaustive exact search in
+//       primitive_q2/ (q2exact.cpp + two completion programs), which excludes |T| = 39, 40, 41.
 //
 // Everything is exact: machine integers and a small big-natural type.  The program contains
 // no floating-point type.
@@ -823,7 +825,8 @@ static void runQ2() {
   printf("\n--- upper bound: a 44-term example ---\n");
   bool ok = verifySolution(T44, true) && ok46;
   printf("\nRESULT Q2: 39 <= min |T| <= 44 %s\n", (ok && c1 && c2) ? "(both bounds verified)" : "(VERIFICATION FAILED)");
-  printf("(the exact value is not determined by this program; see README_PRIMITIVE.md)\n\n");
+  printf("(the exact value is not determined by this program; see README_PRIMITIVE.md)\n");
+  printf("(the separate exact search in primitive_q2/ excludes |T| = 39, 40, 41: 42 <= min |T| <= 44)\n\n");
 }
 
 static void runQ1(const string& certDir, int nFiles) {

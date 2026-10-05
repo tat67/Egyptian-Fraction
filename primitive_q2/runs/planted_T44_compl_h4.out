@@ -1,0 +1,4 @@
+two-term vs brute force: 0 mismatches in 2000 random fractions
+planted h=4: completions found = 1  n1=5972033 pairs=2 time=70.10s
+  SOLUTION |T|=44 exact_sum_1_and_primitiv
+  ...115 119 123 133 141 143 145 287 8729 10105 11687 14467 16813

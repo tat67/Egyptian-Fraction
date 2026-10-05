@@ -1,0 +1,11 @@
+# Independent reproduction, branch claude/nifty-knuth-aj1lt7, 2026-10-05/06 (JST); 4-core container
+# compl.h (complete_dump) on the K = 41 dump, split into 4 interleaved parts (awk NR%4), run concurrently:
+# $ ./run_completion.sh c41.txt 824 4
+# binary built from the code as imported, before the timing-only change to msclock.h (no decision code differs)
+prefilter=267145/413501 fast=506644 slow=0 halfEntries=1867523132 omegaSum=16342387 cores=420332 calls=508418 n1=796423 pairs=0 solutions=0 time=1288.4s worst=26.83s
+prefilter=267526/397304 fast=495369 slow=0 halfEntries=1857910661 omegaSum=16032468 cores=420333 calls=497087 n1=766569 pairs=0 solutions=0 time=1295.5s worst=28.06s
+prefilter=207235/328003 fast=502629 slow=0 halfEntries=1887113535 omegaSum=16251774 cores=420333 calls=504338 n1=627974 pairs=0 solutions=0 time=1308.9s worst=29.15s
+prefilter=205496/331262 fast=504448 slow=0 halfEntries=1833579919 omegaSum=16291261 cores=420333 calls=506163 n1=632078 pairs=0 solutions=0 time=1268.0s worst=10.52s
+
+# totals over the 4 parts (equal to the totals of the original 3-part run in K41_complete_dump.out):
+# cores=1681331 calls=2016006 fast=2009090 n1=2823044 halfEntries=7446127247 prefilter=947402/1470070 solutions=0

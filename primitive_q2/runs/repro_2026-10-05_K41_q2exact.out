@@ -1,0 +1,17 @@
+# Independent reproduction, branch claude/nifty-knuth-aj1lt7, 2026-10-06 (JST); 4-core container; final binaries (make)
+$ ./q2exact 41 141 4 34 c41.txt defer2
+q2exact K=41 A=141  chains=92  sigma*1e12 <= 23518317779  hmax=3  Y=824  |core universe|=657  threads=4 splitDepth=34 tickets=[0,18446744073709551615)
+start 2026-10-06T00:15:19+09:00
+[2026-10-06T00:16:10+09:00] doneBelow=47337 thread-nodes=33554432 tickets=47372 qual=5667202 cores=0,354671,1588,0,0 comp=0 n1=0
+[2026-10-06T00:16:10+09:00] doneBelow=47338 thread-nodes=33554432 tickets=47538 qual=5203474 cores=0,340059,1222,0,0 comp=0 n1=0
+[2026-10-06T00:16:12+09:00] doneBelow=48068 thread-nodes=33554432 tickets=48096 qual=5561109 cores=0,408841,2284,0,0 comp=0 n1=0
+[2026-10-06T00:16:12+09:00] doneBelow=49585 thread-nodes=33554432 tickets=49607 qual=5862955 cores=0,389181,1781,0,0 comp=0 n1=0
+[2026-10-06T00:16:39+09:00] doneBelow=347000 thread-nodes=67108864 tickets=347022 qual=7383565 cores=0,392772,1589,0,0 comp=0 n1=0
+[2026-10-06T00:16:40+09:00] doneBelow=402854 thread-nodes=67108864 tickets=402862 qual=7031123 cores=0,382623,1224,0,0 comp=0 n1=0
+[2026-10-06T00:16:40+09:00] doneBelow=406488 thread-nodes=67108864 tickets=406532 qual=7402343 cores=0,452184,2290,0,0 comp=0 n1=0
+[2026-10-06T00:16:42+09:00] doneBelow=495140 thread-nodes=67108864 tickets=495252 qual=7766277 cores=0,445073,1813,0,0 comp=0 n1=0
+DONE K=41 A=141 Y=824 hmax=3 nodes=278925916 qualifyingSets=29755135 rejectedByUnsatisfiedPrimes=5990296 cores[h=0]=0 cores[h=1]=0 cores[h=2]=1674415 cores[h=3]=6916 cliquePruned=19851118 loopBreaks=230970166 cliqueSkips=2354423556 h1RefutedByDeltaTest=22083508 completionCalls=0 twoTermCandidates=0 smallestElementCandidates=0 solutions=0 wall=83.4s
+end 2026-10-06T00:16:42+09:00
+
+$ wc -l c41.txt; sort c41.txt | sha256sum
+lines=1681331 (h=2: 1674415, h=3: 6916) sha256(sorted)=f9158e453b53310a1ebd19f47688e72be0adf1f869b214e9c3bb30a545297248   (identical to runs/dump_fingerprints.txt)

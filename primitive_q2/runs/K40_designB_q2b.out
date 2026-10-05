@@ -1,0 +1,2 @@
+K=40 A=134 Y=503 hmax=2 universe=387 sigmaUp*1e9/S=16426119
+DONE K=40 A=134 Y=503 hmax=2 nodes=911176651 qualifyingSets=11198879 rejectedByU=11130964 cores[h=0]=0 cores[h=1]=65272 cores[h=2]=2643 completionCalls=67915 twoTermPairs=0 n1=0 solutions=0 time=349.17s

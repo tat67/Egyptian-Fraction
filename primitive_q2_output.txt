@@ -1,4 +1,4 @@
-start: 2026-09-30 18:46:09 UTC
+start: 2026-10-05 14:56:12 UTC
 
 === Q2: the least possible |T| ===
 
@@ -41,6 +41,7 @@ sum_{n in T} 1/n = 1 exactly: yes
 
 RESULT Q2: 39 <= min |T| <= 44 (both bounds verified)
 (the exact value is not determined by this program; see README_PRIMITIVE.md)
+(the separate exact search in primitive_q2/ excludes |T| = 39, 40, 41: 42 <= min |T| <= 44)
 
-end: 2026-09-30 18:46:09 UTC
+end: 2026-10-05 14:56:12 UTC
 elapsed: 0 ms

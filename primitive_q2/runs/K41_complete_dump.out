@@ -1,0 +1,4 @@
+# compl.h (complete_dump) on the K = 41 dump, split into 3 interleaved parts (awk NR%3), run concurrently
+part0: prefilter=337162/513445 fast=668562 slow=0 halfEntries=2459805031 omegaSum=21613916 cores=560443 calls=670852 n1=987613 pairs=0 solutions=0 time=2300.7s worst=11.46s
+part1: prefilter=327520/520859 fast=683788 slow=0 halfEntries=2528280517 omegaSum=22060711 cores=560444 calls=686065 n1=1002788 pairs=0 solutions=0 time=2340.9s worst=27.24s
+part2: prefilter=282720/435766 fast=656740 slow=0 halfEntries=2458041699 omegaSum=21243263 cores=560444 calls=659089 n1=832643 pairs=0 solutions=0 time=2321.6s worst=34.62s

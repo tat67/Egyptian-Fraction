@@ -215,6 +215,7 @@ These files formalize [`../README_PRIMITIVE.md`](../README_PRIMITIVE.md). A set 
 
 * `isLeast_413`: the least possible largest element of a primitive `T ⊆ {2, 3, …}` with `∑ 1/n = 1` is 413.
 * `card_bounds`: the least possible number of terms lies between 39 and 44 (a 44-term example `T44`).
+  The stronger lower bound 42 (no solution with 39, 40 or 41 terms) comes from the exact computer search in [`../primitive_q2/`](../primitive_q2/README.md) and is **not** formalized here.
 
 | file | contents |
 |---|---|

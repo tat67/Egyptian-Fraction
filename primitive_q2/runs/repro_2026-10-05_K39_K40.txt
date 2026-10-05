@@ -1,0 +1,29 @@
+# Independent reproduction, branch claude/nifty-knuth-aj1lt7, 2026-10-05 23:57 JST; 4-core container
+# binaries built from this directory (make); timings are wall-clock and machine-dependent
+
+$ ./q2exact 39 133 4 28 -
+q2exact K=39 A=133  chains=86  sigma*1e12 <= 8963432630  hmax=1  Y=329  |core universe|=245  threads=4 splitDepth=28 tickets=[0,18446744073709551615)
+start 2026-10-05T23:57:12+09:00
+DONE K=39 A=133 Y=329 hmax=1 nodes=11985 qualifyingSets=114 rejectedByUnsatisfiedPrimes=1 cores[h=0]=0 cores[h=1]=0 cliquePruned=144 loopBreaks=11645 cliqueSkips=26343 h1RefutedByDeltaTest=113 completionCalls=0 twoTermCandidates=0 smallestElementCandidates=0 solutions=0 wall=0.0s
+end 2026-10-05T23:57:12+09:00
+
+$ ./q2exact 40 134 4 30 c40.txt defer2
+q2exact K=40 A=134  chains=87  sigma*1e12 <= 16426119197  hmax=2  Y=503  |core universe|=387  threads=4 splitDepth=30 tickets=[0,18446744073709551615)
+start 2026-10-05T23:57:12+09:00
+DONE K=40 A=134 Y=503 hmax=2 nodes=1867018 qualifyingSets=77347 rejectedByUnsatisfiedPrimes=9432 cores[h=0]=0 cores[h=1]=0 cores[h=2]=2643 cliquePruned=59338 loopBreaks=1732361 cliqueSkips=8931874 h1RefutedByDeltaTest=65272 completionCalls=0 twoTermCandidates=0 smallestElementCandidates=0 solutions=0 wall=0.7s
+end 2026-10-05T23:57:13+09:00
+
+$ wc -l c40.txt; sort c40.txt | sha256sum
+2643 9fde99abbe5ac3f2c0a3d90cd5785d828de08442eb98644575a0aa87488ff7b2
+
+$ ./complete_ind c40.txt 503
+complete_ind: cores h2=2643  x1Tried=0 x1Filtered=0  twoTermAP=2643 twoTermDiv=0 apSteps=523666 divEntries=0 rejected=0 solutions=0 time=0.1s worst=0.00s (| h=2 5919365406202860/4930154743985160613)
+
+$ ./complete_dump c40.txt 503
+prefilter=0/0 fast=2643 slow=0 halfEntries=6484961 omegaSum=76489 cores=2643 calls=2643 n1=0 pairs=0 solutions=0 time=3.8s worst=0.02s
+
+$ Q2_NODELTATEST=1 ./q2exact 40 134 4 30 - all     # h = 1 shortcut off: every core completed with GMP
+q2exact K=40 A=134  chains=87  sigma*1e12 <= 16426119197  hmax=2  Y=503  |core universe|=387  threads=4 splitDepth=30 tickets=[0,18446744073709551615)
+start 2026-10-05T23:57:17+09:00
+DONE K=40 A=134 Y=503 hmax=2 nodes=1867018 qualifyingSets=77347 rejectedByUnsatisfiedPrimes=9432 cores[h=0]=0 cores[h=1]=65272 cores[h=2]=2643 cliquePruned=59338 loopBreaks=1732361 cliqueSkips=8931874 h1RefutedByDeltaTest=0 completionCalls=67915 twoTermCandidates=0 smallestElementCandidates=0 solutions=0 wall=5.2s
+end 2026-10-05T23:57:22+09:00
