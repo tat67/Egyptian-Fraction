@@ -25,6 +25,10 @@ The CP-SAT results, including universes up to `10^5` with no primitive solution 
 |---:|---:|---|---|
 | 20 000 | 14 636 | exactly 1: `T44` | 9 min (4 workers) |
 | 30 000 | 22 211 | exactly 1: `T44` | 29 min (2 workers, with the cuts) |
+| 40 000 | 29 798 | exactly 1: `T44` | 2 h 3 min (2 workers, with the cuts) |
+| 100 000 | 75 761 | **not completed**: no solution other than `T44` was found in 7 h (2 workers) | stopped; see below |
+
+The running time grows by a factor of about 4 for every 10 000 added to `X` (9, 29 and 123 minutes for 20 000, 30 000 and 40 000). Extrapolated, `X = 100 000` would need days to weeks on this machine, so the 100 000 enumeration was not completed. A first attempt with 4 workers and no cuts was killed by the memory limit (about 14 GB after 23 minutes); the cuts, 2 workers and `mem=` keep memory near 5 GB. Two reformulations did not speed up the `X = 20 000` and `30 000` runs: the extra chain constraints (`chains=1`) and splitting off "at least one element above 20 000" (`atleast=`).
 
 Run from the repository root:
 

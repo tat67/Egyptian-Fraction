@@ -8,6 +8,8 @@ Usage (from the repository root):
             known=FILE    lines of known solutions: verified exactly, recorded, and excluded first
             mem=MB        CP-SAT memory limit (the solver then stops with UNKNOWN instead of OOM)
             above=Z,j     only sets with exactly j elements > Z (to split the work into disjoint cases)
+            atleast=Z     only sets with at least one element > Z (use after a complete run with X = Z:
+                          the two runs together cover every set with elements <= X)
             levels=1      add the implied congruences modulo p^j (j < E) on the elements of high
                           p-valuation (see 3c)
             chains=1      add "at most one" constraints on the divisibility chains
@@ -160,6 +162,10 @@ if "cut" in opts:
     mdl.Add(sum((S * (n - A) // (A * n)) * x[n] for n in big) <= S * (N + 1) // 10 ** 12)
     mdl.Add(sum(x[n] for n in U if n > Ycut) <= H)
     log("cuts: Lagrangian (A=%d, sigma < %d e-12) on %d elements; at most %d elements > %d" % (A, N + 1, len(big), H, Ycut))
+if "atleast" in opts:
+    Z = int(opts["atleast"])
+    mdl.Add(sum(x[n] for n in U if n > Z) >= 1)
+    log("case: at least one element > %d" % Z)
 if "above" in opts:
     Z, j = map(int, opts["above"].split(","))
     mdl.Add(sum(x[n] for n in U if n > Z) == j)

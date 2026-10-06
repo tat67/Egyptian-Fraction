@@ -178,7 +178,7 @@ For `abs(T) = 42` and `43` the same method needs up to `hmax = 4` and `5` huge e
 | 40 000 | 35 714 | 44 | no solution with `≤ 43` terms |
 | 100 000 | 90 299 | 44 | no solution with `≤ 43` terms |
 
-So the minimum decreases as larger elements are allowed, reaches 44, and stays at 44 at least up to 100 000. Together with the exact exclusion of 39–41 terms, this supports the conjecture that **the answer to Q2 is 44**. It is not a proof: `abs(T) = 42, 43` with elements beyond `10^5` are not covered, and the solver's infeasibility claims are not certified.
+So the minimum decreases as larger elements are allowed, reaches 44, and stays at 44 at least up to 100 000. Moreover, `T44` is the **only** 44-term solution with all elements `≤ 40 000` (CP-SAT enumeration, [`primitive_explore/enum_q2.py`](primitive_explore/enum_q2.py); uncertified). The same enumeration up to 100 000 found no other solution in 7 hours but did not finish. Together with the exact exclusion of 39–41 terms, this supports the conjecture that **the answer to Q2 is 44**. It is not a proof: `abs(T) = 42, 43` with elements beyond `10^5` are not covered, and the solver's infeasibility claims are not certified.
 
 ## Running
 
