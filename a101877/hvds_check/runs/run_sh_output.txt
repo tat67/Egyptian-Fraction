@@ -1,0 +1,105 @@
+################ tracer, solver orig
+S: 805 elements, max 1243; n=7 k=1243
+pplist has 49 structures after pp_resolve_simple
+audit: independent pp_64: S's kept part 35887721/931170240 has residue 1 mod 2; the solver's rule demands 0
+audit:   and S discards 765765/931170240 less there than the solver's min_discard
+audit: independent pp_81: S's kept part 99527/3243240 has residue 1 mod 3; the solver's rule demands 0
+processing order (D = dependent, I = independent): 37I 32D 31D 41I 29D 43I 27D 47I 49I 25D 53I 23D 59I 61I 64I 19D 67I 71I 73I 17D 16D 79I 81I 83I 89I 13D 97I 101I 103I 107I 109I 113I 11D 121I 125I 127I 128I 131I 137I 9D 8D 169I 7D 243I 5D 4D 3D 2D 1D
+level 14 pp_64 (independent): 11 values, S discards 0; S residue 0, required 1  <-- S's discard is NOT enumerated
+==> S is excluded at level 14 (pp_64)
+   S's discard here: 0/931170240, walker limit 3456834/931170240, walker results seen: 21
+   later level 36 pp_128 (independent): S's discard - provisional min_discard = 1/4032 (denominator divisible by 64)
+   discard this level must make, given S's later choices: 0 -> residue 0 (S has 0)
+guided result: S is excluded by the search
+
+S: 2190 elements, max 3228; n=8 k=3228
+pplist has 92 structures after pp_resolve_simple
+audit: independent pp_128: S's kept part 3788707301/214169155200 has residue 1 mod 2; the solver's rule demands 0
+audit:   and S discards 66927861/214169155200 less there than the solver's min_discard
+audit: independent pp_243: S's kept part 99527/9729720 has residue 1 mod 3; the solver's rule demands 0
+audit:   and S discards 3080/9729720 less there than the solver's min_discard
+audit: independent pp_256: S's kept part 7663/887040 has residue 1 mod 2; the solver's rule demands 0
+audit:   and S discards 315/887040 less there than the solver's min_discard
+processing order (D = dependent, I = independent): 59I 53D 61I 64I 49D 67I 47D 71I 73I 43D 41D 79I 81I 83I 37D 89I 97I 32D 101I 103I 31D 107I 109I 29D 113I 27D 121I 125I 127I 128I 25D 131I 137I 139I 23D 149I 151I 157I 163I 167I 169I 19D 173I 179I 181I 17D 191I 193I 197I 199I 16D 211I 223I 227I 229I 233I 239I 241I 243I 13D 251I 256I 257I 263I 269I 271I 277I 281I 283I 289I 293I 11D 307I 311I 313I 317I 337I 343I 353I 9D 361I 8D 7D 512I 529I 625I 5D 729I 4D 3D 2D 1D
+level 17 pp_32 (dependent): 34 values, S discards 0; S residue 0, required 1  <-- S's discard is NOT enumerated
+==> S is excluded at level 17 (pp_32)
+   S's discard here: 0/144403552893600, walker limit 37430721288/144403552893600, walker results seen: 0
+   later level 29 pp_128 (independent): S's discard - provisional min_discard = -1/3200 (denominator divisible by 32)
+   later level 61 pp_256 (independent): S's discard - provisional min_discard = -1/2816 (denominator divisible by 32)
+   later level 83 pp_512 (independent): S's discard - provisional min_discard = 1/3840 (denominator divisible by 32)
+   discard this level must make, given S's later choices: 0 -> residue 0 (S has 0)
+guided result: S is excluded by the search
+
+S: 2190 elements, max 3228; n=8 k=3229
+pplist has 92 structures after pp_resolve_simple
+audit: independent pp_128: S's kept part 3788707301/214169155200 has residue 1 mod 2; the solver's rule demands 0
+audit:   and S discards 66927861/214169155200 less there than the solver's min_discard
+audit: independent pp_243: S's kept part 99527/9729720 has residue 1 mod 3; the solver's rule demands 0
+audit:   and S discards 3080/9729720 less there than the solver's min_discard
+audit: independent pp_256: S's kept part 7663/887040 has residue 1 mod 2; the solver's rule demands 0
+audit:   and S discards 315/887040 less there than the solver's min_discard
+processing order (D = dependent, I = independent): 59I 53D 61I 64I 49D 67I 47D 71I 73I 43D 41D 79I 81I 83I 37D 89I 97I 32D 101I 103I 31D 107I 109I 29D 113I 27D 121I 125I 127I 128I 25D 131I 137I 139I 23D 149I 151I 157I 163I 167I 169I 19D 173I 179I 181I 17D 191I 193I 197I 199I 16D 211I 223I 227I 229I 233I 239I 241I 243I 13D 251I 256I 257I 263I 269I 271I 277I 281I 283I 289I 293I 11D 307I 311I 313I 317I 337I 343I 353I 9D 361I 8D 7D 512I 529I 625I 5D 729I 4D 3D 2D 1D
+level 17 pp_32 (dependent): 34 values, S discards 0; S residue 0, required 1  <-- S's discard is NOT enumerated
+==> S is excluded at level 17 (pp_32)
+   S's discard here: 0/144403552893600, walker limit 37430721288/144403552893600, walker results seen: 0
+   later level 29 pp_128 (independent): S's discard - provisional min_discard = -1/3200 (denominator divisible by 32)
+   later level 61 pp_256 (independent): S's discard - provisional min_discard = -1/2816 (denominator divisible by 32)
+   later level 83 pp_512 (independent): S's discard - provisional min_discard = 1/3840 (denominator divisible by 32)
+   discard this level must make, given S's later choices: 0 -> residue 0 (S has 0)
+guided result: S is excluded by the search
+
+S: 2190 elements, max 3228; n=8 k=3230
+pplist has 92 structures after pp_resolve_simple
+audit: independent pp_128: S's kept part 3788707301/214169155200 has residue 1 mod 2; the solver's rule demands 0
+audit:   and S discards 66927861/214169155200 less there than the solver's min_discard
+audit: independent pp_243: S's kept part 99527/9729720 has residue 1 mod 3; the solver's rule demands 0
+audit:   and S discards 3080/9729720 less there than the solver's min_discard
+audit: independent pp_256: S's kept part 7663/887040 has residue 1 mod 2; the solver's rule demands 0
+audit:   and S discards 315/887040 less there than the solver's min_discard
+processing order (D = dependent, I = independent): 59I 53D 61I 64I 49D 67I 47D 71I 73I 43D 41D 79I 81I 83I 37D 89I 97I 32D 101I 103I 31D 107I 109I 29D 113I 27D 121I 125I 127I 128I 25D 131I 137I 139I 23D 149I 151I 157I 163I 167I 169I 19D 173I 179I 181I 17D 191I 193I 197I 199I 16D 211I 223I 227I 229I 233I 239I 241I 243I 13D 251I 256I 257I 263I 269I 271I 277I 281I 283I 289I 293I 11D 307I 311I 313I 317I 337I 343I 353I 9D 361I 8D 7D 512I 529I 625I 5D 729I 4D 3D 2D 1D
+level 17 pp_32 (dependent): 34 values, S discards 0; S residue 0, required 1  <-- S's discard is NOT enumerated
+==> S is excluded at level 17 (pp_32)
+   S's discard here: 0/144403552893600, walker limit 82137703608/144403552893600, walker results seen: 13
+   later level 29 pp_128 (independent): S's discard - provisional min_discard = -1/3200 (denominator divisible by 32)
+   later level 61 pp_256 (independent): S's discard - provisional min_discard = -1/2816 (denominator divisible by 32)
+   later level 83 pp_512 (independent): S's discard - provisional min_discard = 1/3840 (denominator divisible by 32)
+   discard this level must make, given S's later choices: 0 -> residue 0 (S has 0)
+guided result: S is excluded by the search
+
+################ tracer, solver fixed
+S: 805 elements, max 1243; n=7 k=1243
+pplist has 49 structures after pp_resolve_simple
+processing order (D = dependent, I = independent): 243I 169I 137I 131I 128I 127I 125I 121I 113I 109I 107I 103I 101I 97I 89I 83I 81D 79I 73I 71I 67I 64D 61I 59I 53I 49I 47I 43I 41I 37I 32D 31D 29D 27D 25D 23D 19D 17D 16D 13D 11D 9D 8D 7D 5D 4D 3D 2D 1D
+pp_solution() reports success before level 37 (spare 1/1170): S is not excluded
+guided result: S survives the search
+
+S: 2190 elements, max 3228; n=8 k=3228
+pplist has 92 structures after pp_resolve_simple
+processing order (D = dependent, I = independent): 729I 625I 529I 512I 361I 353I 343I 337I 317I 313I 311I 307I 293I 289I 283I 281I 277I 271I 269I 263I 257I 256D 251I 243D 241I 239I 233I 229I 227I 223I 211I 199I 197I 193I 191I 181I 179I 173I 169I 167I 163I 157I 151I 149I 139I 137I 131I 128D 127I 125D 121I 113I 109I 107I 103I 101I 97I 89I 83I 81D 79I 73I 71I 67I 64D 61I 59I 53D 49D 47D 43D 41D 37D 32D 31D 29D 27D 25D 23D 19D 17D 16D 13D 11D 9D 8D 7D 5D 4D 3D 2D 1D
+pp_solution() reports success before level 72 (spare 1/2668): S is not excluded
+guided result: S survives the search
+
+S: 2190 elements, max 3228; n=8 k=3229
+pplist has 92 structures after pp_resolve_simple
+processing order (D = dependent, I = independent): 729I 625I 529I 512I 361I 353I 343I 337I 317I 313I 311I 307I 293I 289I 283I 281I 277I 271I 269I 263I 257I 256D 251I 243D 241I 239I 233I 229I 227I 223I 211I 199I 197I 193I 191I 181I 179I 173I 169I 167I 163I 157I 151I 149I 139I 137I 131I 128D 127I 125D 121I 113I 109I 107I 103I 101I 97I 89I 83I 81D 79I 73I 71I 67I 64D 61I 59I 53D 49D 47D 43D 41D 37D 32D 31D 29D 27D 25D 23D 19D 17D 16D 13D 11D 9D 8D 7D 5D 4D 3D 2D 1D
+pp_solution() reports success before level 72 (spare 1/2668): S is not excluded
+guided result: S survives the search
+
+S: 2190 elements, max 3228; n=8 k=3230
+pplist has 92 structures after pp_resolve_simple
+processing order (D = dependent, I = independent): 729I 625I 529I 512I 361I 353I 343I 337I 317I 313I 311I 307I 293I 289I 283I 281I 277I 271I 269I 263I 257I 256D 251I 243D 241I 239I 233I 229I 227I 223I 211I 199I 197I 193I 191I 181I 179I 173I 169I 167I 163I 157I 151I 149I 139I 137I 131I 128D 127I 125D 121I 113I 109I 107I 103I 101I 97I 89I 83I 81D 79I 73I 71I 67I 64D 61I 59I 53D 49D 47D 43D 41D 37D 32D 31D 29D 27D 25D 23D 19D 17D 16D 13D 11D 9D 8D 7D 5D 4D 3D 2D 1D
+pp_solution() reports success before level 76 (spare 1/3230): S is not excluded
+guided result: S survives the search
+
+################ solver orig: n = 3..7, k increasing from 1 (or from 1240 for n = 7)
+n=3: success reported at k=24; printed set: 13 elements, max 24, sum 1/x = 3 -> a genuine solution
+n=4: success reported at k=65; printed set: 40 elements, max 65, sum 1/x = 34891/8580 -> NOT a solution
+n=5: success reported at k=184; printed set: 116 elements, max 184, sum 1/x = 5696461933/1123264800 -> NOT a solution; last 'no solution found': n=5 k=183
+n=6: success reported at k=469; printed set: 306 elements, max 469, sum 1/x = 1913665776044623/316613375812440 -> NOT a solution
+n=7: success reported at k=1243; printed set: 806 elements, max 1243, sum 1/x = 3550/507 -> NOT a solution; last 'no solution found': n=7 k=1242
+################ solver fixed: n = 3..7, k increasing from 1 (or from 1240 for n = 7)
+n=3: success reported at k=24; printed set: 13 elements, max 24, sum 1/x = 3 -> a genuine solution
+n=4: success reported at k=65; printed set: 39 elements, max 65, sum 1/x = 889/220 -> NOT a solution
+n=5: success reported at k=184; printed set: 110 elements, max 184, sum 1/x = 5 -> a genuine solution; last 'no solution found': n=5 k=183
+n=6: success reported at k=469; printed set: 291 elements, max 469, sum 1/x = 6 -> a genuine solution
+n=7: success reported at k=1243; printed set: 805 elements, max 1243, sum 1/x = 7 -> a genuine solution; last 'no solution found': n=7 k=1242

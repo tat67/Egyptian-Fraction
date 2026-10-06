@@ -1,0 +1,58 @@
+--- A101877/pp.c
++++ A101877/pp.c
+@@ -128,23 +128,18 @@
+ 	pp_pp* left = *(pp_pp**)a;
+ 	pp_pp* right = *(pp_pp**)b;
+ 
+-	if (left->depend) {
+-		if (right->depend) {
+-			/* dependent PP sort in descending order */
+-			return right->pp - left->pp;
+-		} else {
+-			/* dependent PP sorts after any independent it depends on */
+-			return (left->pp * right->pp <= k0) ? +1 : -1;
+-		}
+-	} else { /* !left->depend */
+-		if (right->depend) {
+-			/* independent PP sorts before any PP dependent on it */
+-			return (left->pp * right->pp <= k0) ? -1 : +1;
+-		} else {
+-			/* independent PP sort in ascending order */
+-			return left->pp - right->pp;
+-		}
+-	}
++	/* FIX: plain descending order.  p^a depends on every p^b (b > a) through the
++	 * carry left by p^b, and that relation cannot be merged into the v9.4 order. */
++	return right->pp - left->pp;
++}
++
++/* FIX: does a higher power of pp's prime remain in pplist[0 .. i-1]? */
++static int pp_higher_same_prime(int i) {
++	int j;
++	for (j = 0; j < i; ++j)
++		if (pplist[j]->p == pplist[i]->p && pplist[j]->pp > pplist[i]->pp)
++			return 1;
++	return 0;
+ }
+ 
+ void pp_grow(pp_pp* pp, int size) {
+@@ -425,7 +420,7 @@
+ 	ZINIT(&ztotal, "pp_resolve_simple ztotal");
+ 	for (i = 0; i < pplistsize; ++i) {
+ 		pp = pplist[i];
+-		if (i == 0 || pp->pp * pplist[i - 1]->pp > k0) {
++		if ((i == 0 || pp->pp * pplist[i - 1]->pp > k0) && !pp_higher_same_prime(i)) {
+ 			/* we are only interested in subsets that keep at least one
+ 			 * element, so we set the discard limit to (total - 1)
+ 			 */
+@@ -458,6 +453,10 @@
+ 			else
+ 				break;
+ 		}
++		/* FIX: lower powers of the same prime receive this structure's carry */
++		for (dest = i + 1; dest < pplistsize; ++dest)
++			if (pplist[dest]->p == pp->p)
++				pplist[dest]->depend = 1;
+ 	}
+ 	ZCLEAR(&ztotal, "pp_resolve_simple ztotal");
+ }

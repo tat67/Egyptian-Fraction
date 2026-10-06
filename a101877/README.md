@@ -86,6 +86,8 @@ The single-threaded search is deterministic, so identical output is expected.
 * **Witness.** `witnesses/witness_n8_max3228.txt` lists 2190 distinct integers with maximum 3228 whose reciprocals sum to exactly 8. It is checked with `fractions.Fraction`, with an lcm integer computation, with sympy, and by the C++ residue check.
 * **Lower bound.** Nothing with maximum ≤ 3227 exists. The certificate is `certificates/cert_n8_K3227.txt`, checked by `verify_cert.py`.
 * **Consequence.** The published a(8) = 3231 (OEIS) is an overestimate.
+* **Where 3231 came from.** It rests on a "no solution" run of the [hvds/seq](https://github.com/hvds/seq/tree/master/A101877) C solver v9.7 at k = 3230. That solver ignores the carry between powers of the same prime: for example 1/512 + 1/2560 = 3/(2⁸·5) leaves a 2⁻⁸ digit that the 256 group must cancel. Its "independent" groups 128, 256 and 243 therefore get a residue condition that is too strong, and the solver discards the 3228 witness.
+  * [`hvds_check/`](hvds_check/README.md) has the full explanation, a tracer that follows the witness through that solver, and a minimal patch with which the witness survives.
 
 ### a(7) = 1243: an explicit example
 
