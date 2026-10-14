@@ -2,6 +2,8 @@ SB 67 m 19 b0 71 K 48 split 37 maxStar 13 | step1: nodes 11949694254 cores 33605
    unresolved note x3:  [shape with 3 big-big edges]
 SB 73 m 21 b0 79 K 48 split 43 maxStar 12 | step1: nodes 13344629391 cores 1491334 ms 1273083 (tables 1) | step2: shapes 116874859 alive 601685 (in 509055 cores; b=0 592627 b=1 8985 b>=2 73) stars 24065 twoBB 62169 bound 1581 unresolved 0 probable 0 ms 17385 | total ms 1290468 | solutions: |T|=47: 23 |T|=48: 620
 SB 79 m 22 b0 83 K 48 split 47 maxStar 12 | step1: nodes 14815384249 cores 1076241 ms 1365294 (tables 2) | step2: shapes 47406803 alive 437685 (in 376257 cores; b=0 431292 b=1 6335 b>=2 58) stars 13849 twoBB 46080 bound 1581 unresolved 0 probable 0 ms 13265 | total ms 1378559 | solutions: |T|=47: 23 |T|=48: 620
+SB 71 m 20 b0 73 K 48 split 41 maxStar 12 | step1: nodes 12240878620 cores 2510513 ms 1190713 (tables 1) | step2: shapes 371828430 alive 908821 (in 747200 cores; b=0 894025 b=1 14658 b>=2 138) stars 49340 twoBB 591782 bound 1581 unresolved 0 probable 0 ms 80676 | total ms 1271389 | solutions: |T|=47: 23 |T|=48: 620
 time SB 67 K 48: real 22m27.226s user 87m51.965s 
 time SB 73 K 48: real 21m30.534s user 84m27.260s 
 time SB 79 K 48: real 22m58.628s user 90m10.781s 
+time SB 71 K 48: real 21m11.592s user 82m6.345s 

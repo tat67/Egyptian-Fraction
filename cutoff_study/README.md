@@ -81,7 +81,7 @@ Repeated runs, 3 each:
 
 ### K = 48
 
-The K = 48 runs were done on two instances of the container. Times can be compared only within one table. The node counts do not depend on the machine: B = 73 explored exactly 13,344,629,391 nodes on both.
+The K = 48 runs were done on two instances of the container. Times can be compared only within one table. The node counts do not depend on the machine. On both instances, B = 71 explored exactly 12,240,878,620 nodes and B = 73 exactly 13,344,629,391, with identical Step-2 counts.
 
 **Instance 1 (2026-10-13), `sweep48.txt`.** The two runs were consecutive.
 
@@ -92,11 +92,12 @@ The K = 48 runs were done on two instances of the container. Times can be compar
 
 On instance 1, the B = 73 run took 30 min 58 s of wall time and 121 min 36 s of CPU time.
 
-**Instance 2 (2026-10-14), `sweep48b.txt`.** The three runs were consecutive, each with a cap of 1 hour. B = 73 was rerun here as the reference for B = 67 and B = 79.
+**Instance 2 (2026-10-14), `sweep48b.txt`.** Each run had a cap of 1 hour. B = 79, 67 and 73 ran consecutively, and B = 71 ran after a 6-minute pause. B = 71 and B = 73 were rerun here as references for B = 67 and B = 79.
 
 | B | \|S\| | b₀ | core elements | Step 1 nodes | cores kept | Step 1 s | shapes (S1–S3) | b=2 shapes | Step 2 s | total s | unresolved | solutions |
 |---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
 | 67 | 19 | 71 | 171 | 11,949,694,254 | 3,360,527 | 1231.3 | 972,393,087 | 273 | 115.7 | 1347.0 (incomplete) | 3 | 23 of size 47, 620 of size 48 |
+| 71 | 20 | 73 | 190 | 12,240,878,620 | 2,510,513 | 1190.7 | 371,828,430 | 138 | 80.7 | **1271.4** | 0 | 23 of size 47, 620 of size 48 |
 | 73 | 21 | 79 | 210 | 13,344,629,391 | 1,491,334 | 1273.1 | 116,874,859 | 73 | 17.4 | **1290.5** | 0 | 23 of size 47, 620 of size 48 |
 | 79 | 22 | 83 | 231 | 14,815,384,249 | 1,076,241 | 1365.3 | 47,406,803 | 58 | 13.3 | **1378.6** | 0 | 23 of size 47, 620 of size 48 |
 
@@ -105,17 +106,18 @@ The wall and CPU times on instance 2 were as follows:
 | B | wall time | CPU time |
 |---:|---|---|
 | 67 | 22 min 27 s | 87 min 52 s |
+| 71 | 21 min 12 s | 82 min 6 s |
 | 73 | 21 min 31 s | 84 min 27 s |
 | 79 | 22 min 59 s | 90 min 11 s |
 
-Instance 2 is about 1.44× faster than instance 1: the same B = 73 run takes 1290.5 s instead of 1858.4 s.
+Instance 2 is about 1.44× faster than instance 1: the same B = 73 run takes 1290.5 s instead of 1858.4 s, and the same B = 71 run 1271.4 s instead of 1913.9 s.
 
 Relative to B = 73 on the same instance:
 
 | B | K = 48 nodes | K = 48 total | note |
 |---:|---:|---:|---|
 | 67 | −10.5% | +4.4% | **incomplete**: 3 shapes with b = 3; Step 2 6.7× longer |
-| 71 | −8.3% | +3.0% | instance 1; Step 2 4.8× longer |
+| 71 | −8.3% | +3.0% (instance 1), **−1.5%** (instance 2) | Step 1 4.2% / 6.5% shorter, Step 2 4.8× / 4.6× longer. CPU time −2.8% on instance 2 |
 | 79 | +11.0% | +6.8% | Step 2 slightly shorter (13.3 s vs 17.4 s), but Step 1 7.2% longer |
 
 ## 4. Result
@@ -124,7 +126,7 @@ Relative to B = 73 on the same instance:
 |---|---|---|---|---|---|---|---|
 | 46 | **71** | 20 (190) | **73** | 25,324,179 | 4–5 ms | **2.36 s** (median of 5) | B = 73: 2.41 s (+2%), 3% more nodes |
 | 47 | **71** | 20 (190) | **73** | 574,619,189 | 0.55 s | **65.5 s** (median of 3) | B = 73: 69.5 s (+6%), 4% more nodes |
-| 48 | **73** | 21 (210) | **79** | 13,344,629,391 | 34.5 s / 17.4 s | **1858 s** (instance 1) / **1290 s** (instance 2) | B = 71: +3% (instance 1), 8% fewer nodes but 4.8× the Step 2 time. B = 79: +7% (instance 2), 11% more nodes. B = 67: incomplete (3 shapes with b = 3), and +4% anyway |
+| 48 | **71 or 73 (tie)** | 20 (190) / 21 (210) | **73 / 79** | 12,240,878,620 / 13,344,629,391 | 80.7 s / 17.4 s (instance 2) | instance 1: B = 73 **1858 s**, B = 71 1914 s (+3.0%). Instance 2: B = 71 **1271 s**, B = 73 1290 s (+1.5%) | B = 79: +8.4% over B = 71 and +6.8% over B = 73 (instance 2). B = 67: incomplete (3 shapes with b = 3) |
 
 ## 5. Why the optimum lies where it does
 
@@ -140,17 +142,17 @@ Relative to B = 73 on the same instance:
 * Each additional small prime adds a level to the depth-first search, with a branching over its lower neighbours.
 * The bounds improve only slightly, because the next large primes (83, 89, …) are close to 79. So the number of nodes grows again: +9% for B = 79 and +16% for B = 83 at K = 47, and +11% for B = 79 at K = 48.
 
-**Step 1 alone** is cheapest at B = 71 for K = 46 and K = 47. At K = 48, B = 67 explores the fewest nodes (2.4% fewer than B = 71). Relative to B = 73 on the same instance, the Step-1 times of B = 67 and B = 71 are within one percentage point: −3.3% and −4.2%.
+**Step 1 alone** is fastest at B = 71 for all three budgets. At K = 48, B = 67 explores 2.4% fewer nodes than B = 71 but takes longer on the same instance: 1231.3 s against 1190.7 s.
 
-**Step 2** decreases steeply with B, and its share grows with the budget. At B = 71 it is 0.2% of the total at K = 46, 0.8% at K = 47 and 8.7% at K = 48. At B = 73 the shares are 0.1%, 0.3% and 1.9%. At K = 48 the extra Step-2 cost of B = 71 (+132 s) outweighs its Step-1 saving (−77 s), and the optimum moves to B = 73. B = 67 has 6.7× the Step-2 time of B = 73 (8.6% of its total). Going up to B = 79 saves only 4 s of Step 2 and costs 92 s of Step 1.
+**Step 2** decreases steeply with B, and its share grows with the budget. At B = 71 it is 0.2% of the total at K = 46, 0.8% at K = 47 and 8.7% at K = 48 (6.3% on instance 2). At B = 73 the shares are 0.1%, 0.3% and 1.9% (1.3%). At K = 48, the Step-1 saving of B = 71 and its extra Step-2 cost nearly cancel. On instance 1, B = 71 saves 77 s in Step 1 and spends 132 s more in Step 2, a net +3.0%. On instance 2 it saves 82 s and spends 63 s more, a net −1.5%. Single runs of the same configuration vary by several percent: B = 73 at K = 47 took 68.0, 69.5, 70.4 and 72.8 s. So at K = 48, B = 71 and B = 73 are tied within measurement noise. The budget at which the optimum moves from B = 71 to B = 73 is about K = 48. B = 67 has 6.7× the Step-2 time of B = 73 (8.6% of its total). Going up to B = 79 saves only 4 s of Step 2 and costs 92 s of Step 1.
 
 ## 6. Recommendation for the paper
 
 The paper uses B = 73, b₀ = 79 for all three budgets. That choice is:
 
-* **optimal for K = 48**, the most expensive budget by far. All its neighbours were measured: B = 71 is 3% slower, B = 79 is 7% slower, and B = 67 does not complete the search;
+* **tied for optimal at K = 48**, the most expensive budget by far. All its neighbours were measured on the same instance. B = 71 is 3.0% slower on instance 1 and 1.5% faster on instance 2, a difference within measurement noise. B = 79 is 6.8% slower, and B = 67 does not complete the search;
 * **within 2% (K = 46) and 6% (K = 47)** of the optimum B = 71, b₀ = 73. That is a few seconds at most.
-* **the only cutoff with a formal proof.** The Lean exhaustiveness proof of Step 1 (`core_mem_search`, instance `inst73`) and the Lean reduction (`Admissible`, `Uset 73`, `V` with the 49 smallest semiprimes with a factor ≥ 79) are stated for B = 73. Switching to B = 71 for K ≤ 47 would require re-instantiating that part of the formalisation, to save at most 4 seconds.
+* **the only cutoff with a formal proof.** The Lean exhaustiveness proof of Step 1 (`core_mem_search`, instance `inst73`) and the Lean reduction (`Admissible`, `Uset 73`, `V` with the 49 smallest semiprimes with a factor ≥ 79) are stated for B = 73. Switching to B = 71 would require re-instantiating that part of the formalisation. It would save at most 4 seconds at K ≤ 47 and nothing measurable at K = 48.
 
 The reduction is valid for any cutoff. Mathematical completeness holds for every run in the tables that resolved every shape, which is all of them except B = 67 at K = 48. Among admissible cutoffs, the choice only affects running time.
 

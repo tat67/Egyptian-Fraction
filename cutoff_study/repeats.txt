@@ -15,4 +15,5 @@ K 47 SB 71 rep 2 nodes 574619189 step2_ms 544 total_ms 65300 cpu_user 4m16.656s
 K 47 SB 73 rep 2 nodes 598305041 step2_ms 240 total_ms 69480 cpu_user 4m32.358s
 K 47 SB 71 rep 3 nodes 574619189 step2_ms 607 total_ms 65487 cpu_user 4m17.037s
 K 47 SB 73 rep 3 nodes 598305041 step2_ms 311 total_ms 72779 cpu_user 4m45.681s
-# K 48: SB 73 run: real 30m58.5s user 121m36.3s (single run); SB 71: total 1913.9 s (single run, CPU time not recorded)
+# K 48, instance 1 (2026-10-13): SB 73 run: real 30m58.5s user 121m36.3s (single run); SB 71: total 1913.9 s (single run, CPU time not recorded)
+# K 48, instance 2 (2026-10-14): see sweep48b.txt (SB 71: real 21m11.6s user 82m6.3s; SB 73: real 21m30.5s user 84m27.3s)
