@@ -25,4 +25,6 @@ for path in sys.argv[1:]:
             why = r['skipped'].split('SKIPPED: ')[1]
             print(f"| {r['SB']} | | | | — | — | — | — | — | — | skipped: {why} | | |"); continue
         sol = ', '.join(f'{c} of size {s}' for s, c in r['sols']) or '0'
-        print(f"| {r['SB']} | {r['m']} | {r['b0']} | {r['m']*(r['m']-1)//2} | {r['nodes']:,} | {r['cores']:,} | {r['t1']/1000:.1f} | {r['shapes']:,} | {r['b2']} | {r['t2']/1000:.1f} | **{r['tot']/1000:.1f}** | {r['unres']} | {sol} |")
+        # a run with unresolved shapes or probable primes is not a complete search
+        tot = f"**{r['tot']/1000:.1f}**" if r['unres'] == 0 and r['prob'] == 0 else f"{r['tot']/1000:.1f} (incomplete)"
+        print(f"| {r['SB']} | {r['m']} | {r['b0']} | {r['m']*(r['m']-1)//2} | {r['nodes']:,} | {r['cores']:,} | {r['t1']/1000:.1f} | {r['shapes']:,} | {r['b2']} | {r['t2']/1000:.1f} | {tot} | {r['unres']} | {sol} |")

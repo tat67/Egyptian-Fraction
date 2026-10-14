@@ -22,7 +22,9 @@ A run counts only if all of the following hold.
 * **Implementation limits:** ∏_{p≤B} p < 2¹²⁸, so B ≤ 101, and |S| ≥ 9 for the 8-prime leaf table.
 * **Cross-check:** the solutions found must be exactly the known ones. That is 0 for K = 46, the 23 sets for K = 47, and 620 + 23 for K = 48.
 
-Every completed run below satisfies all of this: 0 unresolved, 0 probable primes, and exactly the known solutions. This also confirms that the engine is correct for cutoffs other than 73.
+Every completed run below satisfies all of this, with one exception: 0 unresolved, 0 probable primes, and exactly the known solutions. This also confirms that the engine is correct for cutoffs other than 73.
+
+The exception is **B = 67 at K = 48**. Step 2 left 3 shapes unresolved, each with 3 large–large edges (b = 3), which the b = 2 routine cannot handle. That run found the known solutions but does not prove that there are no others, so B = 67 is not admissible for K = 48.
 
 ## 3. Measurements
 
@@ -31,7 +33,7 @@ The harness `cutoff_study.cpp` includes `../semiprime48.cpp` unmodified.
 * Step 1 runs with 4 threads, splitting the work at the 8th prime from the top (43 for B = 73), and dumps the surviving cores.
 * Step 2 then runs on those cores with 4 threads.
 
-All runs used the same 4-vCPU cloud container on 2026-10-13. Node counts are machine independent; times are wall-clock. Runs that exceeded 1.3 × the best total so far were stopped, since they cannot be optimal. Raw outputs are in `sweep46.txt`, `sweep47.txt`, `sweep48.txt` and `repeats.txt`.
+The runs in `sweep46.txt`, `sweep47.txt`, `sweep48.txt` and `repeats.txt` used the same 4-vCPU cloud container on 2026-10-13. The runs in `sweep48b.txt` used a second instance on 2026-10-14 (see K = 48). Node counts are machine independent; times are wall-clock, and they can be compared only between runs on the same instance. Runs that exceeded 1.3 × the best total so far were stopped, since they cannot be optimal. The runs of 2026-10-14 had a cap of 1 hour each, which none of them reached.
 
 ### K = 46
 
@@ -79,14 +81,42 @@ Repeated runs, 3 each:
 
 ### K = 48
 
+The K = 48 runs were done on two instances of the container. Times can be compared only within one table. The node counts do not depend on the machine: B = 73 explored exactly 13,344,629,391 nodes on both.
+
+**Instance 1 (2026-10-13), `sweep48.txt`.** The two runs were consecutive.
+
 | B | \|S\| | b₀ | core elements | Step 1 nodes | cores kept | Step 1 s | shapes (S1–S3) | b=2 shapes | Step 2 s | total s | unresolved | solutions |
 |---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
-| 67 | | | | — | — | — | — | — | — | skipped: not run (at K = 47 already 19% slower than SB = 71; its Step 2 grows faster with K) | | |
 | 71 | 20 | 73 | 190 | 12,240,878,620 | 2,510,513 | 1747.0 | 371,828,430 | 138 | 166.9 | **1913.9** | 0 | 23 of size 47, 620 of size 48 |
 | 73 | 21 | 79 | 210 | 13,344,629,391 | 1,491,334 | 1823.9 | 116,874,859 | 73 | 34.5 | **1858.4** | 0 | 23 of size 47, 620 of size 48 |
-| 79 | | | | — | — | — | — | — | — | skipped: not run (8-9% more Step-1 nodes than SB = 73 at K = 46 and 47) | | |
 
-The B = 73 run took 30 min 58 s of wall time and 121 min 36 s of CPU time. The two K = 48 runs were consecutive on the same machine.
+On instance 1, the B = 73 run took 30 min 58 s of wall time and 121 min 36 s of CPU time.
+
+**Instance 2 (2026-10-14), `sweep48b.txt`.** The three runs were consecutive, each with a cap of 1 hour. B = 73 was rerun here as the reference for B = 67 and B = 79.
+
+| B | \|S\| | b₀ | core elements | Step 1 nodes | cores kept | Step 1 s | shapes (S1–S3) | b=2 shapes | Step 2 s | total s | unresolved | solutions |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| 67 | 19 | 71 | 171 | 11,949,694,254 | 3,360,527 | 1231.3 | 972,393,087 | 273 | 115.7 | 1347.0 (incomplete) | 3 | 23 of size 47, 620 of size 48 |
+| 73 | 21 | 79 | 210 | 13,344,629,391 | 1,491,334 | 1273.1 | 116,874,859 | 73 | 17.4 | **1290.5** | 0 | 23 of size 47, 620 of size 48 |
+| 79 | 22 | 83 | 231 | 14,815,384,249 | 1,076,241 | 1365.3 | 47,406,803 | 58 | 13.3 | **1378.6** | 0 | 23 of size 47, 620 of size 48 |
+
+The wall and CPU times on instance 2 were as follows:
+
+| B | wall time | CPU time |
+|---:|---|---|
+| 67 | 22 min 27 s | 87 min 52 s |
+| 73 | 21 min 31 s | 84 min 27 s |
+| 79 | 22 min 59 s | 90 min 11 s |
+
+Instance 2 is about 1.44× faster than instance 1: the same B = 73 run takes 1290.5 s instead of 1858.4 s.
+
+Relative to B = 73 on the same instance:
+
+| B | K = 48 nodes | K = 48 total | note |
+|---:|---:|---:|---|
+| 67 | −10.5% | +4.4% | **incomplete**: 3 shapes with b = 3; Step 2 6.7× longer |
+| 71 | −8.3% | +3.0% | instance 1; Step 2 4.8× longer |
+| 79 | +11.0% | +6.8% | Step 2 slightly shorter (13.3 s vs 17.4 s), but Step 1 7.2% longer |
 
 ## 4. Result
 
@@ -94,7 +124,7 @@ The B = 73 run took 30 min 58 s of wall time and 121 min 36 s of CPU time. The t
 |---|---|---|---|---|---|---|---|
 | 46 | **71** | 20 (190) | **73** | 25,324,179 | 4–5 ms | **2.36 s** (median of 5) | B = 73: 2.41 s (+2%), 3% more nodes |
 | 47 | **71** | 20 (190) | **73** | 574,619,189 | 0.55 s | **65.5 s** (median of 3) | B = 73: 69.5 s (+6%), 4% more nodes |
-| 48 | **73** | 21 (210) | **79** | 13,344,629,391 | 34.5 s | **1858 s** (31 min) | B = 71: 1914 s (+3%), 8% fewer nodes but 4.8× the Step 2 time |
+| 48 | **73** | 21 (210) | **79** | 13,344,629,391 | 34.5 s / 17.4 s | **1858 s** (instance 1) / **1290 s** (instance 2) | B = 71: +3% (instance 1), 8% fewer nodes but 4.8× the Step 2 time. B = 79: +7% (instance 2), 11% more nodes. B = 67: incomplete (3 shapes with b = 3), and +4% anyway |
 
 ## 5. Why the optimum lies where it does
 
@@ -102,26 +132,27 @@ The B = 73 run took 30 min 58 s of wall time and 121 min 36 s of CPU time. The t
 
 * b₀ is smaller, so a large-prime edge can carry much more value: the value bound uses 1/(b₀q) and V(x), whose first term is 1/(2b₀).
 * The bounds of Step 1 become weak, and the number of surviving cores explodes. From B = 73 to B = 41 at K = 46 they go from 178 to 1.19 million, and the nodes rise 30-fold.
-* Step 2 explodes as well: more shapes, more stars, more b = 1 and b = 2 components. At B = 41 Step 2 alone took 7.6 minutes. At K = 46, shapes with two large–large edges appear for B ≤ 43: 5 at B = 43 and 302 at B = 41. Step 2 handles at most two such edges, so at still smaller cutoffs a run can be expected to leave shapes unresolved. This did not happen in the measured runs, which stopped at B = 41.
+* Step 2 explodes as well: more shapes, more stars, more b = 1 and b = 2 components. At B = 41 Step 2 alone took 7.6 minutes. At K = 46, shapes with two large–large edges appear for B ≤ 43: 5 at B = 43 and 302 at B = 41. Step 2 handles at most two such edges, so at still smaller cutoffs a run can be expected to leave shapes unresolved. At K = 46 this did not happen in the measured runs, which stopped at B = 41.
+* The larger the budget, the larger the cutoff at which this happens. At K = 48, B = 67 has 273 shapes with b ≥ 2, against 73 for B = 73. Three of them have b = 3 and stay unresolved, so B = 67 cannot certify K = 48.
 
 **Larger cutoff.**
 
 * Each additional small prime adds a level to the depth-first search, with a branching over its lower neighbours.
-* The bounds improve only slightly, because the next large primes (83, 89, …) are close to 79. So the number of nodes grows again: +9% for B = 79 and +16% for B = 83 at K = 47.
+* The bounds improve only slightly, because the next large primes (83, 89, …) are close to 79. So the number of nodes grows again: +9% for B = 79 and +16% for B = 83 at K = 47, and +11% for B = 79 at K = 48.
 
-**Step 1 alone** is cheapest at B = 71 for all three budgets.
+**Step 1 alone** is cheapest at B = 71 for K = 46 and K = 47. At K = 48, B = 67 explores the fewest nodes (2.4% fewer than B = 71). Relative to B = 73 on the same instance, the Step-1 times of B = 67 and B = 71 are within one percentage point: −3.3% and −4.2%.
 
-**Step 2** decreases steeply with B, and its share grows with the budget. At B = 71 it is 0.2% of the total at K = 46, 0.8% at K = 47 and 8.7% at K = 48. At B = 73 the shares are 0.1%, 0.3% and 1.9%. At K = 48 the extra Step-2 cost of B = 71 (+132 s) outweighs its Step-1 saving (−77 s), and the optimum moves to B = 73.
+**Step 2** decreases steeply with B, and its share grows with the budget. At B = 71 it is 0.2% of the total at K = 46, 0.8% at K = 47 and 8.7% at K = 48. At B = 73 the shares are 0.1%, 0.3% and 1.9%. At K = 48 the extra Step-2 cost of B = 71 (+132 s) outweighs its Step-1 saving (−77 s), and the optimum moves to B = 73. B = 67 has 6.7× the Step-2 time of B = 73 (8.6% of its total). Going up to B = 79 saves only 4 s of Step 2 and costs 92 s of Step 1.
 
 ## 6. Recommendation for the paper
 
 The paper uses B = 73, b₀ = 79 for all three budgets. That choice is:
 
-* **optimal for K = 48**, the most expensive budget by far;
+* **optimal for K = 48**, the most expensive budget by far. All its neighbours were measured: B = 71 is 3% slower, B = 79 is 7% slower, and B = 67 does not complete the search;
 * **within 2% (K = 46) and 6% (K = 47)** of the optimum B = 71, b₀ = 73. That is a few seconds at most.
 * **the only cutoff with a formal proof.** The Lean exhaustiveness proof of Step 1 (`core_mem_search`, instance `inst73`) and the Lean reduction (`Admissible`, `Uset 73`, `V` with the 49 smallest semiprimes with a factor ≥ 79) are stated for B = 73. Switching to B = 71 for K ≤ 47 would require re-instantiating that part of the formalisation, to save at most 4 seconds.
 
-Mathematical completeness holds for every cutoff in the tables. The reduction is valid for any cutoff, and each run resolved every shape. The choice only affects running time.
+The reduction is valid for any cutoff. Mathematical completeness holds for every run in the tables that resolved every shape, which is all of them except B = 67 at K = 48. Among admissible cutoffs, the choice only affects running time.
 
 ## 7. Reproducing
 
@@ -129,7 +160,7 @@ Mathematical completeness holds for every cutoff in the tables. The reduction is
 g++ -O3 -march=native -pthread -o cstudy cutoff_study.cpp
 ./cstudy 73 48 4 /tmp/dump48.txt     # B = 73, K = 48, 4 threads (about 31 min)
 ./cstudy 71 47 4 /tmp/dump47.txt     # B = 71, K = 47 (about 1 min)
-python3 table.py sweep46.txt sweep47.txt sweep48.txt   # the tables above
+python3 table.py sweep46.txt sweep47.txt sweep48.txt sweep48b.txt   # the tables above
 ```
 
-The arguments are B, K, the number of threads, and the dump file. An optional fifth argument is the split prime; by default it is the 8th prime of S from the top. The dump for K = 48 needs about 260 MB (B = 73) to 450 MB (B = 71).
+The arguments are B, K, the number of threads, and the dump file. An optional fifth argument is the split prime; by default it is the 8th prime of S from the top. The dump for K = 48 needs about 260 MB (B = 73) to 450 MB (B = 71). It grows with the number of cores kept (3.4 million for B = 67).

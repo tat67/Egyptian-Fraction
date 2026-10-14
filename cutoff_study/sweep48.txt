@@ -1,4 +1,2 @@
 SB 71 m 20 b0 73 K 48 split 41 maxStar 12 | step1: nodes 12240878620 cores 2510513 ms 1747002 (tables 3) | step2: shapes 371828430 alive 908821 (in 747200 cores; b=0 894025 b=1 14658 b>=2 138) stars 49340 twoBB 591782 bound 1581 unresolved 0 probable 0 ms 166922 | total ms 1913924 | solutions: |T|=47: 23 |T|=48: 620
 SB 73 m 21 b0 79 K 48 split 43 maxStar 12 | step1: nodes 13344629391 cores 1491334 ms 1823891 (tables 2) | step2: shapes 116874859 alive 601685 (in 509055 cores; b=0 592627 b=1 8985 b>=2 73) stars 24065 twoBB 62169 bound 1581 unresolved 0 probable 0 ms 34492 | total ms 1858383 | solutions: |T|=47: 23 |T|=48: 620
-SB 67 K 48 SKIPPED: not run (at K = 47 already 19% slower than SB = 71; its Step 2 grows faster with K)
-SB 79 K 48 SKIPPED: not run (8-9% more Step-1 nodes than SB = 73 at K = 46 and 47)
