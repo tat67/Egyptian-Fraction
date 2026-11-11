@@ -157,34 +157,45 @@ struct Solver {
 };
 
 // ---------------- core enumeration (parallel) ----------------
+// X = the elements <= L that are NOT squarefree semiprimes (fixed per run, read from XFILE; empty by default).
+static bool NOSMALLCUT=false; // testing switch: disable the small-prime pre-test
+static vector<int> XS; static u128 XUP=0, XDN=0, XDEN=1; static int rsX[6]={0,0,0,0,0,0}; static bool skipP[6]={false,false,false,false,false,false};
 struct Task { int pos,cnt; u128 sup,sdn; vector<int> chosen; };
 static vector<Task> tasks; static int SPLIT;
 static void gen(int pos,int cnt,u128 sup,u128 sdn,vector<int>&ch){
   if(cnt==MSIZE||pos==SPLIT){ tasks.push_back({pos,cnt,sup,sdn,ch}); return; }
-  if(pos==NI||NI-pos<MSIZE-cnt) return; if(sup+bestup[pos][MSIZE-cnt]+WINUP<ONE) return;
-  if(sdn+vdn[pos]<=ONE){ ch.push_back(pos); gen(pos+1,cnt+1,sup+vup[pos],sdn+vdn[pos],ch); ch.pop_back(); }
+  if(pos==NI||NI-pos<MSIZE-cnt) return; if(sup+XUP+bestup[pos][MSIZE-cnt]+WINUP<ONE) return;
+  if(sdn+XDN+vdn[pos]<=ONE){ ch.push_back(pos); gen(pos+1,cnt+1,sup+vup[pos],sdn+vdn[pos],ch); ch.pop_back(); }
   gen(pos+1,cnt,sup,sdn,ch);
 }
 static const int SMALLP[6]={2,3,5,7,11,13};
 static vector<array<signed char,6>> itemRes; // itemRes[i][k] = (n_i/p_k)^{-1} mod p_k if p_k | n_i, else 0
 struct Worker { Solver S; vector<int> ch; vector<int> pcnt; int rs[6]={0,0,0,0,0,0}; // prime usage counts (index in PR); residue sums at small primes
-  vector<int> pidx; Worker(){ pcnt.assign(PR.size(),0); pidx.assign(L+1,-1); for(size_t i=0;i<PR.size();i++) pidx[PR[i]]=i; }
+  vector<int> pidx; Worker(){ pcnt.assign(PR.size(),0); pidx.assign(L+1,-1); for(size_t i=0;i<PR.size();i++) pidx[PR[i]]=i; for(int x:XS) S.inM[x]=1; }
   void leaf(){
     // cheap pre-test: the unsatisfied primes among 2,3,5,7,11,13 that are pairwise adjacent need pairwise different tiny elements
-    { int us[6],nu=0; for(int k=0;k<6;k++) if(rs[k]%SMALLP[k]!=0) us[nu++]=SMALLP[k];
+    // (with X: residues of X added; a prime whose square divides an element of X is skipped -- the test stays necessary)
+    if(!NOSMALLCUT){ int us[6],nu=0; for(int k=0;k<6;k++) if(!skipP[k] && (rs[k]+rsX[k])%SMALLP[k]!=0) us[nu++]=SMALLP[k];
       if(nu>J){ // look for J+1 pairwise adjacent ones
         int best=0; for(int mask=1;mask<(1<<nu);mask++){ int c=__builtin_popcount(mask); if(c<=best) continue; bool ok=true; for(int i=0;i<nu&&ok;i++) if(mask>>i&1) for(int j=i+1;j<nu;j++) if((mask>>j&1) && !S.inM[us[i]*us[j]]){ ok=false; break; } if(ok) best=c; }
         if(best>J){ ST.smallCut++; return; } } }
     // exact r = 1 - sum 1/n  with den = product of the primes used (all items squarefree semiprimes)
     u128 den=1; bool ovf=false; for(size_t i=0;i<PR.size();i++) if(pcnt[i]){ if(den>(((u128)1)<<120)/PR[i]){ ovf=true; break; } den*=PR[i]; }
     if(ovf){ ST.overflow++; lock_guard<mutex> lk(outmx); printf("OVERFLOW core:"); for(int p:ch) printf(" %d",itemN[p]); printf("\n"); return; }
-    u128 num=0; for(int p:ch) num+=den/(u128)itemN[p];
-    if(num>=den){ ST.nonpos++; if(num==den){ lock_guard<mutex> lk(outmx); printf("SOLUTION size=%d (main only):",MSIZE); for(int p:ch) printf(" %d",itemN[p]); printf("\n"); } return; }
+    if(!XS.empty()){ u128 g=1; { u128 a0=den,b0=XDEN; while(b0){ u128 t=a0%b0; a0=b0; b0=t; } g=a0; } u128 f=XDEN/g;
+      if(den>(((u128)1)<<120)/f){ ST.overflow++; lock_guard<mutex> lk(outmx); printf("OVERFLOW core:"); for(int x:XS) printf(" %d",x); for(int p:ch) printf(" %d",itemN[p]); printf("\n"); return; }
+      den*=f; }
+    u128 num=0; for(int p:ch) num+=den/(u128)itemN[p]; for(int x:XS) num+=den/(u128)x;
+    if(num>=den){ ST.nonpos++; if(num==den){ lock_guard<mutex> lk(outmx); printf("SOLUTION size=%d (main only):",MSIZE+(int)XS.size()); for(int x:XS) printf(" %d",x); for(int p:ch) printf(" %d",itemN[p]); printf("\n"); fflush(stdout); } return; }
     u128 R=den-num; // window: R/den <= J/(L+1)
     { U256 l=mul128(R,(u128)(L+1)); U256 r4=mul128(den,(u128)J); if(lt256(r4,l)){ ST.windowOut++; return; } }
     ST.leaves++;
-    S.fD.clear(); u128 a=R, D=den; for(size_t i=0;i<PR.size();i++) if(pcnt[i]){ if(a%(u128)PR[i]==0){ a/=(u128)PR[i]; D/=(u128)PR[i]; } else S.fD.push_back({(u64)PR[i],1}); }
-    S.a=a; S.D=D; S.M.clear(); for(int p:ch) S.M.push_back(itemN[p]);
+    S.fD.clear(); u128 a=R, D=den;
+    if(XS.empty()){ for(size_t i=0;i<PR.size();i++) if(pcnt[i]){ if(a%(u128)PR[i]==0){ a/=(u128)PR[i]; D/=(u128)PR[i]; } else S.fD.push_back({(u64)PR[i],1}); } }
+    else { u128 g; { u128 a0=a,b0=D; while(b0){ u128 t=a0%b0; a0=b0; b0=t; } g=a0; } a/=g; D/=g; u128 t=D;
+      for(size_t i=0;i<PR.size()&&t>1;i++){ u64 p=PR[i]; if(t%(u128)p==0){ int e=0; while(t%(u128)p==0){ t/=(u128)p; e++; } S.fD.push_back({p,e}); } }
+      if(t!=1){ ST.overflow++; lock_guard<mutex> lk(outmx); printf("FACTOR-FAIL\n"); return; } }
+    S.a=a; S.D=D; S.M.clear(); for(int x:XS) S.M.push_back(x); for(int p:ch) S.M.push_back(itemN[p]);
     // clique test among unsatisfied primes: more than J pairwise adjacent ones => impossible
     { int u=S.fD.size(); vector<int> best,cur; function<void(int)> rec=[&](int st){ if((int)cur.size()>(int)best.size()) best=cur; if((int)best.size()>J) return; for(int v=st;v<u;v++){ bool ok=true; for(int w:cur){ u64 pq=S.fD[v].p*S.fD[w].p; if(!(pq<=(u64)L && S.inM[pq])){ ok=false; break; } } if(ok){ cur.push_back(v); rec(v+1); cur.pop_back(); } } };
       rec(0); if((int)best.size()>J){ ST.cliqueBig++; return; } }
@@ -192,8 +203,8 @@ struct Worker { Solver S; vector<int> ch; vector<int> pcnt; int rs[6]={0,0,0,0,0
   }
   void dfs(int pos,int cnt,u128 sup,u128 sdn){
     if(cnt==MSIZE){ leaf(); return; }
-    if(pos==NI||NI-pos<MSIZE-cnt) return; if(sup+bestup[pos][MSIZE-cnt]+WINUP<ONE) return;
-    if(sdn+vdn[pos]<=ONE){ inc(pos,1); dfs(pos+1,cnt+1,sup+vup[pos],sdn+vdn[pos]); inc(pos,-1); }
+    if(pos==NI||NI-pos<MSIZE-cnt) return; if(sup+XUP+bestup[pos][MSIZE-cnt]+WINUP<ONE) return;
+    if(sdn+XDN+vdn[pos]<=ONE){ inc(pos,1); dfs(pos+1,cnt+1,sup+vup[pos],sdn+vdn[pos]); inc(pos,-1); }
     dfs(pos+1,cnt,sup,sdn);
   }
   void inc(int pos,int d){ if(d>0){ ch.push_back(pos); S.inM[itemN[pos]]=1; } else { ch.pop_back(); S.inM[itemN[pos]]=0; } pcnt[pidx[itemP[pos]]]+=d; pcnt[pidx[itemQ[pos]]]+=d; if(itemP[pos]<=13){ const auto&r=itemRes[pos]; for(int k=0;k<6;k++) rs[k]+=d*r[k]; } }
@@ -201,24 +212,41 @@ struct Worker { Solver S; vector<int> ch; vector<int> pcnt; int rs[6]={0,0,0,0,0
 };
 int main(int argc,char**argv){
   if(argc<4){ fprintf(stderr,"usage: ac L K J [threads] [itemcap]\n"); return 1; }
+  if(getenv("NOSMALLCUT")) NOSMALLCUT=true;
   if(getenv("XMAXBITS")) XMAX=((u128)1)<<atoi(getenv("XMAXBITS"));
   L=atoi(argv[1]); KK=atoi(argv[2]); J=atoi(argv[3]); int nth=argc>4?atoi(argv[4]):4; int itemcap=argc>5?atoi(argv[5]):L; MSIZE=KK-J;
   { vector<char> s(1<<20,1); for(u64 i=2;i<(1u<<20);i++) if(s[i]){ PT.push_back(i); for(u64 j=i*i;j<(1u<<20);j+=i) s[j]=0; } }
   for(int i=2;i<=L;i++){ bool ok=true; for(int j=2;j*j<=i;j++) if(i%j==0) ok=false; if(ok) PR.push_back(i); }
-  vector<array<int,3>> its; for(size_t i=0;i<PR.size();i++) for(size_t j=i+1;j<PR.size();j++){ long long n=(long long)PR[i]*PR[j]; if(n<=itemcap) its.push_back({(int)n,PR[i],PR[j]}); }
+  // X sets: XFILE has one set per line (possibly empty line = no X); default: one run with X empty
+  vector<vector<int>> xsets; if(getenv("XFILE")){ ifstream xf(getenv("XFILE")); string line; while(getline(xf,line)){ istringstream is(line); vector<int> v; int x; while(is>>x) v.push_back(x); xsets.push_back(v); } } else xsets.push_back({});
+  int SPLITARG=argc>6?atoi(argv[6]):60; auto T00=chrono::steady_clock::now();
+  for(size_t xi=0; xi<xsets.size(); xi++){
+  XS=xsets[xi]; sort(XS.begin(),XS.end());
+  { // validate X: no prime power, not a squarefree semiprime, <= L, pairwise non-dividing
+    for(size_t i=0;i<XS.size();i++){ int x=XS[i]; vector<PF> f; factor64(x,f); bool semi=(f.size()==2&&f[0].e==1&&f[1].e==1);
+      if(x>L||f.size()<2||semi){ fprintf(stderr,"invalid X element %d\n",x); return 3; }
+      for(size_t j=0;j<i;j++) if(XS[i]%XS[j]==0||XS[j]%XS[i]==0){ fprintf(stderr,"X not an antichain\n"); return 3; } } }
+  MSIZE=KK-J-(int)XS.size(); XUP=0; XDN=0; XDEN=1; for(int k=0;k<6;k++){ rsX[k]=0; skipP[k]=false; }
+  for(int x:XS){ XUP+=(ONE+x-1)/x; XDN+=ONE/x; u128 g; { u128 a0=XDEN,b0=x; while(b0){ u128 t=a0%b0; a0=b0; b0=t; } g=a0; } XDEN=XDEN/g*(u128)x;
+    for(int k=0;k<6;k++){ int p=SMALLP[k]; if(x%(p*p)==0) skipP[k]=true; else if(x%p==0){ int c=(x/p)%p; int inv=0; for(int t=1;t<p;t++) if((c*t)%p==1) inv=t; rsX[k]+=inv; } } }
+  itemN.clear(); itemP.clear(); itemQ.clear(); vup.clear(); vdn.clear(); tasks.clear();
+  vector<array<int,3>> its; for(size_t i=0;i<PR.size();i++) for(size_t j=i+1;j<PR.size();j++){ long long n=(long long)PR[i]*PR[j]; if(n>itemcap) continue; bool divX=false; for(int x:XS) if(x%n==0) divX=true; if(!divX) its.push_back({(int)n,PR[i],PR[j]}); }
   sort(its.begin(),its.end()); for(auto&t:its){ itemN.push_back(t[0]); itemP.push_back(t[1]); itemQ.push_back(t[2]); vup.push_back((ONE+t[0]-1)/t[0]); vdn.push_back(ONE/t[0]); }
   NI=its.size(); WINUP=((u128)J*ONE+L)/(L+1)+1;
   itemRes.assign(NI,array<signed char,6>{0,0,0,0,0,0}); for(int i=0;i<NI;i++) for(int k=0;k<6;k++){ int p=SMALLP[k]; if(itemN[i]%p==0){ int c=(itemN[i]/p)%p; int inv=0; for(int t=1;t<p;t++) if((c*t)%p==1) inv=t; itemRes[i][k]=(signed char)inv; } }
   bestup.assign(NI+1,vector<u128>(MSIZE+2,0)); for(int pos=NI-1;pos>=0;pos--) for(int t=1;t<=MSIZE+1;t++) bestup[pos][t]=(pos+t<=NI)?bestup[pos+1][t-1]+vup[pos]:0;
-  SPLIT=min(NI,argc>6?atoi(argv[6]):60);
+  SPLIT=min(NI,SPLITARG);
   if(getenv("COREFILE")){ ifstream f(getenv("COREFILE")); string line; map<int,int> pos; for(int i=0;i<NI;i++) pos[itemN[i]]=i;
     while(getline(f,line)){ istringstream is(line); int x; Task t; t.pos=NI; t.cnt=0; t.sup=0; t.sdn=0; bool ok=true; while(is>>x){ if(!pos.count(x)){ ok=false; break; } t.chosen.push_back(pos[x]); t.cnt++; } if(ok&&t.cnt==MSIZE) tasks.push_back(t); }
   } else { vector<int> ch; gen(0,0,0,0,ch); }
-  fprintf(stderr,"L=%d K=%d J=%d MSIZE=%d items=%d tasks=%zu\n",L,KK,J,MSIZE,NI,tasks.size());
-  atomic<size_t> ticket(0); vector<thread> th; auto t0=chrono::steady_clock::now();
+  long long sols0=ST.sols, leaves0=ST.leaves, unres0=ST.unresolved;
+  if(xsets.size()==1) fprintf(stderr,"L=%d K=%d J=%d MSIZE=%d items=%d tasks=%zu\n",L,KK,J,MSIZE,NI,tasks.size());
+  atomic<size_t> ticket(0); vector<thread> th; auto t0=T00;
   for(int t=0;t<nth;t++) th.emplace_back([&](){ Worker W; while(true){ size_t id=ticket++; if(id>=tasks.size()) break; W.run(tasks[id]);
-    if(id%2000==0){ long long el=chrono::duration_cast<chrono::seconds>(chrono::steady_clock::now()-t0).count(); fprintf(stderr,"  task %zu/%zu  %llds smallCut=%lld leaves=%lld cliqueBig=%lld solved=%lld cand2=%lld slowTwo=%lld unresolved=%lld sols=%lld\n",id,tasks.size(),el,(long long)ST.smallCut,(long long)ST.leaves,(long long)ST.cliqueBig,(long long)ST.solved,(long long)ST.cand2,(long long)ST.slowTwo,(long long)ST.unresolved,(long long)ST.sols); } } });
+    if(xsets.size()==1 && id%2000==0){ long long el=chrono::duration_cast<chrono::seconds>(chrono::steady_clock::now()-t0).count(); fprintf(stderr,"  task %zu/%zu  %llds smallCut=%lld leaves=%lld cliqueBig=%lld solved=%lld cand2=%lld slowTwo=%lld unresolved=%lld sols=%lld\n",id,tasks.size(),el,(long long)ST.smallCut,(long long)ST.leaves,(long long)ST.cliqueBig,(long long)ST.solved,(long long)ST.cand2,(long long)ST.slowTwo,(long long)ST.unresolved,(long long)ST.sols); } } });
   for(auto&x:th) x.join();
-  long long el=chrono::duration_cast<chrono::seconds>(chrono::steady_clock::now()-t0).count();
+  if(xsets.size()>1){ long long elx=chrono::duration_cast<chrono::seconds>(chrono::steady_clock::now()-T00).count(); lock_guard<mutex> lk(outmx); printf("XDONE %zu/%zu X:",xi+1,xsets.size()); for(int x:XS) printf(" %d",x); printf(" | MSIZE=%d items=%d tasks=%zu leaves=%lld unresolved=%lld sols=%lld t=%llds\n",MSIZE,NI,tasks.size(),(long long)ST.leaves-leaves0,(long long)ST.unresolved-unres0,(long long)ST.sols-sols0,elx); fflush(stdout); }
+  } // end of X loop
+  long long el=chrono::duration_cast<chrono::seconds>(chrono::steady_clock::now()-T00).count();
   fprintf(stderr,"DONE %llds leaves(in window)=%lld windowOut=%lld nonpos=%lld overflow=%lld cliqueBig(>J)=%lld solved=%lld cand1=%lld cand2=%lld slowTwo=%lld unresolved=%lld sols=%lld cliqueCut=%lld typedCalls=%lld part2=%lld scan2=%lld smallCut=%lld\n",el,(long long)ST.leaves,(long long)ST.windowOut,(long long)ST.nonpos,(long long)ST.overflow,(long long)ST.cliqueBig,(long long)ST.solved,(long long)ST.cand1,(long long)ST.cand2,(long long)ST.slowTwo,(long long)ST.unresolved,(long long)ST.sols,(long long)ST.cliqueCut,(long long)ST.typedCalls,(long long)ST.part2,(long long)ST.scan2,(long long)ST.smallCut);
 }

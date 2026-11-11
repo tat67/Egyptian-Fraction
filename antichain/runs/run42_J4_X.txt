@@ -1,0 +1,11 @@
+# XFILE = all admissible non-semiprime sets X (python3 xsets.py 42 4)
+XDONE 1/9 X: 212 | MSIZE=37 items=322 tasks=2 leaves=2 unresolved=0 sols=0 t=0s
+XDONE 2/9 X: 236 | MSIZE=37 items=322 tasks=8 leaves=8 unresolved=0 sols=0 t=0s
+XDONE 3/9 X: 244 | MSIZE=37 items=322 tasks=8 leaves=8 unresolved=0 sols=0 t=0s
+XDONE 4/9 X: 268 | MSIZE=37 items=322 tasks=8 leaves=8 unresolved=0 sols=0 t=0s
+XDONE 5/9 X: 284 | MSIZE=37 items=322 tasks=7 leaves=7 unresolved=0 sols=0 t=0s
+XDONE 6/9 X: 292 | MSIZE=37 items=322 tasks=4 leaves=4 unresolved=0 sols=0 t=0s
+XDONE 7/9 X: 316 | MSIZE=37 items=322 tasks=1 leaves=1 unresolved=0 sols=0 t=0s
+XDONE 8/9 X: 332 | MSIZE=37 items=322 tasks=1 leaves=1 unresolved=0 sols=0 t=0s
+XDONE 9/9 X: 356 | MSIZE=37 items=322 tasks=1 leaves=1 unresolved=0 sols=0 t=0s
+DONE 0s leaves(in window)=40 windowOut=0 nonpos=0 overflow=0 cliqueBig(>J)=0 solved=40 cand1=1784 cand2=59393 slowTwo=0 unresolved=0 sols=0 cliqueCut=1192 typedCalls=60 part2=0 scan2=0 smallCut=0

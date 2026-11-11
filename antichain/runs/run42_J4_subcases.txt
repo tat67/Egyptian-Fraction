@@ -1,0 +1,15 @@
+# the 4 sub-cases capped in run42_J4_L1140.txt, re-run with the range cap 2^34 (XMAXBITS=34 N1ONLY=n1 COREFILE=core)
+== sub-case 1: n1=55576
+UNRESOLVED y0big prev: 55576 1262907725 core: 6 10 14 15 21 22 26 33 34 35 38 39 46 51 55 57 58 62 65 69 74 77 82 85 86 87 91 93 94 95 106 111 115 118 119 122 123 159
+DONE 533s leaves(in window)=1 windowOut=0 nonpos=0 overflow=0 cliqueBig(>J)=0 solved=1 cand1=1 cand2=2525815448 slowTwo=12396519 unresolved=1 sols=0 cliqueCut=0 typedCalls=0 part2=9652695 scan2=8812324 smallCut=0
+== sub-case 2: n1=55577
+DONE 84s leaves(in window)=1 windowOut=0 nonpos=0 overflow=0 cliqueBig(>J)=0 solved=1 cand1=1 cand2=499601631 slowTwo=869795 unresolved=0 sols=0 cliqueCut=0 typedCalls=1 part2=667608 scan2=608975 smallCut=0
+== sub-case 3: n1=45383
+DONE 0s leaves(in window)=1 windowOut=0 nonpos=0 overflow=0 cliqueBig(>J)=0 solved=1 cand1=1 cand2=0 slowTwo=0 unresolved=0 sols=0 cliqueCut=1 typedCalls=0 part2=0 scan2=0 smallCut=0
+== sub-case 4: n1=46577
+DONE 62s leaves(in window)=1 windowOut=0 nonpos=0 overflow=0 cliqueBig(>J)=0 solved=1 cand1=1 cand2=280475654 slowTwo=1817211 unresolved=0 sols=0 cliqueCut=0 typedCalls=1 part2=1409997 scan2=1290517 smallCut=0
+ALLDONE
+
+# the remaining two-term instance, solved exactly by resolve_two.py:
+case 1 (y0big, prev = [55576, 1262907725]): 0 solution(s)
+resolved 1 case(s), 0 solution(s)
