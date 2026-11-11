@@ -34,7 +34,7 @@ static vector<int> itemN, itemP, itemQ; static int NI; static vector<u128> vup, 
 static vector<vector<u128>> bestup;
 struct PF { u64 p; int e; };
 static void factor64(u64 x,vector<PF>&out){ out.clear(); for(u64 p:PT){ if(p*p>x) break; if(x%p==0){ int e=0; while(x%p==0){ x/=p; e++; } out.push_back({p,e}); } } if(x>1) out.push_back({x,1}); }
-struct Stats { atomic<long long> coverCut{0}, wide{0}, cliqueCut{0}, typedCalls{0}, part2{0}, scan2{0}, smallCut{0}; atomic<long long> leaves{0}, windowOut{0}, overflow{0}, cliqueBig{0}, solved{0}, cand1{0}, cand2{0}, slowTwo{0}, unresolved{0}, sols{0}, nonpos{0}; };
+struct Stats { atomic<long long> innerSmallCut{0}, coverCut{0}, wide{0}, cliqueCut{0}, typedCalls{0}, part2{0}, scan2{0}, smallCut{0}; atomic<long long> leaves{0}, windowOut{0}, overflow{0}, cliqueBig{0}, solved{0}, cand1{0}, cand2{0}, slowTwo{0}, unresolved{0}, sols{0}, nonpos{0}; };
 static Stats ST; static mutex outmx;
 
 static u128 XMAX=((u128)1)<<31;   // inner ranges longer than this are not scanned; the case is logged as UNRESOLVED
@@ -178,6 +178,7 @@ static vector<array<signed char,6>> itemRes; // itemRes[i][k] = (n_i/p_k)^{-1} m
 static vector<int> itemPi, itemQi, itemInvP, itemInvQ; // prime indices of the two factors and the inverses (q^{-1} mod p, p^{-1} mod q)
 static vector<int> resX, skipX; static vector<int> xPrimes; // residues of X at every prime (index), primes whose square divides an X element
 static int RMAX=10; // the cover test is applied when at most RMAX main elements remain
+static int POS143=0; // last item position whose two prime factors are both <= 13 (the items are sorted by value)
 static bool wideX(u128 den){ u128 a0=den,b0=XDEN; while(b0){ u128 t=a0%b0; a0=b0; b0=t; } u128 f=XDEN/a0; return den>(((u128)1)<<120)/f; }
 struct Worker { Solver S; vector<int> ch; vector<int> pcnt; int rs[6]={0,0,0,0,0,0}; vector<int> resA, mark; int stamp=0; // prime usage counts (index in PR); residue sums at small primes
   vector<int> pidx; Worker(){ pcnt.assign(PR.size(),0); pidx.assign(L+1,-1); for(size_t i=0;i<PR.size();i++) pidx[PR[i]]=i; for(int x:XS) S.inM[x]=1; resA.assign(PR.size(),0); mark.assign(PR.size(),0); }
@@ -241,6 +242,12 @@ struct Worker { Solver S; vector<int> ch; vector<int> pcnt; int rs[6]={0,0,0,0,0
   void dfs(int pos,int cnt,u128 sup,u128 sdn){
     if(cnt==MSIZE){ leaf(); return; }
     if(J<=1 && MSIZE-cnt<=RMAX && !coverOK(MSIZE-cnt)){ ST.coverCut++; return; }
+    // small-prime clique rule at inner nodes: once all items with two prime factors <= 13 are decided (pos > POS143),
+    // every further item changes the residue of at most one prime <= 13, so r items lower the clique number of the
+    // unsatisfied primes <= 13 by at most r; at the end it must be <= J.
+    if(pos>POS143 && !NOSMALLCUT){ int us[6],nu=0; for(int k=0;k<6;k++) if(!skipP[k] && (rs[k]+rsX[k])%SMALLP[k]!=0) us[nu++]=SMALLP[k];
+      int r=MSIZE-cnt; if(nu>J+r){ int best=0; for(int mask=1;mask<(1<<nu);mask++){ int c=__builtin_popcount(mask); if(c<=best) continue; bool ok=true; for(int i=0;i<nu&&ok;i++) if(mask>>i&1) for(int j=i+1;j<nu;j++) if((mask>>j&1) && !S.inM[us[i]*us[j]]){ ok=false; break; } if(ok) best=c; }
+        if(best>J+r){ ST.innerSmallCut++; return; } } }
     if(pos==NI||NI-pos<MSIZE-cnt) return; if(sup+XUP+bestup[pos][MSIZE-cnt]+WINUP<ONE) return;
     if(sdn+XDN+vdn[pos]<=ONE){ inc(pos,1); dfs(pos+1,cnt+1,sup+vup[pos],sdn+vdn[pos]); inc(pos,-1); }
     dfs(pos+1,cnt,sup,sdn);
@@ -272,6 +279,7 @@ int main(int argc,char**argv){
   vector<array<int,3>> its; for(size_t i=0;i<PR.size();i++) for(size_t j=i+1;j<PR.size();j++){ long long n=(long long)PR[i]*PR[j]; if(n>itemcap) continue; bool divX=false; for(int x:XS) if(x%n==0) divX=true; if(!divX) its.push_back({(int)n,PR[i],PR[j]}); }
   sort(its.begin(),its.end()); for(auto&t:its){ itemN.push_back(t[0]); itemP.push_back(t[1]); itemQ.push_back(t[2]); vup.push_back((ONE+t[0]-1)/t[0]); vdn.push_back(ONE/t[0]); }
   NI=its.size(); WINUP=((u128)J*ONE+L)/(L+1)+1;
+  POS143=0; for(int i=0;i<NI;i++) if(itemQ[i]<=13) POS143=i;
   { auto inv=[](long long a,long long m){ a%=m; for(long long t=1;t<m;t++) if(a*t%m==1) return (int)t; return 0; };
     vector<int> pidxG(L+1,-1); for(size_t i=0;i<PR.size();i++) pidxG[PR[i]]=i;
     itemPi.assign(NI,0); itemQi.assign(NI,0); itemInvP.assign(NI,0); itemInvQ.assign(NI,0);
@@ -294,10 +302,10 @@ int main(int argc,char**argv){
   if(xsets.size()==1) fprintf(stderr,"L=%d K=%d J=%d MSIZE=%d items=%d tasks=%zu\n",L,KK,J,MSIZE,NI,tasks.size());
   atomic<size_t> ticket(0); vector<thread> th; auto t0=T00;
   for(int t=0;t<nth;t++) th.emplace_back([&](){ Worker W; while(true){ size_t id=ticket++; if(id>=tasks.size()) break; W.run(tasks[id]);
-    if(xsets.size()==1 && id%(max<size_t>(1,tasks.size()/400))==0){ long long el=chrono::duration_cast<chrono::seconds>(chrono::steady_clock::now()-t0).count(); fprintf(stderr,"  task %zu/%zu  %llds coverCut=%lld smallCut=%lld leaves=%lld cliqueBig=%lld solved=%lld cand2=%lld slowTwo=%lld unresolved=%lld sols=%lld\n",id,tasks.size(),el,(long long)ST.coverCut,(long long)ST.smallCut,(long long)ST.leaves,(long long)ST.cliqueBig,(long long)ST.solved,(long long)ST.cand2,(long long)ST.slowTwo,(long long)ST.unresolved,(long long)ST.sols); } } });
+    if(xsets.size()==1 && id%(max<size_t>(1,tasks.size()/(getenv("PROGRESS")?atoi(getenv("PROGRESS")):400)))==0){ long long el=chrono::duration_cast<chrono::seconds>(chrono::steady_clock::now()-t0).count(); fprintf(stderr,"  task %zu/%zu  %llds inner=%lld coverCut=%lld smallCut=%lld leaves=%lld cliqueBig=%lld solved=%lld cand2=%lld slowTwo=%lld unresolved=%lld sols=%lld\n",id,tasks.size(),el,(long long)ST.innerSmallCut,(long long)ST.coverCut,(long long)ST.smallCut,(long long)ST.leaves,(long long)ST.cliqueBig,(long long)ST.solved,(long long)ST.cand2,(long long)ST.slowTwo,(long long)ST.unresolved,(long long)ST.sols); } } });
   for(auto&x:th) x.join();
   if(xsets.size()>1){ long long elx=chrono::duration_cast<chrono::seconds>(chrono::steady_clock::now()-T00).count(); lock_guard<mutex> lk(outmx); printf("XDONE %zu/%zu X:",xi+1,xsets.size()); for(int x:XS) printf(" %d",x); printf(" | MSIZE=%d items=%d tasks=%zu leaves=%lld unresolved=%lld sols=%lld t=%llds\n",MSIZE,NI,tasks.size(),(long long)ST.leaves-leaves0,(long long)ST.unresolved-unres0,(long long)ST.sols-sols0,elx); fflush(stdout); }
   } // end of X loop
   long long el=chrono::duration_cast<chrono::seconds>(chrono::steady_clock::now()-T00).count();
-  fprintf(stderr,"DONE %llds leaves(in window)=%lld windowOut=%lld nonpos=%lld overflow=%lld cliqueBig(>J)=%lld solved=%lld cand1=%lld cand2=%lld slowTwo=%lld unresolved=%lld sols=%lld cliqueCut=%lld typedCalls=%lld part2=%lld scan2=%lld smallCut=%lld wide=%lld coverCut=%lld\n",el,(long long)ST.leaves,(long long)ST.windowOut,(long long)ST.nonpos,(long long)ST.overflow,(long long)ST.cliqueBig,(long long)ST.solved,(long long)ST.cand1,(long long)ST.cand2,(long long)ST.slowTwo,(long long)ST.unresolved,(long long)ST.sols,(long long)ST.cliqueCut,(long long)ST.typedCalls,(long long)ST.part2,(long long)ST.scan2,(long long)ST.smallCut,(long long)ST.wide,(long long)ST.coverCut);
+  fprintf(stderr,"DONE %llds leaves(in window)=%lld windowOut=%lld nonpos=%lld overflow=%lld cliqueBig(>J)=%lld solved=%lld cand1=%lld cand2=%lld slowTwo=%lld unresolved=%lld sols=%lld cliqueCut=%lld typedCalls=%lld part2=%lld scan2=%lld smallCut=%lld wide=%lld coverCut=%lld innerSmallCut=%lld\n",el,(long long)ST.leaves,(long long)ST.windowOut,(long long)ST.nonpos,(long long)ST.overflow,(long long)ST.cliqueBig,(long long)ST.solved,(long long)ST.cand1,(long long)ST.cand2,(long long)ST.slowTwo,(long long)ST.unresolved,(long long)ST.sols,(long long)ST.cliqueCut,(long long)ST.typedCalls,(long long)ST.part2,(long long)ST.scan2,(long long)ST.smallCut,(long long)ST.wide,(long long)ST.coverCut,(long long)ST.innerSmallCut);
 }
