@@ -1,0 +1,5 @@
+L=1140 K=42 J=2 MSIZE=40 items=323 tasks=6675893
+DONE 1255s leaves(in window)=987428295 windowOut=0 nonpos=0 overflow=1466 cliqueBig(>J)=226752005 solved=760676290 cand1=0 cand2=0 slowTwo=760676290 unresolved=0 sols=0 cliqueCut=0 typedCalls=0 part2=33339 scan2=30462 smallCut=9808699240
+# 1466 main sets overflowed 2^120 in this run (OVERFLOW lines below); re-run with the 256-bit path (COREFILE):
+DONE 0s leaves(in window)=1466 windowOut=0 nonpos=0 overflow=0 cliqueBig(>J)=0 solved=1466 cand1=0 cand2=0 slowTwo=1466 unresolved=0 sols=0 cliqueCut=0 typedCalls=0 part2=0 scan2=0 smallCut=0 wide=1466
+1466

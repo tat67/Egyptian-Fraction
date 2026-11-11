@@ -1,0 +1,4 @@
+# XFILE = all 88,998 admissible non-semiprime sets X (python3 xsets.py 42 2)
+DONE 1786s leaves(in window)=1069645282 windowOut=0 nonpos=0 overflow=81 cliqueBig(>J)=973052653 solved=96592629 cand1=0 cand2=0 slowTwo=96592629 unresolved=0 sols=0 cliqueCut=0 typedCalls=0 part2=3115 scan2=2843 smallCut=4075133951 wide=0
+# 81 main sets overflowed 2^120; re-run with the 256-bit path: 81 solved, 0 solutions; cross-check resolve_two.py:
+resolved 81 case(s), 0 solution(s)

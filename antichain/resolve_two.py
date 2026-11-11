@@ -132,7 +132,12 @@ def resolve(core, prev, primes):
         for k in range(e + 1):
             if not compat(w):
                 break
-            rec(i + 1, w, exps + [k])
+            # the part of D/w fixed so far must not be divisible by an element of M either (D/w | z)
+            cpart = 1
+            for (q, eq), kq in zip(fD[:i] + [(p, e)], exps + [k]):
+                cpart *= q ** (eq - kq)
+            if compat(cpart):
+                rec(i + 1, w, exps + [k])
             w *= p
     rec(0, 1, [])
     good = []
