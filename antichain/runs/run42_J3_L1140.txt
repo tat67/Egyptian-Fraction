@@ -1,0 +1,2 @@
+L=1140 K=42 J=3 MSIZE=39 items=323 tasks=5036545
+DONE 934s leaves(in window)=23315868 windowOut=0 nonpos=0 overflow=0 cliqueBig(>J)=14594180 solved=8721688 cand1=0 cand2=9356149980 slowTwo=150525737 unresolved=0 sols=0 cliqueCut=0 typedCalls=6615942 part2=124407105 scan2=113182508
